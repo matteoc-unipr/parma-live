@@ -1,0 +1,3169 @@
+{
+ "header": {
+  "gtfs_realtime_version": "2.0",
+  "incrementality": "FULL_DATASET",
+  "timestamp": 1793383337
+ },
+ "entity": [
+  {
+   "id": "oracle:tep:20261030:10:237_462462:18:48:00",
+   "trip_update": {
+    "trip": {
+     "trip_id": "237_462462",
+     "route_id": "6",
+     "direction_id": 1,
+     "start_time": "18:48:00",
+     "start_date": "20261030",
+     "schedule_relationship": "SCHEDULED"
+    },
+    "vehicle": {
+     "label": "2519"
+    },
+    "stop_time_update": [
+     {
+      "stop_sequence": 1,
+      "stop_id": "208690",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 2,
+      "stop_id": "200425",
+      "arrival": {
+       "delay": 39,
+       "time": 1793382609,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 55,
+       "time": 1793382625,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 3,
+      "stop_id": "200422",
+      "arrival": {
+       "delay": -2,
+       "time": 1793382673,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 4,
+      "stop_id": "200415",
+      "arrival": {
+       "delay": -37,
+       "time": 1793382713,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 5,
+      "stop_id": "200414",
+      "arrival": {
+       "delay": -54,
+       "time": 1793382741,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 6,
+      "stop_id": "200412",
+      "arrival": {
+       "delay": -80,
+       "time": 1793382760,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": -35,
+       "time": 1793382805,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 7,
+      "stop_id": "200409",
+      "arrival": {
+       "delay": -75,
+       "time": 1793382828,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 8,
+      "stop_id": "200407",
+      "arrival": {
+       "delay": -97,
+       "time": 1793382857,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 9,
+      "stop_id": "200307",
+      "arrival": {
+       "delay": -113,
+       "time": 1793382907,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": -95,
+       "time": 1793382925,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 10,
+      "stop_id": "200304",
+      "arrival": {
+       "delay": -111,
+       "time": 1793382968,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": -94,
+       "time": 1793382985,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 11,
+      "stop_id": "200302",
+      "arrival": {
+       "delay": -121,
+       "time": 1793382994,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 12,
+      "stop_id": "200003",
+      "arrival": {
+       "delay": -71,
+       "time": 1793383189,
+       "uncertainty": 60
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 13,
+      "stop_id": "200217",
+      "arrival": {
+       "delay": 116,
+       "time": 1793383447,
+       "uncertainty": 259
+      },
+      "departure": {
+       "delay": 116,
+       "time": 1793383447,
+       "uncertainty": 259
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 14,
+      "stop_id": "200213",
+      "arrival": {
+       "delay": 121,
+       "time": 1793383505,
+       "uncertainty": 254
+      },
+      "departure": {
+       "delay": 121,
+       "time": 1793383505,
+       "uncertainty": 254
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 15,
+      "stop_id": "200212",
+      "arrival": {
+       "delay": 130,
+       "time": 1793383570,
+       "uncertainty": 298
+      },
+      "departure": {
+       "delay": 130,
+       "time": 1793383570,
+       "uncertainty": 298
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 16,
+      "stop_id": "200261",
+      "arrival": {
+       "delay": 141,
+       "time": 1793383701,
+       "uncertainty": 312
+      },
+      "departure": {
+       "delay": 141,
+       "time": 1793383701,
+       "uncertainty": 312
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 17,
+      "stop_id": "200263",
+      "arrival": {
+       "delay": 151,
+       "time": 1793383789,
+       "uncertainty": 306
+      },
+      "departure": {
+       "delay": 151,
+       "time": 1793383789,
+       "uncertainty": 306
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 18,
+      "stop_id": "200265",
+      "arrival": {
+       "delay": 155,
+       "time": 1793383862,
+       "uncertainty": 305
+      },
+      "departure": {
+       "delay": 155,
+       "time": 1793383862,
+       "uncertainty": 305
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 19,
+      "stop_id": "200267",
+      "arrival": {
+       "delay": 148,
+       "time": 1793383948,
+       "uncertainty": 237
+      },
+      "departure": {
+       "delay": 148,
+       "time": 1793383948,
+       "uncertainty": 237
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 20,
+      "stop_id": "200531",
+      "arrival": {
+       "delay": 176,
+       "time": 1793384121,
+       "uncertainty": 294
+      },
+      "departure": {
+       "delay": 176,
+       "time": 1793384121,
+       "uncertainty": 294
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 21,
+      "stop_id": "200533",
+      "arrival": {
+       "delay": 177,
+       "time": 1793384188,
+       "uncertainty": 297
+      },
+      "departure": {
+       "delay": 177,
+       "time": 1793384188,
+       "uncertainty": 297
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 22,
+      "stop_id": "200535",
+      "arrival": {
+       "delay": 175,
+       "time": 1793384239,
+       "uncertainty": 298
+      },
+      "departure": {
+       "delay": 175,
+       "time": 1793384239,
+       "uncertainty": 298
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 23,
+      "stop_id": "200537",
+      "arrival": {
+       "delay": 197,
+       "time": 1793384314,
+       "uncertainty": 297
+      },
+      "departure": {
+       "delay": 197,
+       "time": 1793384314,
+       "uncertainty": 297
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 24,
+      "stop_id": "200539",
+      "arrival": {
+       "delay": 192,
+       "time": 1793384376,
+       "uncertainty": 263
+      },
+      "departure": {
+       "delay": 192,
+       "time": 1793384376,
+       "uncertainty": 263
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 25,
+      "stop_id": "200541",
+      "arrival": {
+       "delay": 198,
+       "time": 1793384436,
+       "uncertainty": 272
+      },
+      "departure": {
+       "delay": 198,
+       "time": 1793384436,
+       "uncertainty": 272
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 26,
+      "stop_id": "200543",
+      "arrival": {
+       "delay": 212,
+       "time": 1793384492,
+       "uncertainty": 306
+      },
+      "departure": {
+       "delay": 212,
+       "time": 1793384492,
+       "uncertainty": 306
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 27,
+      "stop_id": "200545",
+      "arrival": {
+       "delay": 221,
+       "time": 1793384540,
+       "uncertainty": 320
+      },
+      "departure": {
+       "delay": 221,
+       "time": 1793384540,
+       "uncertainty": 320
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 28,
+      "stop_id": "200547",
+      "arrival": {
+       "delay": 230,
+       "time": 1793384592,
+       "uncertainty": 324
+      },
+      "departure": {
+       "delay": 230,
+       "time": 1793384592,
+       "uncertainty": 324
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 29,
+      "stop_id": "200549",
+      "arrival": {
+       "delay": 235,
+       "time": 1793384640,
+       "uncertainty": 329
+      },
+      "departure": {
+       "delay": 235,
+       "time": 1793384640,
+       "uncertainty": 329
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 30,
+      "stop_id": "205107",
+      "arrival": {
+       "delay": 231,
+       "time": 1793384703,
+       "uncertainty": 310
+      },
+      "departure": {
+       "delay": 231,
+       "time": 1793384703,
+       "uncertainty": 310
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 31,
+      "stop_id": "205109",
+      "arrival": {
+       "delay": 234,
+       "time": 1793384754,
+       "uncertainty": 311
+      },
+      "departure": {
+       "delay": 234,
+       "time": 1793384754,
+       "uncertainty": 311
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 32,
+      "stop_id": "205079",
+      "arrival": {
+       "delay": 236,
+       "time": 1793384790,
+       "uncertainty": 313
+      },
+      "departure": {
+       "delay": 236,
+       "time": 1793384790,
+       "uncertainty": 313
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 33,
+      "stop_id": "205111",
+      "arrival": {
+       "delay": 237,
+       "time": 1793384830,
+       "uncertainty": 316
+      },
+      "departure": {
+       "delay": 237,
+       "time": 1793384830,
+       "uncertainty": 316
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 34,
+      "stop_id": "205113",
+      "arrival": {
+       "delay": 240,
+       "time": 1793384866,
+       "uncertainty": 319
+      },
+      "departure": {
+       "delay": 240,
+       "time": 1793384866,
+       "uncertainty": 319
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 35,
+      "stop_id": "205115",
+      "arrival": {
+       "delay": 242,
+       "time": 1793384895,
+       "uncertainty": 322
+      },
+      "departure": {
+       "delay": 242,
+       "time": 1793384895,
+       "uncertainty": 322
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 36,
+      "stop_id": "205117",
+      "arrival": {
+       "delay": 243,
+       "time": 1793384922,
+       "uncertainty": 327
+      },
+      "departure": {
+       "delay": 243,
+       "time": 1793384922,
+       "uncertainty": 327
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 37,
+      "stop_id": "205119",
+      "arrival": {
+       "delay": 244,
+       "time": 1793384963,
+       "uncertainty": 330
+      },
+      "departure": {
+       "delay": 244,
+       "time": 1793384963,
+       "uncertainty": 330
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 38,
+      "stop_id": "205121",
+      "arrival": {
+       "delay": 259,
+       "time": 1793385019,
+       "uncertainty": 332
+      },
+      "departure": {
+       "delay": 259,
+       "time": 1793385019,
+       "uncertainty": 332
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 39,
+      "stop_id": "205321",
+      "arrival": {
+       "delay": 276,
+       "time": 1793385067,
+       "uncertainty": 294
+      },
+      "departure": {
+       "delay": 276,
+       "time": 1793385067,
+       "uncertainty": 294
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 40,
+      "stop_id": "205323",
+      "arrival": {
+       "delay": 277,
+       "time": 1793385101,
+       "uncertainty": 278
+      },
+      "departure": {
+       "delay": 277,
+       "time": 1793385101,
+       "uncertainty": 278
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 41,
+      "stop_id": "205319",
+      "arrival": {
+       "delay": 280,
+       "time": 1793385133,
+       "uncertainty": 278
+      },
+      "departure": {
+       "delay": 280,
+       "time": 1793385133,
+       "uncertainty": 278
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 42,
+      "stop_id": "205325",
+      "arrival": {
+       "delay": 287,
+       "time": 1793385182,
+       "uncertainty": 283
+      },
+      "departure": {
+       "delay": 287,
+       "time": 1793385182,
+       "uncertainty": 283
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 43,
+      "stop_id": "205327",
+      "arrival": {
+       "delay": 296,
+       "time": 1793385223,
+       "uncertainty": 288
+      },
+      "departure": {
+       "delay": 296,
+       "time": 1793385223,
+       "uncertainty": 288
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 44,
+      "stop_id": "205329",
+      "arrival": {
+       "delay": 312,
+       "time": 1793385297,
+       "uncertainty": 290
+      },
+      "departure": {
+       "delay": 312,
+       "time": 1793385297,
+       "uncertainty": 290
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 45,
+      "stop_id": "205331",
+      "arrival": {
+       "delay": 340,
+       "time": 1793385386,
+       "uncertainty": 291
+      },
+      "departure": {
+       "delay": 340,
+       "time": 1793385386,
+       "uncertainty": 291
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 46,
+      "stop_id": "205333",
+      "arrival": {
+       "delay": 384,
+       "time": 1793385467,
+       "uncertainty": 309
+      },
+      "departure": {
+       "delay": 384,
+       "time": 1793385467,
+       "uncertainty": 309
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 47,
+      "stop_id": "205335",
+      "arrival": {
+       "delay": 371,
+       "time": 1793385475,
+       "uncertainty": 269
+      },
+      "departure": {
+       "delay": 371,
+       "time": 1793385475,
+       "uncertainty": 269
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 48,
+      "stop_id": "205337",
+      "arrival": {
+       "delay": 416,
+       "time": 1793385536,
+       "uncertainty": 283
+      },
+      "departure": {
+       "delay": 416,
+       "time": 1793385536,
+       "uncertainty": 283
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 49,
+      "stop_id": "205343",
+      "arrival": {
+       "delay": 431,
+       "time": 1793385692,
+       "uncertainty": 323
+      },
+      "departure": {
+       "delay": 431,
+       "time": 1793385692,
+       "uncertainty": 323
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 50,
+      "stop_id": "205339",
+      "arrival": {
+       "delay": 429,
+       "time": 1793385740,
+       "uncertainty": 317
+      },
+      "departure": {
+       "delay": 429,
+       "time": 1793385740,
+       "uncertainty": 317
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 51,
+      "stop_id": "205347",
+      "arrival": {
+       "delay": 381,
+       "time": 1793385748,
+       "uncertainty": 227
+      },
+      "departure": {
+       "delay": 381,
+       "time": 1793385748,
+       "uncertainty": 227
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 52,
+      "stop_id": "205351",
+      "arrival": {
+       "delay": 447,
+       "time": 1793385927,
+       "uncertainty": 390
+      },
+      "departure": {
+       "delay": 447,
+       "time": 1793385927,
+       "uncertainty": 390
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 53,
+      "stop_id": "205677",
+      "arrival": {
+       "delay": 388,
+       "time": 1793385940,
+       "uncertainty": 335
+      },
+      "departure": {
+       "delay": 388,
+       "time": 1793385940,
+       "uncertainty": 335
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 54,
+      "stop_id": "205679",
+      "arrival": {
+       "delay": 333,
+       "time": 1793385953,
+       "uncertainty": 335
+      },
+      "departure": {
+       "delay": 333,
+       "time": 1793385953,
+       "uncertainty": 335
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 55,
+      "stop_id": "205681",
+      "arrival": {
+       "delay": 294,
+       "time": 1793385962,
+       "uncertainty": 335
+      },
+      "departure": {
+       "delay": 294,
+       "time": 1793385962,
+       "uncertainty": 335
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 56,
+      "stop_id": "205683",
+      "arrival": {
+       "delay": 282,
+       "time": 1793386020,
+       "uncertainty": 335
+      },
+      "departure": {
+       "delay": 282,
+       "time": 1793386020,
+       "uncertainty": 335
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 57,
+      "stop_id": "205685",
+      "arrival": {
+       "delay": 284,
+       "time": 1793386064,
+       "uncertainty": 335
+      },
+      "departure": {
+       "delay": 284,
+       "time": 1793386064,
+       "uncertainty": 335
+      },
+      "schedule_relationship": "SCHEDULED"
+     }
+    ],
+    "timestamp": 1793383337
+   }
+  },
+  {
+   "id": "oracle:tep:20261030:10:237_462466:18:05:00",
+   "trip_update": {
+    "trip": {
+     "trip_id": "237_462466",
+     "route_id": "2815",
+     "direction_id": 1,
+     "start_time": "18:05:00",
+     "start_date": "20261030",
+     "schedule_relationship": "SCHEDULED"
+    },
+    "vehicle": {
+     "label": "2488"
+    },
+    "stop_time_update": [
+     {
+      "stop_sequence": 1,
+      "stop_id": "205010",
+      "arrival": {
+       "delay": 337,
+       "time": 1793380237,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 358,
+       "time": 1793380258,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 2,
+      "stop_id": "205005",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 3,
+      "stop_id": "205004",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 4,
+      "stop_id": "200113",
+      "arrival": {
+       "delay": 576,
+       "time": 1793380817,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 587,
+       "time": 1793380828,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 5,
+      "stop_id": "200111",
+      "arrival": {
+       "delay": 559,
+       "time": 1793380875,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 572,
+       "time": 1793380888,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 6,
+      "stop_id": "200013",
+      "arrival": {
+       "delay": 582,
+       "time": 1793381082,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 7,
+      "stop_id": "200367",
+      "arrival": {
+       "delay": 890,
+       "time": 1793381495,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 943,
+       "time": 1793381548,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 8,
+      "stop_id": "200365",
+      "arrival": {
+       "delay": 934,
+       "time": 1793381565,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 947,
+       "time": 1793381578,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 9,
+      "stop_id": "200360",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 10,
+      "stop_id": "200873",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 11,
+      "stop_id": "200875",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 12,
+      "stop_id": "208211",
+      "arrival": {
+       "delay": 1137,
+       "time": 1793382032,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 13,
+      "stop_id": "208217",
+      "arrival": {
+       "delay": 1135,
+       "time": 1793382077,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 14,
+      "stop_id": "208213",
+      "arrival": {
+       "delay": 1095,
+       "time": 1793382201,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 15,
+      "stop_id": "208215",
+      "arrival": {
+       "delay": 1018,
+       "time": 1793382372,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 1049,
+       "time": 1793382403,
+       "uncertainty": 30
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 16,
+      "stop_id": "208239",
+      "arrival": {
+       "delay": 1000,
+       "time": 1793382432,
+       "uncertainty": 30
+      },
+      "departure": {
+       "delay": 1016,
+       "time": 1793382448,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 17,
+      "stop_id": "208241",
+      "arrival": {
+       "delay": 969,
+       "time": 1793382480,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 18,
+      "stop_id": "208243",
+      "arrival": {
+       "delay": 945,
+       "time": 1793382526,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 957,
+       "time": 1793382538,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 19,
+      "stop_id": "208245",
+      "arrival": {
+       "delay": 957,
+       "time": 1793382586,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 969,
+       "time": 1793382598,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 20,
+      "stop_id": "208247",
+      "arrival": {
+       "delay": 948,
+       "time": 1793382629,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 21,
+      "stop_id": "208251",
+      "arrival": {
+       "delay": 908,
+       "time": 1793382795,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 22,
+      "stop_id": "208253",
+      "arrival": {
+       "delay": 884,
+       "time": 1793382884,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 898,
+       "time": 1793382898,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 23,
+      "stop_id": "208255",
+      "arrival": {
+       "delay": 939,
+       "time": 1793382962,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 24,
+      "stop_id": "208259",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 25,
+      "stop_id": "308293",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 26,
+      "stop_id": "308295",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 27,
+      "stop_id": "308297",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 28,
+      "stop_id": "308299",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 29,
+      "stop_id": "308301",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 30,
+      "stop_id": "308300",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 31,
+      "stop_id": "308298",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 32,
+      "stop_id": "308296",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 33,
+      "stop_id": "308294",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 34,
+      "stop_id": "208292",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 35,
+      "stop_id": "208261",
+      "arrival": {
+       "delay": 752,
+       "time": 1793383195,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 36,
+      "stop_id": "208263",
+      "arrival": {
+       "delay": 762,
+       "time": 1793383337,
+       "uncertainty": 450
+      },
+      "departure": {
+       "delay": 762,
+       "time": 1793383337,
+       "uncertainty": 450
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 37,
+      "stop_id": "208265",
+      "arrival": {
+       "delay": 758,
+       "time": 1793383629,
+       "uncertainty": 457
+      },
+      "departure": {
+       "delay": 758,
+       "time": 1793383629,
+       "uncertainty": 457
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 38,
+      "stop_id": "208267",
+      "arrival": {
+       "delay": 758,
+       "time": 1793383741,
+       "uncertainty": 666
+      },
+      "departure": {
+       "delay": 758,
+       "time": 1793383741,
+       "uncertainty": 666
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 39,
+      "stop_id": "208269",
+      "arrival": {
+       "delay": 758,
+       "time": 1793383889,
+       "uncertainty": 630
+      },
+      "departure": {
+       "delay": 758,
+       "time": 1793383889,
+       "uncertainty": 630
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 40,
+      "stop_id": "208271",
+      "arrival": {
+       "delay": 758,
+       "time": 1793383992,
+       "uncertainty": 611
+      },
+      "departure": {
+       "delay": 758,
+       "time": 1793383992,
+       "uncertainty": 611
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 41,
+      "stop_id": "208273",
+      "arrival": {
+       "delay": 759,
+       "time": 1793384166,
+       "uncertainty": 582
+      },
+      "departure": {
+       "delay": 759,
+       "time": 1793384166,
+       "uncertainty": 582
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 42,
+      "stop_id": "208275",
+      "arrival": {
+       "delay": 754,
+       "time": 1793384344,
+       "uncertainty": 551
+      },
+      "departure": {
+       "delay": 754,
+       "time": 1793384344,
+       "uncertainty": 551
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 43,
+      "stop_id": "208277",
+      "arrival": {
+       "delay": 751,
+       "time": 1793384400,
+       "uncertainty": 541
+      },
+      "departure": {
+       "delay": 751,
+       "time": 1793384400,
+       "uncertainty": 541
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 44,
+      "stop_id": "208279",
+      "arrival": {
+       "delay": 737,
+       "time": 1793384518,
+       "uncertainty": 559
+      },
+      "departure": {
+       "delay": 737,
+       "time": 1793384518,
+       "uncertainty": 559
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 45,
+      "stop_id": "208281",
+      "arrival": {
+       "delay": 741,
+       "time": 1793384590,
+       "uncertainty": 508
+      },
+      "departure": {
+       "delay": 741,
+       "time": 1793384590,
+       "uncertainty": 508
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 46,
+      "stop_id": "208283",
+      "arrival": {
+       "delay": 737,
+       "time": 1793384703,
+       "uncertainty": 488
+      },
+      "departure": {
+       "delay": 737,
+       "time": 1793384703,
+       "uncertainty": 488
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 47,
+      "stop_id": "208285",
+      "arrival": {
+       "delay": 741,
+       "time": 1793384786,
+       "uncertainty": 508
+      },
+      "departure": {
+       "delay": 741,
+       "time": 1793384786,
+       "uncertainty": 508
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 48,
+      "stop_id": "208097",
+      "arrival": {
+       "delay": 729,
+       "time": 1793384829,
+       "uncertainty": 469
+      },
+      "departure": {
+       "delay": 729,
+       "time": 1793384829,
+       "uncertainty": 469
+      },
+      "schedule_relationship": "SCHEDULED"
+     }
+    ],
+    "timestamp": 1793383337
+   }
+  },
+  {
+   "id": "oracle:tep:20261030:10:237_465019:19:03:00",
+   "trip_update": {
+    "trip": {
+     "trip_id": "237_465019",
+     "route_id": "7",
+     "direction_id": 1,
+     "start_time": "19:03:00",
+     "start_date": "20261030",
+     "schedule_relationship": "SCHEDULED"
+    },
+    "vehicle": {
+     "label": "2503"
+    },
+    "stop_time_update": [
+     {
+      "stop_sequence": 1,
+      "stop_id": "208048",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 2,
+      "stop_id": "208555",
+      "arrival": {
+       "delay": -85,
+       "time": 1793383355,
+       "uncertainty": 56
+      },
+      "departure": {
+       "delay": 0,
+       "time": 1793383440,
+       "uncertainty": 56
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 3,
+      "stop_id": "208562",
+      "arrival": {
+       "delay": -30,
+       "time": 1793383448,
+       "uncertainty": 136
+      },
+      "departure": {
+       "delay": 0,
+       "time": 1793383478,
+       "uncertainty": 136
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 4,
+      "stop_id": "208054",
+      "arrival": {
+       "delay": -26,
+       "time": 1793383484,
+       "uncertainty": 153
+      },
+      "departure": {
+       "delay": 0,
+       "time": 1793383510,
+       "uncertainty": 153
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 5,
+      "stop_id": "208568",
+      "arrival": {
+       "delay": -20,
+       "time": 1793383515,
+       "uncertainty": 127
+      },
+      "departure": {
+       "delay": 0,
+       "time": 1793383535,
+       "uncertainty": 127
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 6,
+      "stop_id": "208056",
+      "arrival": {
+       "delay": -42,
+       "time": 1793383543,
+       "uncertainty": 120
+      },
+      "departure": {
+       "delay": 0,
+       "time": 1793383585,
+       "uncertainty": 120
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 7,
+      "stop_id": "208050",
+      "arrival": {
+       "delay": -53,
+       "time": 1793383594,
+       "uncertainty": 153
+      },
+      "departure": {
+       "delay": 0,
+       "time": 1793383647,
+       "uncertainty": 153
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 8,
+      "stop_id": "208044",
+      "arrival": {
+       "delay": -44,
+       "time": 1793383658,
+       "uncertainty": 153
+      },
+      "departure": {
+       "delay": 0,
+       "time": 1793383702,
+       "uncertainty": 153
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 9,
+      "stop_id": "208042",
+      "arrival": {
+       "delay": -33,
+       "time": 1793383722,
+       "uncertainty": 153
+      },
+      "departure": {
+       "delay": 0,
+       "time": 1793383755,
+       "uncertainty": 153
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 10,
+      "stop_id": "208036",
+      "arrival": {
+       "delay": -26,
+       "time": 1793383769,
+       "uncertainty": 151
+      },
+      "departure": {
+       "delay": 0,
+       "time": 1793383795,
+       "uncertainty": 151
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 11,
+      "stop_id": "208040",
+      "arrival": {
+       "delay": -11,
+       "time": 1793383844,
+       "uncertainty": 152
+      },
+      "departure": {
+       "delay": 0,
+       "time": 1793383855,
+       "uncertainty": 152
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 12,
+      "stop_id": "208038",
+      "arrival": {
+       "delay": -3,
+       "time": 1793383946,
+       "uncertainty": 155
+      },
+      "departure": {
+       "delay": 0,
+       "time": 1793383949,
+       "uncertainty": 155
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 13,
+      "stop_id": "208034",
+      "arrival": {
+       "delay": -3,
+       "time": 1793384053,
+       "uncertainty": 152
+      },
+      "departure": {
+       "delay": 0,
+       "time": 1793384056,
+       "uncertainty": 152
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 14,
+      "stop_id": "208032",
+      "arrival": {
+       "delay": 0,
+       "time": 1793384115,
+       "uncertainty": 154
+      },
+      "departure": {
+       "delay": 0,
+       "time": 1793384115,
+       "uncertainty": 154
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 15,
+      "stop_id": "208186",
+      "arrival": {
+       "delay": 11,
+       "time": 1793384205,
+       "uncertainty": 159
+      },
+      "departure": {
+       "delay": 11,
+       "time": 1793384205,
+       "uncertainty": 159
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 16,
+      "stop_id": "208196",
+      "arrival": {
+       "delay": 29,
+       "time": 1793384266,
+       "uncertainty": 153
+      },
+      "departure": {
+       "delay": 29,
+       "time": 1793384266,
+       "uncertainty": 153
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 17,
+      "stop_id": "208194",
+      "arrival": {
+       "delay": 33,
+       "time": 1793384313,
+       "uncertainty": 161
+      },
+      "departure": {
+       "delay": 33,
+       "time": 1793384313,
+       "uncertainty": 161
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 18,
+      "stop_id": "208192",
+      "arrival": {
+       "delay": 51,
+       "time": 1793384347,
+       "uncertainty": 169
+      },
+      "departure": {
+       "delay": 51,
+       "time": 1793384347,
+       "uncertainty": 169
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 19,
+      "stop_id": "208188",
+      "arrival": {
+       "delay": 63,
+       "time": 1793384376,
+       "uncertainty": 164
+      },
+      "departure": {
+       "delay": 63,
+       "time": 1793384376,
+       "uncertainty": 164
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 20,
+      "stop_id": "208028",
+      "arrival": {
+       "delay": 87,
+       "time": 1793384480,
+       "uncertainty": 171
+      },
+      "departure": {
+       "delay": 87,
+       "time": 1793384480,
+       "uncertainty": 171
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 21,
+      "stop_id": "208026",
+      "arrival": {
+       "delay": 93,
+       "time": 1793384515,
+       "uncertainty": 172
+      },
+      "departure": {
+       "delay": 93,
+       "time": 1793384515,
+       "uncertainty": 172
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 22,
+      "stop_id": "208024",
+      "arrival": {
+       "delay": 100,
+       "time": 1793384544,
+       "uncertainty": 172
+      },
+      "departure": {
+       "delay": 100,
+       "time": 1793384544,
+       "uncertainty": 172
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 23,
+      "stop_id": "208022",
+      "arrival": {
+       "delay": 107,
+       "time": 1793384581,
+       "uncertainty": 174
+      },
+      "departure": {
+       "delay": 107,
+       "time": 1793384581,
+       "uncertainty": 174
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 24,
+      "stop_id": "208020",
+      "arrival": {
+       "delay": 117,
+       "time": 1793384635,
+       "uncertainty": 175
+      },
+      "departure": {
+       "delay": 117,
+       "time": 1793384635,
+       "uncertainty": 175
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 25,
+      "stop_id": "208018",
+      "arrival": {
+       "delay": 107,
+       "time": 1793384642,
+       "uncertainty": 303
+      },
+      "departure": {
+       "delay": 107,
+       "time": 1793384642,
+       "uncertainty": 303
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 26,
+      "stop_id": "208016",
+      "arrival": {
+       "delay": 183,
+       "time": 1793384763,
+       "uncertainty": 244
+      },
+      "departure": {
+       "delay": 183,
+       "time": 1793384763,
+       "uncertainty": 244
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 27,
+      "stop_id": "208012",
+      "arrival": {
+       "delay": 180,
+       "time": 1793384939,
+       "uncertainty": 253
+      },
+      "departure": {
+       "delay": 180,
+       "time": 1793384939,
+       "uncertainty": 253
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 28,
+      "stop_id": "200948",
+      "arrival": {
+       "delay": 142,
+       "time": 1793385262,
+       "uncertainty": 268
+      },
+      "departure": {
+       "delay": 142,
+       "time": 1793385262,
+       "uncertainty": 268
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 29,
+      "stop_id": "200946",
+      "arrival": {
+       "delay": 113,
+       "time": 1793385266,
+       "uncertainty": 309
+      },
+      "departure": {
+       "delay": 113,
+       "time": 1793385266,
+       "uncertainty": 309
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 30,
+      "stop_id": "200944",
+      "arrival": {
+       "delay": 108,
+       "time": 1793385318,
+       "uncertainty": 307
+      },
+      "departure": {
+       "delay": 108,
+       "time": 1793385318,
+       "uncertainty": 307
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 31,
+      "stop_id": "200942",
+      "arrival": {
+       "delay": 92,
+       "time": 1793385391,
+       "uncertainty": 304
+      },
+      "departure": {
+       "delay": 92,
+       "time": 1793385391,
+       "uncertainty": 304
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 32,
+      "stop_id": "200940",
+      "arrival": {
+       "delay": 85,
+       "time": 1793385445,
+       "uncertainty": 305
+      },
+      "departure": {
+       "delay": 85,
+       "time": 1793385445,
+       "uncertainty": 305
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 33,
+      "stop_id": "200938",
+      "arrival": {
+       "delay": 91,
+       "time": 1793385520,
+       "uncertainty": 305
+      },
+      "departure": {
+       "delay": 91,
+       "time": 1793385520,
+       "uncertainty": 305
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 34,
+      "stop_id": "200936",
+      "arrival": {
+       "delay": 102,
+       "time": 1793385561,
+       "uncertainty": 307
+      },
+      "departure": {
+       "delay": 102,
+       "time": 1793385561,
+       "uncertainty": 307
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 35,
+      "stop_id": "200932",
+      "arrival": {
+       "delay": 96,
+       "time": 1793385604,
+       "uncertainty": 345
+      },
+      "departure": {
+       "delay": 96,
+       "time": 1793385604,
+       "uncertainty": 345
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 36,
+      "stop_id": "200907",
+      "arrival": {
+       "delay": 123,
+       "time": 1793385663,
+       "uncertainty": 356
+      },
+      "departure": {
+       "delay": 123,
+       "time": 1793385663,
+       "uncertainty": 356
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 37,
+      "stop_id": "200001",
+      "arrival": {
+       "delay": 124,
+       "time": 1793385844,
+       "uncertainty": 342
+      },
+      "departure": {
+       "delay": 124,
+       "time": 1793385844,
+       "uncertainty": 342
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 38,
+      "stop_id": "200217",
+      "arrival": {
+       "delay": 147,
+       "time": 1793385935,
+       "uncertainty": 358
+      },
+      "departure": {
+       "delay": 147,
+       "time": 1793385935,
+       "uncertainty": 358
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 39,
+      "stop_id": "200213",
+      "arrival": {
+       "delay": 158,
+       "time": 1793386001,
+       "uncertainty": 339
+      },
+      "departure": {
+       "delay": 158,
+       "time": 1793386001,
+       "uncertainty": 339
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 40,
+      "stop_id": "200212",
+      "arrival": {
+       "delay": 221,
+       "time": 1793386121,
+       "uncertainty": 324
+      },
+      "departure": {
+       "delay": 221,
+       "time": 1793386121,
+       "uncertainty": 324
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 41,
+      "stop_id": "200281",
+      "arrival": {
+       "delay": 243,
+       "time": 1793386217,
+       "uncertainty": 302
+      },
+      "departure": {
+       "delay": 243,
+       "time": 1793386217,
+       "uncertainty": 302
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 42,
+      "stop_id": "200285",
+      "arrival": {
+       "delay": 215,
+       "time": 1793386278,
+       "uncertainty": 359
+      },
+      "departure": {
+       "delay": 215,
+       "time": 1793386278,
+       "uncertainty": 359
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 43,
+      "stop_id": "200287",
+      "arrival": {
+       "delay": 207,
+       "time": 1793386347,
+       "uncertainty": 359
+      },
+      "departure": {
+       "delay": 207,
+       "time": 1793386347,
+       "uncertainty": 359
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 44,
+      "stop_id": "200313",
+      "arrival": {
+       "delay": 228,
+       "time": 1793386428,
+       "uncertainty": 343
+      },
+      "departure": {
+       "delay": 228,
+       "time": 1793386428,
+       "uncertainty": 343
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 45,
+      "stop_id": "200317",
+      "arrival": {
+       "delay": 220,
+       "time": 1793386497,
+       "uncertainty": 415
+      },
+      "departure": {
+       "delay": 220,
+       "time": 1793386497,
+       "uncertainty": 415
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 46,
+      "stop_id": "200321",
+      "arrival": {
+       "delay": 229,
+       "time": 1793386538,
+       "uncertainty": 405
+      },
+      "departure": {
+       "delay": 229,
+       "time": 1793386538,
+       "uncertainty": 405
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 47,
+      "stop_id": "200551",
+      "arrival": {
+       "delay": 273,
+       "time": 1793386653,
+       "uncertainty": 462
+      },
+      "departure": {
+       "delay": 273,
+       "time": 1793386653,
+       "uncertainty": 462
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 48,
+      "stop_id": "200555",
+      "arrival": {
+       "delay": 299,
+       "time": 1793386739,
+       "uncertainty": 362
+      },
+      "departure": {
+       "delay": 299,
+       "time": 1793386739,
+       "uncertainty": 362
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 49,
+      "stop_id": "200585",
+      "arrival": {
+       "delay": 356,
+       "time": 1793386856,
+       "uncertainty": 334
+      },
+      "departure": {
+       "delay": 356,
+       "time": 1793386856,
+       "uncertainty": 334
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 50,
+      "stop_id": "200587",
+      "arrival": {
+       "delay": 348,
+       "time": 1793386905,
+       "uncertainty": 357
+      },
+      "departure": {
+       "delay": 348,
+       "time": 1793386905,
+       "uncertainty": 357
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 51,
+      "stop_id": "200589",
+      "arrival": {
+       "delay": 318,
+       "time": 1793386935,
+       "uncertainty": 390
+      },
+      "departure": {
+       "delay": 318,
+       "time": 1793386935,
+       "uncertainty": 390
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 52,
+      "stop_id": "200591",
+      "arrival": {
+       "delay": 354,
+       "time": 1793387047,
+       "uncertainty": 430
+      },
+      "departure": {
+       "delay": 354,
+       "time": 1793387047,
+       "uncertainty": 430
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 53,
+      "stop_id": "200623",
+      "arrival": {
+       "delay": 334,
+       "time": 1793387074,
+       "uncertainty": 420
+      },
+      "departure": {
+       "delay": 334,
+       "time": 1793387074,
+       "uncertainty": 420
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 54,
+      "stop_id": "200641",
+      "arrival": {
+       "delay": 280,
+       "time": 1793387094,
+       "uncertainty": 413
+      },
+      "departure": {
+       "delay": 280,
+       "time": 1793387094,
+       "uncertainty": 413
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 55,
+      "stop_id": "200643",
+      "arrival": {
+       "delay": 311,
+       "time": 1793387197,
+       "uncertainty": 402
+      },
+      "departure": {
+       "delay": 311,
+       "time": 1793387197,
+       "uncertainty": 402
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 56,
+      "stop_id": "200645",
+      "arrival": {
+       "delay": 276,
+       "time": 1793387223,
+       "uncertainty": 417
+      },
+      "departure": {
+       "delay": 276,
+       "time": 1793387223,
+       "uncertainty": 417
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 57,
+      "stop_id": "200647",
+      "arrival": {
+       "delay": 284,
+       "time": 1793387290,
+       "uncertainty": 415
+      },
+      "departure": {
+       "delay": 284,
+       "time": 1793387290,
+       "uncertainty": 415
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 58,
+      "stop_id": "200658",
+      "arrival": {
+       "delay": 200,
+       "time": 1793387300,
+       "uncertainty": 355
+      },
+      "departure": {
+       "delay": 200,
+       "time": 1793387300,
+       "uncertainty": 355
+      },
+      "schedule_relationship": "SCHEDULED"
+     }
+    ],
+    "timestamp": 1793383337
+   }
+  },
+  {
+   "id": "oracle:tep:20261030:10:237_465139:18:30:00",
+   "trip_update": {
+    "trip": {
+     "trip_id": "237_465139",
+     "route_id": "5",
+     "direction_id": 1,
+     "start_time": "18:30:00",
+     "start_date": "20261030",
+     "schedule_relationship": "SCHEDULED"
+    },
+    "vehicle": {
+     "label": "5104"
+    },
+    "stop_time_update": [
+     {
+      "stop_sequence": 1,
+      "stop_id": "200757",
+      "arrival": {
+       "delay": 267,
+       "time": 1793381667,
+       "uncertainty": 30
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 2,
+      "stop_id": "200755",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 3,
+      "stop_id": "200753",
+      "schedule_relationship": "NO_DATA"
+     },
+     {
+      "stop_sequence": 4,
+      "stop_id": "200752",
+      "arrival": {
+       "delay": 264,
+       "time": 1793381844,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 282,
+       "time": 1793381862,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 5,
+      "stop_id": "200750",
+      "arrival": {
+       "delay": 302,
+       "time": 1793381901,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 6,
+      "stop_id": "200748",
+      "arrival": {
+       "delay": 319,
+       "time": 1793381940,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 331,
+       "time": 1793381952,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 7,
+      "stop_id": "200746",
+      "arrival": {
+       "delay": 354,
+       "time": 1793381998,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 368,
+       "time": 1793382012,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 8,
+      "stop_id": "200744",
+      "arrival": {
+       "delay": 377,
+       "time": 1793382056,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 393,
+       "time": 1793382072,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 9,
+      "stop_id": "200742",
+      "arrival": {
+       "delay": 408,
+       "time": 1793382108,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 10,
+      "stop_id": "200738",
+      "arrival": {
+       "delay": 422,
+       "time": 1793382181,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 433,
+       "time": 1793382192,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 11,
+      "stop_id": "200736",
+      "arrival": {
+       "delay": 440,
+       "time": 1793382260,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 462,
+       "time": 1793382282,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 12,
+      "stop_id": "200734",
+      "arrival": {
+       "delay": 408,
+       "time": 1793382294,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 426,
+       "time": 1793382312,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 13,
+      "stop_id": "200732",
+      "arrival": {
+       "delay": 385,
+       "time": 1793382343,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 14,
+      "stop_id": "200724",
+      "arrival": {
+       "delay": 359,
+       "time": 1793382419,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 372,
+       "time": 1793382432,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 15,
+      "stop_id": "200722",
+      "arrival": {
+       "delay": 372,
+       "time": 1793382490,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 404,
+       "time": 1793382522,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 16,
+      "stop_id": "200238",
+      "arrival": {
+       "delay": 387,
+       "time": 1793382567,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 402,
+       "time": 1793382582,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 17,
+      "stop_id": "200236",
+      "arrival": {
+       "delay": 376,
+       "time": 1793382624,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 394,
+       "time": 1793382642,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 18,
+      "stop_id": "200234",
+      "arrival": {
+       "delay": 365,
+       "time": 1793382683,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 384,
+       "time": 1793382702,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 19,
+      "stop_id": "200233",
+      "arrival": {
+       "delay": 384,
+       "time": 1793382804,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 402,
+       "time": 1793382822,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 20,
+      "stop_id": "200203",
+      "arrival": {
+       "delay": 353,
+       "time": 1793382893,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 372,
+       "time": 1793382912,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 21,
+      "stop_id": "200281",
+      "arrival": {
+       "delay": 418,
+       "time": 1793383042,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 22,
+      "stop_id": "200285",
+      "arrival": {
+       "delay": 431,
+       "time": 1793383139,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 444,
+       "time": 1793383152,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 23,
+      "stop_id": "200287",
+      "arrival": {
+       "delay": 416,
+       "time": 1793383196,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 462,
+       "time": 1793383242,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 24,
+      "stop_id": "200451",
+      "arrival": {
+       "delay": 418,
+       "time": 1793383255,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 435,
+       "time": 1793383272,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 25,
+      "stop_id": "200455",
+      "arrival": {
+       "delay": 437,
+       "time": 1793383337,
+       "uncertainty": 297
+      },
+      "departure": {
+       "delay": 437,
+       "time": 1793383337,
+       "uncertainty": 297
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 26,
+      "stop_id": "200481",
+      "arrival": {
+       "delay": 434,
+       "time": 1793383383,
+       "uncertainty": 293
+      },
+      "departure": {
+       "delay": 434,
+       "time": 1793383383,
+       "uncertainty": 293
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 27,
+      "stop_id": "200483",
+      "arrival": {
+       "delay": 434,
+       "time": 1793383454,
+       "uncertainty": 423
+      },
+      "departure": {
+       "delay": 434,
+       "time": 1793383454,
+       "uncertainty": 423
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 28,
+      "stop_id": "200486",
+      "arrival": {
+       "delay": 434,
+       "time": 1793383531,
+       "uncertainty": 455
+      },
+      "departure": {
+       "delay": 434,
+       "time": 1793383531,
+       "uncertainty": 455
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 29,
+      "stop_id": "200521",
+      "arrival": {
+       "delay": 434,
+       "time": 1793383647,
+       "uncertainty": 565
+      },
+      "departure": {
+       "delay": 434,
+       "time": 1793383647,
+       "uncertainty": 565
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 30,
+      "stop_id": "200525",
+      "arrival": {
+       "delay": 434,
+       "time": 1793383694,
+       "uncertainty": 459
+      },
+      "departure": {
+       "delay": 434,
+       "time": 1793383694,
+       "uncertainty": 459
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 31,
+      "stop_id": "200527",
+      "arrival": {
+       "delay": 434,
+       "time": 1793383764,
+       "uncertainty": 466
+      },
+      "departure": {
+       "delay": 434,
+       "time": 1793383764,
+       "uncertainty": 466
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 32,
+      "stop_id": "200539",
+      "arrival": {
+       "delay": 428,
+       "time": 1793383838,
+       "uncertainty": 613
+      },
+      "departure": {
+       "delay": 428,
+       "time": 1793383838,
+       "uncertainty": 613
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 33,
+      "stop_id": "200528",
+      "arrival": {
+       "delay": 423,
+       "time": 1793383923,
+       "uncertainty": 317
+      },
+      "departure": {
+       "delay": 423,
+       "time": 1793383923,
+       "uncertainty": 317
+      },
+      "schedule_relationship": "SCHEDULED"
+     }
+    ],
+    "timestamp": 1793383337
+   }
+  },
+  {
+   "id": "oracle:tep:20261030:10:237_465150:18:40:00",
+   "trip_update": {
+    "trip": {
+     "trip_id": "237_465150",
+     "route_id": "5",
+     "direction_id": 1,
+     "start_time": "18:40:00",
+     "start_date": "20261030",
+     "schedule_relationship": "SCHEDULED"
+    },
+    "vehicle": {
+     "label": "5102"
+    },
+    "stop_time_update": [
+     {
+      "stop_sequence": 1,
+      "stop_id": "200757",
+      "arrival": {
+       "delay": 104,
+       "time": 1793382104,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 146,
+       "time": 1793382146,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 2,
+      "stop_id": "200755",
+      "arrival": {
+       "delay": 138,
+       "time": 1793382192,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 152,
+       "time": 1793382206,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 3,
+      "stop_id": "200753",
+      "arrival": {
+       "delay": 109,
+       "time": 1793382227,
+       "uncertainty": 30
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 4,
+      "stop_id": "200752",
+      "arrival": {
+       "delay": 91,
+       "time": 1793382271,
+       "uncertainty": 30
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 5,
+      "stop_id": "200750",
+      "arrival": {
+       "delay": 106,
+       "time": 1793382305,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 6,
+      "stop_id": "200748",
+      "arrival": {
+       "delay": 123,
+       "time": 1793382344,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 7,
+      "stop_id": "200746",
+      "arrival": {
+       "delay": 134,
+       "time": 1793382378,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 8,
+      "stop_id": "200744",
+      "arrival": {
+       "delay": 140,
+       "time": 1793382419,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 9,
+      "stop_id": "200742",
+      "arrival": {
+       "delay": 144,
+       "time": 1793382444,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 10,
+      "stop_id": "200738",
+      "arrival": {
+       "delay": 115,
+       "time": 1793382474,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 11,
+      "stop_id": "200736",
+      "arrival": {
+       "delay": 107,
+       "time": 1793382527,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 12,
+      "stop_id": "200734",
+      "arrival": {
+       "delay": 64,
+       "time": 1793382550,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 80,
+       "time": 1793382566,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 13,
+      "stop_id": "200732",
+      "arrival": {
+       "delay": 20,
+       "time": 1793382578,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 38,
+       "time": 1793382596,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 14,
+      "stop_id": "200724",
+      "arrival": {
+       "delay": 9,
+       "time": 1793382669,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 26,
+       "time": 1793382686,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 15,
+      "stop_id": "200722",
+      "arrival": {
+       "delay": 10,
+       "time": 1793382728,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 28,
+       "time": 1793382746,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 16,
+      "stop_id": "200238",
+      "arrival": {
+       "delay": 18,
+       "time": 1793382798,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 56,
+       "time": 1793382836,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 17,
+      "stop_id": "200236",
+      "arrival": {
+       "delay": 39,
+       "time": 1793382887,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 18,
+      "stop_id": "200234",
+      "arrival": {
+       "delay": 18,
+       "time": 1793382936,
+       "uncertainty": 15
+      },
+      "departure": {
+       "delay": 38,
+       "time": 1793382956,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 19,
+      "stop_id": "200233",
+      "arrival": {
+       "delay": 41,
+       "time": 1793383061,
+       "uncertainty": 30
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 20,
+      "stop_id": "200203",
+      "arrival": {
+       "delay": 35,
+       "time": 1793383175,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 21,
+      "stop_id": "200281",
+      "arrival": {
+       "delay": 68,
+       "time": 1793383292,
+       "uncertainty": 15
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 22,
+      "stop_id": "200285",
+      "arrival": {
+       "delay": 70,
+       "time": 1793383378,
+       "uncertainty": 301
+      },
+      "departure": {
+       "delay": 70,
+       "time": 1793383378,
+       "uncertainty": 301
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 23,
+      "stop_id": "200287",
+      "arrival": {
+       "delay": 74,
+       "time": 1793383454,
+       "uncertainty": 300
+      },
+      "departure": {
+       "delay": 74,
+       "time": 1793383454,
+       "uncertainty": 300
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 24,
+      "stop_id": "200451",
+      "arrival": {
+       "delay": 78,
+       "time": 1793383515,
+       "uncertainty": 297
+      },
+      "departure": {
+       "delay": 78,
+       "time": 1793383515,
+       "uncertainty": 297
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 25,
+      "stop_id": "200455",
+      "arrival": {
+       "delay": 83,
+       "time": 1793383583,
+       "uncertainty": 297
+      },
+      "departure": {
+       "delay": 83,
+       "time": 1793383583,
+       "uncertainty": 297
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 26,
+      "stop_id": "200481",
+      "arrival": {
+       "delay": 87,
+       "time": 1793383636,
+       "uncertainty": 293
+      },
+      "departure": {
+       "delay": 87,
+       "time": 1793383636,
+       "uncertainty": 293
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 27,
+      "stop_id": "200483",
+      "arrival": {
+       "delay": 92,
+       "time": 1793383712,
+       "uncertainty": 423
+      },
+      "departure": {
+       "delay": 92,
+       "time": 1793383712,
+       "uncertainty": 423
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 28,
+      "stop_id": "200486",
+      "arrival": {
+       "delay": 97,
+       "time": 1793383794,
+       "uncertainty": 455
+      },
+      "departure": {
+       "delay": 97,
+       "time": 1793383794,
+       "uncertainty": 455
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 29,
+      "stop_id": "200521",
+      "arrival": {
+       "delay": 122,
+       "time": 1793383935,
+       "uncertainty": 565
+      },
+      "departure": {
+       "delay": 122,
+       "time": 1793383935,
+       "uncertainty": 565
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 30,
+      "stop_id": "200525",
+      "arrival": {
+       "delay": 125,
+       "time": 1793383985,
+       "uncertainty": 459
+      },
+      "departure": {
+       "delay": 125,
+       "time": 1793383985,
+       "uncertainty": 459
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 31,
+      "stop_id": "200527",
+      "arrival": {
+       "delay": 127,
+       "time": 1793384057,
+       "uncertainty": 466
+      },
+      "departure": {
+       "delay": 127,
+       "time": 1793384057,
+       "uncertainty": 466
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 32,
+      "stop_id": "200539",
+      "arrival": {
+       "delay": 135,
+       "time": 1793384145,
+       "uncertainty": 613
+      },
+      "departure": {
+       "delay": 135,
+       "time": 1793384145,
+       "uncertainty": 613
+      },
+      "schedule_relationship": "SCHEDULED"
+     },
+     {
+      "stop_sequence": 33,
+      "stop_id": "200528",
+      "arrival": {
+       "delay": 152,
+       "time": 1793384252,
+       "uncertainty": 317
+      },
+      "departure": {
+       "delay": 152,
+       "time": 1793384252,
+       "uncertainty": 317
+      },
+      "schedule_relationship": "SCHEDULED"
+     }
+    ],
+    "timestamp": 1793383336
+   }
+  }
+ ]
+}

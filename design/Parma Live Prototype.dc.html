@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#DCDCE2}
+a{color:#1F5BE0} a:hover{color:#0F3FB0}
+input{font:inherit;color:inherit;background:none;border:none;outline:none;padding:0;margin:0;width:100%}
+@keyframes plRoll{0%{transform:translateY(-55%) scale(.8);opacity:0}60%{opacity:1}100%{transform:none;opacity:1}}
+@keyframes plSkel{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes plPulse{0%{box-shadow:0 0 0 0 rgba(61,214,140,.55)}100%{box-shadow:0 0 0 9px rgba(61,214,140,0)}}
+</style>
+</helmet>
+<div style="min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:20px 12px; box-sizing:border-box; background:{{ pageBg }}; font-family:Inter, -apple-system, system-ui, sans-serif">
+<div style="width:{{ frameW }}px; height:{{ frameH }}px; flex:none">
+<div ref="{{ phoneRef }}" style="position:relative; width:390px; height:844px; overflow:hidden; border-radius:54px; transform:scale({{ scale }}); transform-origin:0 0; background:{{ t.bg }}; color:{{ t.text }}; font-family:Inter, -apple-system, system-ui, sans-serif; font-feature-settings:'tnum' 1, 'cv11' 1; -webkit-font-smoothing:antialiased; user-select:none; -webkit-user-select:none; box-shadow:0 0 0 10px #111, 0 0 0 11px #333, 0 30px 80px rgba(0,0,0,0.25)">
+
+<sc-if value="{{ showMap }}" hint-placeholder-val="{{ true }}">
+  <div data-component="LiveMap" onPointerDown="{{ onMapDown }}" onClick="{{ onMapClick }}" style="position:absolute; inset:0; overflow:hidden; background:{{ t.mapBg }}; touch-action:none; cursor:grab">
+    <div style="position:absolute; left:0; top:0; transform:translate({{ cam.tx }}px, {{ cam.ty }}px)">
+      {{ tileEls }}
+      <svg width="390" height="844" style="position:absolute; left:{{ cam.sx }}px; top:{{ cam.sy }}px; overflow:visible; pointer-events:none">
+        <sc-for list="{{ map.routes }}" as="r" hint-placeholder-count="0">
+          <path d="{{ r.d }}" stroke="{{ r.c }}" stroke-width="{{ r.w }}" stroke-dasharray="{{ r.dash }}" opacity="{{ r.op }}" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+        </sc-for>
+      </svg>
+      <sc-for list="{{ map.stops }}" as="st" hint-placeholder-count="0">
+        <div data-component="StopMarker" onClick="{{ st.onTap }}" style="position:absolute; left:{{ st.x }}px; top:{{ st.y }}px; width:0; height:0; z-index:{{ st.z }}; cursor:pointer">
+          <div style="position:absolute; left:-18px; top:-18px; width:36px; height:36px; border-radius:50%"></div>
+          <div style="position:absolute; left:{{ st.off }}px; top:{{ st.off }}px; width:{{ st.size }}px; height:{{ st.size }}px; box-sizing:border-box; border-radius:50%; background:#fff; border:{{ st.bw }}px solid {{ st.c }}; box-shadow:0 1px 3px rgba(0,0,0,0.3); pointer-events:none"></div>
+          <sc-if value="{{ st.hasLabel }}" hint-placeholder-val="{{ false }}">
+            <div data-component="MapLabel" style="position:absolute; left:{{ st.lx }}px; top:{{ st.ly }}px; height:30px; display:flex; align-items:center; gap:6px; padding:0 10px 0 6px; border-radius:15px; white-space:nowrap; background:{{ t.glassStrong }}; backdrop-filter:blur(20px) saturate(180%); -webkit-backdrop-filter:blur(20px) saturate(180%); border:1px solid {{ t.glassBorder }}; box-shadow:{{ t.shadow }}; font-size:13px; font-weight:600; color:{{ t.text }}; pointer-events:none">
+              <span style="height:20px; padding:0 7px; border-radius:10px; background:{{ st.tagBg }}; color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center">{{ st.tag }}</span>{{ st.label }}
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+      <sc-if value="{{ map.hasMe }}" hint-placeholder-val="{{ false }}">
+        <div data-component="UserLocationDot" style="position:absolute; left:{{ map.me.x }}px; top:{{ map.me.y }}px; width:0; height:0; pointer-events:none">
+          <div style="position:absolute; left:-24px; top:-24px; width:48px; height:48px; border-radius:50%; background:{{ t.accentSoft }}"></div>
+          <div style="position:absolute; left:-9px; top:-9px; width:18px; height:18px; box-sizing:border-box; border-radius:50%; background:{{ t.accent }}; border:3px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,0.35)"></div>
+        </div>
+      </sc-if>
+      <sc-for list="{{ map.buses }}" as="b" hint-placeholder-count="0">
+        <div data-component="BusMarker" onClick="{{ b.onTap }}" style="position:absolute; left:{{ b.x }}px; top:{{ b.y }}px; width:0; height:0; opacity:{{ b.op }}; z-index:{{ b.z }}; transition:{{ b.tr }}; cursor:pointer">
+          <div style="position:absolute; left:-22px; top:-22px; width:44px; height:44px; border-radius:50%"></div>
+          <svg width="80" height="80" viewBox="-40 -40 80 80" style="position:absolute; left:-40px; top:-40px; transform:rotate({{ b.rot }}deg); transition:transform .6s ease; pointer-events:none"><path d="{{ b.cone }}" fill="{{ b.color }}" stroke="{{ t.ring }}" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+          <div style="position:absolute; left:{{ b.off }}px; top:{{ b.off }}px; width:{{ b.s }}px; height:{{ b.s }}px; box-sizing:border-box; border-radius:50%; background:{{ b.color }}; border:2px solid {{ t.ring }}; box-shadow:0 2px 6px rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center; color:#fff; font-size:{{ b.fs }}px; font-weight:700; letter-spacing:-0.02em; pointer-events:none; transition:all .3s ease">{{ b.n }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+
+<!-- MAPPA: overlay superiori -->
+<sc-if value="{{ mapTop }}" hint-placeholder-val="{{ true }}">
+  <div style="position:absolute; left:0; right:0; top:58px; display:flex; flex-direction:column; gap:10px; z-index:3; pointer-events:none">
+    <sc-if value="{{ chipSkelOn }}" hint-placeholder-val="{{ false }}">{{ chipSkel }}</sc-if>
+    <sc-if value="{{ showChips }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex; gap:8px; padding:4px 16px 4px; overflow-x:auto; pointer-events:auto; scrollbar-width:none">
+        <div data-component="LineFilterChip" onClick="{{ clearFilter }}" style="flex:none; height:44px; padding:0 18px; box-sizing:border-box; border-radius:22px; background:{{ allChip.bg }}; color:{{ allChip.c }}; border:1px solid {{ t.glassBorder }}; backdrop-filter:blur(24px) saturate(180%); -webkit-backdrop-filter:blur(24px) saturate(180%); display:flex; align-items:center; font-size:15px; font-weight:600; box-shadow:{{ t.shadow }}; cursor:pointer">Tutte</div>
+        <sc-for list="{{ chips }}" as="c" hint-placeholder-count="8">
+          <div data-component="LineFilterChip" onClick="{{ c.onTap }}" style="flex:none; width:44px; height:44px; box-sizing:border-box; border-radius:22px; display:flex; align-items:center; justify-content:center; background:{{ c.bg }}; backdrop-filter:blur(24px) saturate(180%); -webkit-backdrop-filter:blur(24px) saturate(180%); border:1px solid {{ t.glassBorder }}; box-shadow:{{ t.shadow }}; cursor:pointer">
+            <div data-component="LineBadge" style="width:32px; height:32px; border-radius:50%; background:{{ c.color }}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; opacity:{{ c.op }}">{{ c.n }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <div data-component="LiveIndicator" style="align-self:flex-start; margin-left:16px; height:32px; padding:0 12px; border-radius:16px; display:flex; align-items:center; gap:8px; background:{{ t.glass }}; backdrop-filter:blur(24px) saturate(180%); -webkit-backdrop-filter:blur(24px) saturate(180%); border:1px solid {{ t.glassBorder }}; box-shadow:{{ t.shadow }}; font-size:13px; font-weight:600">
+      {{ liveDot }}
+      <span style="color:{{ feed.tagC }}; font-weight:700; letter-spacing:0.04em; white-space:nowrap">{{ feed.tag }}</span>
+      <span style="color:{{ t.text2 }}; white-space:nowrap">{{ feed.label }}</span>
+    </div>
+  </div>
+  <div data-component="IconButton" onClick="{{ openInfo }}" style="position:absolute; right:16px; top:{{ infoTop }}px; width:44px; height:44px; box-sizing:border-box; border-radius:22px; z-index:3; display:flex; align-items:center; justify-content:center; color:{{ t.text }}; background:{{ t.glass }}; backdrop-filter:blur(24px) saturate(180%); -webkit-backdrop-filter:blur(24px) saturate(180%); border:1px solid {{ t.glassBorder }}; box-shadow:{{ t.shadow }}; cursor:pointer" title="Info"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6"></path><circle cx="12" cy="7.6" r="0.4" fill="currentColor"></circle></svg></div>
+  <sc-if value="{{ attrOn }}" hint-placeholder-val="{{ true }}">
+    <div data-component="MapAttribution" onClick="{{ openInfo }}" style="position:absolute; left:16px; bottom:98px; z-index:3; padding:3px 8px; border-radius:8px; background:{{ t.glass }}; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); font-size:10px; font-weight:500; color:{{ t.text2 }}; cursor:pointer">© OpenStreetMap contributors · Esri</div>
+  </sc-if>
+  <sc-if value="{{ nightCard }}" hint-placeholder-val="{{ false }}">
+    <div data-component="EmptyState" style="position:absolute; left:16px; right:16px; bottom:120px; z-index:3; border-radius:28px; padding:16px; display:flex; gap:14px; align-items:center; background:{{ t.glassStrong }}; backdrop-filter:blur(24px) saturate(180%); -webkit-backdrop-filter:blur(24px) saturate(180%); border:1px solid {{ t.glassBorder }}; box-shadow:{{ t.shadow }}">
+      <div style="flex:none; width:48px; height:48px; border-radius:50%; background:{{ t.fill }}; display:flex; align-items:center; justify-content:center; color:{{ t.text }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg></div>
+      <div style="min-width:0"><div style="font-size:17px; font-weight:700">Nessun bus in servizio</div><div style="font-size:14px; line-height:19px; color:{{ t.text2 }}; margin-top:2px; text-wrap:pretty">Il servizio urbano riprende alle 5:30. Prima corsa: linea 7 da Stazione FS alle 5:42.</div></div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ showLocate }}" hint-placeholder-val="{{ true }}">
+    <div data-component="LocateButton" onClick="{{ locate }}" style="position:absolute; right:16px; bottom:112px; width:52px; height:52px; box-sizing:border-box; border-radius:26px; z-index:3; display:flex; align-items:center; justify-content:center; color:{{ locC }}; background:{{ t.glassStrong }}; backdrop-filter:blur(24px) saturate(180%); -webkit-backdrop-filter:blur(24px) saturate(180%); border:1px solid {{ t.glassBorder }}; box-shadow:{{ t.shadow }}; cursor:pointer" title="Centra su di me">
+      <svg width="22" height="22" viewBox="0 0 24 24"><path d="M20.5 3.5 3.5 10.8l7.2 2 2 7.2z" fill="currentColor"></path><sc-if value="{{ noGps }}" hint-placeholder-val="{{ false }}"><path d="M3 3l18 18" stroke="{{ t.glassStrong }}" stroke-width="5" stroke-linecap="round"></path><path d="M3 3l18 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></sc-if></svg>
+    </div>
+  </sc-if>
+</sc-if>
+
+<!-- CERCA: form -->
+<sc-if value="{{ searchForm }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute; left:0; right:0; top:62px; bottom:0; padding:0 16px 120px; box-sizing:border-box; overflow-y:auto; display:flex; flex-direction:column; gap:12px">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:0 4px; min-height:44px">
+      <div style="font-size:34px; line-height:41px; font-weight:700; letter-spacing:-0.025em">Cerca</div>
+      <sc-if value="{{ sf.focused }}" hint-placeholder-val="{{ false }}"><div onClick="{{ sf.cancel }}" style="height:44px; display:flex; align-items:center; font-size:17px; color:{{ t.accent }}; cursor:pointer">Annulla</div></sc-if>
+    </div>
+    <div data-component="SearchFieldGroup" style="position:relative; background:{{ t.surface }}; border-radius:24px; padding:0 16px; box-shadow:{{ t.cardShadow }}">
+      <div onClick="{{ sf.focusFrom }}" style="display:flex; align-items:center; gap:14px; height:62px; cursor:text">
+        <div style="flex:none; width:32px; height:32px; border-radius:50%; background:{{ t.accentSoft }}; color:{{ t.accent }}; display:flex; align-items:center; justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24"><path d="M20.5 3.5 3.5 10.8l7.2 2 2 7.2z" fill="currentColor"></path></svg></div>
+        <div style="flex:1; min-width:0; padding-right:52px"><div style="font-size:12px; font-weight:600; color:{{ t.text2 }}">Da</div>
+          <sc-if value="{{ sf.fromInput }}" hint-placeholder-val="{{ false }}"><input ref="{{ inputRef }}" value="{{ sf.q }}" onChange="{{ sf.onQ }}" placeholder="Cerca un luogo o una fermata" style="font-size:17px; font-weight:600; height:22px"/></sc-if>
+          <sc-if value="{{ sf.fromText }}" hint-placeholder-val="{{ true }}"><div style="font-size:17px; font-weight:600; color:{{ sf.fromC }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ sf.fromName }}</div></sc-if>
+        </div>
+      </div>
+      <div style="height:1px; background:{{ t.hair }}; margin-left:46px; margin-right:56px"></div>
+      <div onClick="{{ sf.focusTo }}" style="display:flex; align-items:center; gap:14px; height:62px; cursor:text">
+        <div style="flex:none; width:32px; height:32px; border-radius:50%; background:{{ t.fill }}; color:{{ t.text }}; display:flex; align-items:center; justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s7-6.3 7-11.5a7 7 0 0 0-14 0C5 14.7 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg></div>
+        <div style="flex:1; min-width:0; padding-right:52px"><div style="font-size:12px; font-weight:600; color:{{ t.text2 }}">A</div>
+          <sc-if value="{{ sf.toInput }}" hint-placeholder-val="{{ false }}"><input ref="{{ inputRef }}" value="{{ sf.q }}" onChange="{{ sf.onQ }}" placeholder="Dove vuoi andare?" style="font-size:17px; font-weight:600; height:22px"/></sc-if>
+          <sc-if value="{{ sf.toText }}" hint-placeholder-val="{{ true }}"><div style="font-size:17px; font-weight:600; color:{{ sf.toC }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ sf.toName }}</div></sc-if>
+        </div>
+      </div>
+      <div onClick="{{ sf.swap }}" style="position:absolute; right:12px; top:40px; width:44px; height:44px; border-radius:22px; background:{{ t.fill }}; display:flex; align-items:center; justify-content:center; color:{{ t.text }}; cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4v16M4 8l4-4 4 4M16 20V4M12 16l4 4 4-4"></path></svg></div>
+    </div>
+    <sc-if value="{{ sf.gpsHint }}" hint-placeholder-val="{{ false }}">
+      <div data-component="StatusBanner" style="display:flex; gap:10px; align-items:flex-start; padding:12px 14px; border-radius:18px; background:{{ t.lateSoft }}; font-size:14px; line-height:19px; text-wrap:pretty">
+        <svg width="18" height="18" viewBox="0 0 24 24" style="flex:none; margin-top:1px; color:{{ t.late }}"><path d="M20.5 3.5 3.5 10.8l7.2 2 2 7.2z" fill="currentColor"></path><path d="M3 3l18 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>
+        <span>Accesso alla posizione negato. Scegli una partenza, oppure attiva la posizione in Impostazioni › Privacy › Localizzazione.</span>
+      </div>
+    </sc-if>
+    <sc-if value="{{ sf.focused }}" hint-placeholder-val="{{ false }}">
+      <div style="background:{{ t.surface }}; border-radius:24px; padding:0 16px; box-shadow:{{ t.cardShadow }}">
+        <sc-for list="{{ sf.sugg }}" as="sg" hint-placeholder-count="5">
+          <div data-component="PlaceRow" onClick="{{ sg.onTap }}" style="display:flex; align-items:center; gap:14px; height:60px; border-top:{{ sg.border }}; cursor:pointer">
+            <div style="flex:none; width:36px; height:36px; border-radius:50%; background:{{ sg.iconBg }}; color:{{ sg.iconC }}; display:flex; align-items:center; justify-content:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ sg.icon }}"></path></svg></div>
+            <div style="flex:1; min-width:0"><div style="font-size:17px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ sg.name }}</div><div style="font-size:13px; color:{{ t.text2 }}">{{ sg.sub }}</div></div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ sf.idle }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex; gap:8px">
+        <div style="height:44px; padding:0 16px; border-radius:22px; background:{{ t.surface }}; box-shadow:{{ t.cardShadow }}; display:flex; align-items:center; gap:6px; font-size:15px; font-weight:600"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>Parti ora</div>
+        <div style="height:44px; padding:0 16px; border-radius:22px; background:{{ t.surface }}; box-shadow:{{ t.cardShadow }}; display:flex; align-items:center; font-size:15px; font-weight:600">Meno cambi</div>
+      </div>
+      <div style="margin-top:10px; padding:0 4px; font-size:20px; font-weight:700; letter-spacing:-0.01em">Preferiti</div>
+      <div style="display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px">
+        <sc-for list="{{ favPlaces }}" as="f" hint-placeholder-count="3">
+          <div data-component="PlaceTile" onClick="{{ f.onTap }}" style="background:{{ t.surface }}; border-radius:22px; padding:14px 12px; box-shadow:{{ t.cardShadow }}; display:flex; flex-direction:column; gap:10px; min-width:0; cursor:pointer">
+            <div style="width:40px; height:40px; border-radius:50%; background:{{ t.accentSoft }}; color:{{ t.accent }}; display:flex; align-items:center; justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ f.icon }}"></path></svg></div>
+            <div style="min-width:0"><div style="font-size:16px; font-weight:600">{{ f.name }}</div><div style="font-size:13px; color:{{ t.text2 }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ f.sub }}</div></div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="margin-top:10px; padding:0 4px; font-size:20px; font-weight:700; letter-spacing:-0.01em">Recenti</div>
+      <div style="background:{{ t.surface }}; border-radius:24px; padding:0 16px; box-shadow:{{ t.cardShadow }}">
+        <sc-for list="{{ recents }}" as="rc" hint-placeholder-count="5">
+          <div data-component="PlaceRow" onClick="{{ rc.onTap }}" style="display:flex; align-items:center; gap:14px; height:60px; border-top:{{ rc.border }}; cursor:pointer">
+            <div style="flex:none; width:36px; height:36px; border-radius:50%; background:{{ t.fill }}; color:{{ t.text2 }}; display:flex; align-items:center; justify-content:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></div>
+            <div style="flex:1; min-width:0"><div style="font-size:17px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ rc.name }}</div><div style="font-size:13px; color:{{ t.text2 }}">{{ rc.sub }}</div></div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{ t.text3 }}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+
+<!-- RISULTATI: riepilogo -->
+<sc-if value="{{ resultsTop }}" hint-placeholder-val="{{ false }}">
+  <div data-component="RouteSummaryBar" style="position:absolute; left:16px; right:16px; top:60px; height:60px; box-sizing:border-box; border-radius:30px; display:flex; align-items:center; gap:4px; padding:0 8px; z-index:3; background:{{ t.glassStrong }}; backdrop-filter:blur(24px) saturate(180%); -webkit-backdrop-filter:blur(24px) saturate(180%); border:1px solid {{ t.glassBorder }}; box-shadow:{{ t.shadow }}">
+    <div data-component="BackButton" onClick="{{ backToForm }}" style="flex:none; width:44px; height:44px; display:flex; align-items:center; justify-content:center; cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></div>
+    <div onClick="{{ backToForm }}" style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; cursor:pointer">
+      <div style="display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; color:{{ rs.fromC }}; white-space:nowrap; overflow:hidden"><span style="flex:none; width:8px; height:8px; border-radius:50%; background:{{ t.accent }}"></span>{{ rs.fromName }}</div>
+      <div style="display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden"><span style="flex:none; width:8px; height:8px; border-radius:2px; background:{{ t.text }}"></span>{{ rs.toName }}</div>
+    </div>
+    <div onClick="{{ rs.swap }}" style="flex:none; width:44px; height:44px; display:flex; align-items:center; justify-content:center; cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4v16M4 8l4-4 4 4M16 20V4M12 16l4 4 4-4"></path></svg></div>
+  </div>
+</sc-if>
+
+<!-- TRENI -->
+<sc-if value="{{ trainBoard }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute; left:0; right:0; top:62px; bottom:0; padding:0 16px 120px; box-sizing:border-box; overflow-y:auto; display:flex; flex-direction:column; gap:12px">
+    <div style="display:flex; align-items:flex-end; justify-content:space-between; padding:0 4px">
+      <div>
+        <div style="font-size:34px; line-height:41px; font-weight:700; letter-spacing:-0.025em">Parma</div>
+        <div style="font-size:15px; color:{{ t.text2 }}">Stazione FS · aggiornato alle {{ clock }}</div>
+      </div>
+    </div>
+    <div data-component="SegmentedControl" style="display:grid; grid-template-columns:1fr 1fr; height:44px; padding:3px; box-sizing:border-box; border-radius:22px; background:{{ t.fill }}; position:relative">
+      <div style="position:absolute; top:3px; bottom:3px; left:3px; width:calc(50% - 3px); border-radius:19px; background:{{ t.segOn }}; box-shadow:0 2px 8px rgba(0,0,0,0.12); transform:translateX({{ tb.segX }}); transition:transform .45s cubic-bezier(.3,1.35,.5,1)"></div>
+      <div onClick="{{ tb.dep }}" style="position:relative; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:600; color:{{ tb.depC }}; cursor:pointer">Partenze</div>
+      <div onClick="{{ tb.arr }}" style="position:relative; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:600; color:{{ tb.arrC }}; cursor:pointer">Arrivi</div>
+    </div>
+    <div style="background:{{ t.surface }}; border-radius:24px; padding:0 16px; box-shadow:{{ t.cardShadow }}">
+      <sc-if value="{{ tb.loading }}" hint-placeholder-val="{{ false }}">{{ tb.skel }}</sc-if>
+      <sc-for list="{{ tb.rows }}" as="tr" hint-placeholder-count="8">
+        <div data-component="TrainRow" onClick="{{ tr.onTap }}" style="display:grid; grid-template-columns:54px minmax(0,1fr) 44px; gap:12px; align-items:center; height:64px; border-top:{{ tr.border }}; cursor:pointer">
+          <div style="font-size:18px; font-weight:700; letter-spacing:-0.01em; color:{{ tr.timeC }}; text-decoration:{{ tr.deco }}">{{ tr.time }}</div>
+          <div style="min-width:0">
+            <div style="font-size:17px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:{{ tr.destC }}">{{ tr.dest }}</div>
+            <div style="font-size:13px; margin-top:2px; display:flex; gap:5px"><span style="color:{{ t.text2 }}">{{ tr.num }}</span><span style="color:{{ t.text3 }}">·</span><span style="color:{{ tr.stC }}; font-weight:700">{{ tr.status }}</span></div>
+          </div>
+          <div style="width:44px; height:44px; border-radius:12px; background:{{ tr.binBg }}; color:{{ tr.binC }}; display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1">
+            <span style="font-size:9px; font-weight:700; letter-spacing:0.06em; opacity:0.75">BIN</span><span style="font-size:19px; font-weight:700; margin-top:2px">{{ tr.bin }}</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ trainDetail }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute; left:0; right:0; top:58px; bottom:0; padding:0 16px 120px; box-sizing:border-box; overflow-y:auto; display:flex; flex-direction:column; gap:12px">
+    <div style="display:flex; align-items:center; justify-content:space-between; height:44px; flex:none">
+      <div data-component="BackButton" onClick="{{ td.back }}" style="height:44px; padding:0 14px 0 8px; border-radius:22px; background:{{ t.surface }}; box-shadow:{{ t.cardShadow }}; display:flex; align-items:center; gap:2px; font-size:16px; font-weight:600; cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg>{{ td.backLabel }}</div>
+    </div>
+    <div style="padding:0 4px">
+      <div style="display:flex; align-items:center; gap:10px"><span style="height:26px; padding:0 8px; border-radius:8px; background:{{ t.text }}; color:{{ t.bg }}; display:flex; align-items:center; font-size:13px; font-weight:800">{{ td.cat }}</span><span style="font-size:30px; font-weight:700; letter-spacing:-0.02em">{{ td.num }}</span></div>
+      <div style="font-size:17px; color:{{ t.text2 }}; margin-top:2px">{{ td.od }}</div>
+    </div>
+    <sc-if value="{{ td.cancelOn }}" hint-placeholder-val="{{ false }}">
+      <div data-component="StatusBanner" style="flex:none; background:{{ t.cancelSoft }}; border-radius:24px; padding:14px 16px; display:flex; flex-direction:column; gap:10px">
+        <div style="display:flex; align-items:center; gap:10px; color:{{ t.cancel }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M9 9l6 6M15 9l-6 6"></path></svg><span style="font-size:17px; font-weight:700">Treno cancellato</span></div>
+        <div style="font-size:15px; line-height:20px; text-wrap:pretty">{{ td.cancelBody }}</div>
+        <sc-if value="{{ td.hasAlt }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ td.altTap }}" style="min-height:52px; border-radius:16px; background:{{ t.surface }}; display:flex; align-items:center; gap:12px; padding:0 14px; cursor:pointer">
+            <span style="font-size:13px; color:{{ t.text2 }}">Alternativa</span><span style="flex:1; font-size:15px; font-weight:600">{{ td.altText }}</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{ t.text3 }}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+    <div data-component="TrainStatusCard" style="background:{{ t.surface }}; border-radius:24px; padding:16px; box-shadow:{{ t.cardShadow }}; display:grid; grid-template-columns:1fr 1fr; gap:12px 16px">
+      <div><div style="font-size:13px; color:{{ t.text2 }}">Stato</div><div style="font-size:30px; font-weight:700; color:{{ td.stC }}; letter-spacing:-0.02em">{{ td.status }}</div></div>
+      <div><div style="font-size:13px; color:{{ t.text2 }}">Parma · binario</div><div style="font-size:30px; font-weight:700; letter-spacing:-0.02em">{{ td.bin }} <span style="font-size:15px; font-weight:600; color:{{ t.text2 }}">{{ td.parmaEst }}</span></div></div>
+      <div style="grid-column:1 / -1; display:flex; align-items:center; gap:8px; padding-top:12px; border-top:1px solid {{ t.hair }}; font-size:15px">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="{{ td.sigC }}" stroke-width="3" stroke-linecap="round"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="2" fill="{{ td.sigC }}" stroke="none"></circle></svg>
+        <span style="color:{{ t.text2 }}">{{ td.lastLabel }}</span><span style="font-weight:600">{{ td.last }}</span>
+      </div>
+    </div>
+    <div style="background:{{ t.surface }}; border-radius:24px; padding:6px 16px; box-shadow:{{ t.cardShadow }}">
+      <sc-for list="{{ td.stops }}" as="ts" hint-placeholder-count="8">
+        <div data-component="TrainTimelineRow" style="display:grid; grid-template-columns:48px 22px minmax(0,1fr) auto; gap:10px; align-items:center; height:52px">
+          <div style="font-size:15px; font-weight:600; color:{{ ts.timeC }}; text-align:right; text-decoration:{{ ts.deco }}">{{ ts.plan }}</div>
+          <div style="position:relative; height:52px">
+            <div style="position:absolute; left:9px; width:4px; top:0; height:26px; background:{{ ts.upC }}"></div>
+            <div style="position:absolute; left:9px; width:4px; top:26px; height:26px; background:{{ ts.downC }}"></div>
+            <div style="position:absolute; left:{{ ts.dotOff }}px; top:{{ ts.dotTop }}px; width:{{ ts.dot }}px; height:{{ ts.dot }}px; box-sizing:border-box; border-radius:50%; background:{{ ts.dotBg }}; border:3px solid {{ ts.dotBd }}"></div>
+            <sc-if value="{{ ts.train }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute; left:-4px; top:{{ ts.trainTop }}px; width:30px; height:30px; box-sizing:border-box; border-radius:50%; background:{{ t.accent }}; border:3px solid {{ t.surface }}; z-index:2; display:flex; align-items:center; justify-content:center; color:#fff; transition:top 1s linear"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="14" rx="4"></rect><path d="M5 11h14M8.5 21l2-4M15.5 21l-2-4"></path></svg></div>
+            </sc-if>
+          </div>
+          <div style="min-width:0">
+            <div style="font-size:17px; font-weight:{{ ts.fw }}; color:{{ ts.nameC }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ ts.name }}</div>
+            <sc-if value="{{ ts.hasNote }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; font-weight:600; color:{{ t.accent }}">{{ ts.note }}</div></sc-if>
+          </div>
+          <div style="font-size:15px; font-weight:700; color:{{ ts.estC }}">{{ ts.est }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+
+<!-- PREFERITI -->
+<sc-if value="{{ favTab }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute; left:0; right:0; top:62px; bottom:0; padding:0 16px 120px; box-sizing:border-box; overflow-y:auto; display:flex; flex-direction:column; gap:10px">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:0 4px">
+      <div style="font-size:34px; line-height:41px; font-weight:700; letter-spacing:-0.025em">Preferiti</div>
+      <div data-component="IconButton" onClick="{{ openInfo }}" style="width:44px; height:44px; border-radius:22px; background:{{ t.surface }}; box-shadow:{{ t.cardShadow }}; display:flex; align-items:center; justify-content:center; cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6"></path><circle cx="12" cy="7.6" r="0.4" fill="currentColor"></circle></svg></div>
+    </div>
+    <sc-if value="{{ fv.loading }}" hint-placeholder-val="{{ false }}"><div style="background:{{ t.surface }}; border-radius:24px; padding:0 16px; box-shadow:{{ t.cardShadow }}">{{ fv.skel }}</div></sc-if>
+    <sc-if value="{{ fv.empty }}" hint-placeholder-val="{{ false }}">
+      <div style="background:{{ t.surface }}; border-radius:24px; padding:24px 20px; box-shadow:{{ t.cardShadow }}; font-size:15px; color:{{ t.text2 }}; text-wrap:pretty">Nessun preferito. Tocca la stella su una fermata o su un tragitto per salvarlo qui.</div>
+    </sc-if>
+    <sc-if value="{{ fv.hasTrips }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:6px 4px 0; font-size:13px; font-weight:600; letter-spacing:0.04em; color:{{ t.text2 }}">TRAGITTI</div>
+    </sc-if>
+    <sc-for list="{{ fv.trips }}" as="ft" hint-placeholder-count="1">
+      <div data-component="FavoriteTripCard" onClick="{{ ft.onTap }}" style="background:{{ t.surface }}; border-radius:24px; padding:10px 8px 14px 16px; box-shadow:{{ t.cardShadow }}; display:flex; flex-direction:column; gap:6px; cursor:pointer">
+        <div style="display:flex; align-items:center; gap:8px">
+          <div style="flex:1; min-width:0; font-size:17px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ ft.title }}</div>
+          <sc-for list="{{ ft.lines }}" as="l" hint-placeholder-count="1"><div data-component="LineBadge" style="flex:none; width:26px; height:26px; border-radius:50%; background:{{ l.color }}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700">{{ l.n }}</div></sc-for>
+          <div data-component="StarButton" onClick="{{ ft.unstar }}" style="flex:none; width:44px; height:44px; display:flex; align-items:center; justify-content:center; color:{{ t.star }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.5l2.6 5.3 5.9.9-4.25 4.1 1 5.8L12 16.9l-5.25 2.7 1-5.8L3.5 9.7l5.9-.9z"></path></svg></div>
+        </div>
+        <div style="display:flex; align-items:flex-end; gap:12px; padding-right:8px">
+          <div style="display:flex; align-items:flex-start; gap:3px; height:40px; overflow:hidden">{{ ft.cd }}</div>
+          <div style="flex:1; min-width:0; padding-bottom:2px">
+            <div style="font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ ft.from }}</div>
+            <div style="font-size:13px; color:{{ t.text2 }}">{{ ft.then }}</div>
+          </div>
+        </div>
+      </div>
+    </sc-for>
+    <sc-if value="{{ fv.hasStops }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:10px 4px 0; font-size:13px; font-weight:600; letter-spacing:0.04em; color:{{ t.text2 }}">FERMATE</div>
+    </sc-if>
+    <sc-for list="{{ fv.stops }}" as="fs" hint-placeholder-count="2">
+      <div data-component="FavoriteStopCard" onClick="{{ fs.onTap }}" style="background:{{ t.surface }}; border-radius:24px; padding:2px 8px 4px 16px; box-shadow:{{ t.cardShadow }}; cursor:pointer">
+        <div style="display:flex; align-items:center; justify-content:space-between; height:44px">
+          <div style="font-size:17px; font-weight:600">{{ fs.name }}</div>
+          <div data-component="StarButton" onClick="{{ fs.unstar }}" style="width:44px; height:44px; display:flex; align-items:center; justify-content:center; color:{{ t.star }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.5l2.6 5.3 5.9.9-4.25 4.1 1 5.8L12 16.9l-5.25 2.7 1-5.8L3.5 9.7l5.9-.9z"></path></svg></div>
+        </div>
+        <sc-for list="{{ fs.rows }}" as="r" hint-placeholder-count="3">
+          <div style="display:grid; grid-template-columns:30px minmax(0,1fr) auto; gap:12px; align-items:center; height:46px; border-top:1px solid {{ t.hair }}; padding-right:8px">
+            <div data-component="LineBadge" style="width:30px; height:30px; border-radius:50%; background:{{ r.color }}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700">{{ r.n }}</div>
+            <div style="font-size:16px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ r.dest }}</div>
+            <div style="display:flex; align-items:flex-start; gap:3px; height:24px; overflow:hidden; color:{{ t.text }}">{{ r.cd }}<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="2" fill="currentColor" stroke="none"></circle></svg></div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ fs.isEmpty }}" hint-placeholder-val="{{ false }}"><div style="height:46px; border-top:1px solid {{ t.hair }}; display:flex; align-items:center; font-size:15px; color:{{ t.text2 }}">{{ fs.emptyMsg }}</div></sc-if>
+      </div>
+    </sc-for>
+  </div>
+</sc-if>
+
+<!-- INFO -->
+<sc-if value="{{ info.on }}" hint-placeholder-val="{{ false }}">
+  <div data-component="InfoScreen" style="position:absolute; inset:0; z-index:9; background:{{ t.bg }}; padding:58px 16px 48px; box-sizing:border-box; overflow-y:auto; display:flex; flex-direction:column; gap:12px">
+    <div style="flex:none; height:44px; display:flex; align-items:center">
+      <div data-component="BackButton" onClick="{{ info.close }}" style="height:44px; padding:0 14px 0 8px; border-radius:22px; background:{{ t.surface }}; box-shadow:{{ t.cardShadow }}; display:flex; align-items:center; gap:2px; font-size:16px; font-weight:600; cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg>Indietro</div>
+    </div>
+    <div style="padding:0 4px; font-size:34px; line-height:41px; font-weight:700; letter-spacing:-0.025em">Info</div>
+    <div style="flex:none; background:{{ t.surface }}; border-radius:24px; padding:16px; box-shadow:{{ t.cardShadow }}; display:flex; align-items:center; gap:14px">
+      <div style="flex:none; width:56px; height:56px; border-radius:16px; background:{{ t.accent }}; color:#fff; display:flex; align-items:center; justify-content:center"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6 9 4ZM9 4v14M15 6v14"></path></svg></div>
+      <div><div style="font-size:17px; font-weight:700">Parma Live</div><div style="font-size:13px; color:{{ t.text2 }}">Versione 0.1 · uso personale</div></div>
+    </div>
+    <div style="padding:10px 4px 0; font-size:13px; font-weight:600; letter-spacing:0.04em; color:{{ t.text2 }}">FONTI DATI</div>
+    <div style="flex:none; background:{{ t.surface }}; border-radius:24px; padding:0 16px; box-shadow:{{ t.cardShadow }}">
+      <sc-for list="{{ info.sources }}" as="src" hint-placeholder-count="4">
+        <div data-component="AttributionRow" style="padding:12px 0; border-top:{{ src.border }}"><div style="font-size:16px; font-weight:600">{{ src.title }}</div><div style="font-size:13px; color:{{ t.text2 }}; margin-top:2px">{{ src.sub }}</div></div>
+      </sc-for>
+    </div>
+    <div style="padding:10px 4px 0; font-size:13px; font-weight:600; letter-spacing:0.04em; color:{{ t.text2 }}">SIMULA STATO · SOLO PROTOTIPO</div>
+    <div style="flex:none; background:{{ t.surface }}; border-radius:24px; padding:0 16px; box-shadow:{{ t.cardShadow }}">
+      <sc-for list="{{ info.scenarios }}" as="sc" hint-placeholder-count="8">
+        <div onClick="{{ sc.onTap }}" style="display:flex; align-items:center; gap:12px; min-height:56px; border-top:{{ sc.border }}; cursor:pointer">
+          <div style="flex:1; min-width:0"><div style="font-size:16px; font-weight:600">{{ sc.label }}</div><div style="font-size:13px; color:{{ t.text2 }}">{{ sc.desc }}</div></div>
+          <sc-if value="{{ sc.on }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{ t.accent }}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"></path></svg></sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+
+<!-- SHEET -->
+<sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
+  <div data-component="BottomSheet" onPointerDown="{{ onSheetDown }}" style="position:absolute; left:8px; right:8px; top:0; height:780px; z-index:5; transform:translateY({{ sheetY }}px); transition:{{ sheetTr }}; border-radius:40px; background:{{ t.sheet }}; backdrop-filter:blur(30px) saturate(180%); -webkit-backdrop-filter:blur(30px) saturate(180%); border:1px solid {{ t.glassBorder }}; box-shadow:0 -4px 40px rgba(0,0,0,0.18); display:flex; flex-direction:column; box-sizing:border-box; touch-action:none; overflow:hidden">
+    <div data-component="SheetHandle" style="flex:none; padding:8px 0 10px; cursor:grab"><div style="width:36px; height:5px; border-radius:3px; background:{{ t.text3 }}; opacity:0.6; margin:0 auto"></div></div>
+
+    <sc-if value="{{ bs.on }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:none; padding:4px 20px 0">
+        <div style="display:flex; align-items:center; gap:14px">
+          <div data-component="LineBadge" style="flex:none; width:54px; height:54px; border-radius:50%; background:{{ bs.color }}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:800">{{ bs.n }}</div>
+          <div style="flex:1; min-width:0">
+            <div style="font-size:13px; font-weight:500; color:{{ t.text2 }}">Direzione</div>
+            <div style="font-size:26px; line-height:30px; font-weight:700; letter-spacing:-0.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ bs.dest }}</div>
+          </div>
+          <div data-component="CloseButton" onClick="{{ closeSheet }}" style="flex:none; width:44px; height:44px; border-radius:22px; background:{{ t.fill }}; display:flex; align-items:center; justify-content:center; color:{{ t.text2 }}; cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; margin-top:14px; flex-wrap:wrap">
+          <div style="height:30px; padding:0 12px; border-radius:15px; background:{{ bs.stBg }}; color:{{ bs.stC }}; display:flex; align-items:center; gap:6px; font-size:14px; font-weight:700"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>{{ bs.status }}</div>
+          <div style="height:30px; padding:0 12px; border-radius:15px; background:{{ t.fill }}; color:{{ t.text2 }}; display:flex; align-items:center; font-size:14px; font-weight:600">{{ bs.vehLabel }}</div>
+          <div style="height:30px; padding:0 12px; border-radius:15px; background:{{ t.fill }}; color:{{ t.text2 }}; display:flex; align-items:center; font-size:14px; font-weight:600">{{ bs.fromLabel }}</div>
+        </div>
+        <div style="margin-top:20px; padding-bottom:4px; font-size:13px; font-weight:600; letter-spacing:0.04em; color:{{ t.text2 }}">PROSSIME FERMATE</div>
+      </div>
+      <div data-scroll="1" style="flex:1; min-height:0; overflow-y:{{ listOverflow }}; padding:0 20px 40px; touch-action:{{ listTouch }}">
+        <sc-for list="{{ bs.stops }}" as="ns" hint-placeholder-count="5">
+          <div data-component="NextStopRow" onClick="{{ ns.onTap }}" style="display:grid; grid-template-columns:24px minmax(0,1fr) auto; gap:12px; align-items:center; height:50px; cursor:pointer">
+            <div style="position:relative; height:50px">
+              <div style="position:absolute; left:10px; width:4px; top:0; bottom:{{ ns.lineBottom }}px; background:{{ bs.color }}"></div>
+              <div style="position:absolute; left:4px; top:17px; width:16px; height:16px; box-sizing:border-box; border-radius:50%; background:{{ ns.dotBg }}; border:4px solid {{ bs.color }}"></div>
+            </div>
+            <div style="font-size:17px; font-weight:{{ ns.fw }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ ns.name }}</div>
+            <div style="display:flex; align-items:baseline; gap:10px">
+              <sc-if value="{{ bs.late }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px; color:{{ t.text3 }}; text-decoration:line-through">{{ ns.plan }}</span></sc-if>
+              <span style="font-size:17px; font-weight:700; color:{{ bs.etaC }}; min-width:44px; text-align:right">{{ ns.eta }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ ss.on }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:none; padding:4px 20px 0">
+        <div style="display:flex; align-items:flex-start; gap:12px">
+          <div style="flex:1; min-width:0">
+            <div style="font-size:26px; line-height:30px; font-weight:700; letter-spacing:-0.02em">{{ ss.name }}</div>
+            <div style="margin-top:6px; display:flex; align-items:center; gap:6px">
+              <sc-for list="{{ ss.lines }}" as="l" hint-placeholder-count="3"><div data-component="LineBadge" style="width:26px; height:26px; border-radius:50%; background:{{ l.color }}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700">{{ l.n }}</div></sc-for>
+            </div>
+            <div style="margin-top:6px; font-size:13px; color:{{ t.text2 }}">Fermata {{ ss.code }}</div>
+          </div>
+          <div style="display:flex; gap:8px">
+            <div data-component="StarButton" onClick="{{ ss.toggleStar }}" style="width:44px; height:44px; border-radius:22px; background:{{ t.fill }}; display:flex; align-items:center; justify-content:center; color:{{ ss.starC }}; cursor:pointer; transform:scale({{ ss.starScale }}); transition:transform .4s cubic-bezier(.3,1.8,.5,1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="{{ ss.starFill }}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.25 4.1 1 5.8L12 16.9l-5.25 2.7 1-5.8L3.5 9.7l5.9-.9z"></path></svg></div>
+            <div data-component="CloseButton" onClick="{{ closeSheet }}" style="width:44px; height:44px; border-radius:22px; background:{{ t.fill }}; display:flex; align-items:center; justify-content:center; color:{{ t.text2 }}; cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-top:16px; padding-bottom:8px; font-size:13px; color:{{ t.text2 }}">
+          <span style="font-weight:600; letter-spacing:0.04em">ARRIVI</span>
+          <span style="display:flex; align-items:center; gap:12px">
+            <span style="display:flex; align-items:center; gap:4px; color:{{ t.ok }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="2" fill="currentColor" stroke="none"></circle></svg>tempo reale</span>
+            <span style="display:flex; align-items:center; gap:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>programmato</span>
+          </span>
+        </div>
+      </div>
+      <div data-scroll="1" style="flex:1; min-height:0; overflow-y:{{ listOverflow }}; padding:0 20px 40px; touch-action:{{ listTouch }}">
+        <sc-if value="{{ ss.loading }}" hint-placeholder-val="{{ false }}">{{ ss.skel }}</sc-if>
+        <sc-if value="{{ ss.empty }}" hint-placeholder-val="{{ false }}">
+          <div data-component="EmptyState" style="display:flex; gap:12px; align-items:center; padding:14px 0; border-top:1px solid {{ t.hair }}">
+            <div style="flex:none; width:40px; height:40px; border-radius:50%; background:{{ t.fill }}; display:flex; align-items:center; justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg></div>
+            <div><div style="font-size:17px; font-weight:600">Nessun bus in servizio</div><div style="font-size:13px; color:{{ t.text2 }}">Primi passaggi del mattino, orario programmato</div></div>
+          </div>
+        </sc-if>
+        <sc-for list="{{ ss.rows }}" as="r" hint-placeholder-count="6">
+          <div data-component="DepartureRow" onClick="{{ r.onTap }}" style="display:grid; grid-template-columns:40px minmax(0,1fr) auto; align-items:center; gap:12px; height:62px; border-top:1px solid {{ t.hair }}; cursor:pointer">
+            <div data-component="LineBadge" style="width:40px; height:40px; border-radius:50%; background:{{ r.color }}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700">{{ r.n }}</div>
+            <div style="min-width:0">
+              <div style="font-size:17px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:{{ r.destC }}">{{ r.dest }}</div>
+              <div style="font-size:13px; margin-top:2px; color:{{ r.subC }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ r.sub }}</div>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:3px; height:28px; overflow:hidden; color:{{ r.cdC }}">
+              {{ r.cd }}
+              <sc-if value="{{ r.live }}" hint-placeholder-val="{{ false }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="margin-top:1px"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="2" fill="currentColor" stroke="none"></circle></svg></sc-if>
+              <sc-if value="{{ r.sched }}" hint-placeholder-val="{{ false }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="margin-top:1px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ rsh.on }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 12px 10px 20px">
+        <div>
+          <div style="font-size:20px; font-weight:700; letter-spacing:-0.01em">{{ rsh.title }}</div>
+          <div style="font-size:13px; color:{{ t.text2 }}">Partenza ora · {{ clock }}</div>
+        </div>
+        <div data-component="StarButton" onClick="{{ rsh.toggleStar }}" style="height:44px; padding:0 14px 0 12px; border-radius:22px; background:{{ t.fill }}; display:flex; align-items:center; gap:6px; color:{{ rsh.starC }}; font-size:15px; font-weight:600; cursor:pointer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="{{ rsh.starFill }}" stroke="currentColor" stroke-width="2" stroke-linejoin="round" style="transform:scale({{ rsh.starScale }}); transition:transform .4s cubic-bezier(.3,1.8,.5,1)"><path d="M12 3.5l2.6 5.3 5.9.9-4.25 4.1 1 5.8L12 16.9l-5.25 2.7 1-5.8L3.5 9.7l5.9-.9z"></path></svg>
+          <span style="color:{{ t.text }}">{{ rsh.starLabel }}</span>
+        </div>
+      </div>
+      <div data-scroll="1" style="flex:1; min-height:0; overflow-y:{{ listOverflow }}; padding:0 12px 40px; display:flex; flex-direction:column; gap:8px; touch-action:{{ listTouch }}">
+        <sc-if value="{{ rsh.loading }}" hint-placeholder-val="{{ false }}"><div style="flex:none; background:{{ t.card }}; border-radius:24px; padding:0 16px">{{ rsh.skel }}</div></sc-if>
+        <sc-if value="{{ rsh.none }}" hint-placeholder-val="{{ false }}">
+          <div data-component="EmptyState" style="flex:none; padding:4px 8px 6px"><div style="font-size:17px; font-weight:600">{{ rsh.noneTitle }}</div><div style="font-size:15px; line-height:20px; color:{{ t.text2 }}; margin-top:2px; text-wrap:pretty">{{ rsh.noneBody }}</div></div>
+          <div data-component="WalkSuggestionCard" style="flex:none; background:{{ t.card }}; border-radius:24px; padding:14px 14px 14px 16px; display:flex; align-items:center; gap:14px; box-shadow:0 0 0 2px {{ t.accent }}">
+            <div style="flex:none; width:44px; height:44px; border-radius:50%; background:{{ t.accentSoft }}; color:{{ t.accent }}; display:flex; align-items:center; justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4.5" r="2" fill="currentColor"></circle><path d="M9.5 21l2.5-7-3-3 1.5-4 3.5 3 3 1M12 14l3 3 1 4M9 11l-2.5 3"></path></svg></div>
+            <div style="flex:1; min-width:0"><div style="font-size:13px; color:{{ t.text2 }}">Suggerimento</div><div style="font-size:20px; font-weight:700; letter-spacing:-0.01em">{{ rsh.walkTitle }}</div><div style="font-size:13px; color:{{ t.text2 }}">{{ rsh.walkMeta }}</div></div>
+            <div style="flex:none; height:44px; padding:0 18px; border-radius:22px; background:{{ t.accent }}; color:#fff; display:flex; align-items:center; font-size:15px; font-weight:600">Vai</div>
+          </div>
+        </sc-if>
+        <sc-for list="{{ rsh.cards }}" as="res" hint-placeholder-count="3">
+          <div data-component="RouteResultCard" onClick="{{ res.onTap }}" style="flex:none; background:{{ t.card }}; border-radius:24px; padding:14px 16px; display:flex; flex-direction:column; gap:8px; box-shadow:{{ res.ring }}; transition:box-shadow .3s ease; cursor:pointer">
+            <div style="display:flex; align-items:center; gap:6px">
+              <sc-for list="{{ res.steps }}" as="stp" hint-placeholder-count="3">
+                <sc-if value="{{ stp.walk }}" hint-placeholder-val="{{ false }}"><div style="display:flex; align-items:center; gap:1px; font-size:15px; font-weight:600; color:{{ t.text2 }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4.5" r="2" fill="currentColor"></circle><path d="M9.5 21l2.5-7-3-3 1.5-4 3.5 3 3 1M12 14l3 3 1 4M9 11l-2.5 3"></path></svg>{{ stp.min }}</div></sc-if>
+                <sc-if value="{{ stp.bus }}" hint-placeholder-val="{{ false }}"><div data-component="LineBadge" style="width:32px; height:32px; border-radius:50%; background:{{ stp.color }}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700">{{ stp.n }}</div></sc-if>
+                <sc-if value="{{ stp.sep }}" hint-placeholder-val="{{ false }}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="{{ t.text3 }}" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></sc-if>
+              </sc-for>
+              <div style="flex:1"></div>
+              <div style="display:flex; align-items:baseline; gap:3px"><span style="font-size:26px; font-weight:700; letter-spacing:-0.02em">{{ res.dur }}</span><span style="font-size:14px; font-weight:600; color:{{ t.text2 }}">min</span></div>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px; font-size:15px; color:{{ t.text2 }}; white-space:nowrap; overflow:hidden; height:24px">
+              <span style="display:flex; align-items:center; gap:4px; color:{{ res.cdC }}; font-weight:700"><span>tra</span>{{ res.cd }}</span>
+              <span style="overflow:hidden; text-overflow:ellipsis">{{ res.from }}</span>
+            </div>
+            <div style="font-size:13px; color:{{ t.text2 }}">{{ res.meta }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+
+<sc-if value="{{ banner.on }}" hint-placeholder-val="{{ false }}">
+  <div data-component="StatusBanner" style="position:absolute; left:50%; bottom:102px; transform:translateX(-50%); z-index:7; height:36px; padding:0 14px; box-sizing:border-box; border-radius:18px; display:flex; align-items:center; gap:8px; white-space:nowrap; background:{{ t.glassStrong }}; backdrop-filter:blur(24px) saturate(180%); -webkit-backdrop-filter:blur(24px) saturate(180%); border:1px solid {{ t.glassBorder }}; box-shadow:{{ t.shadow }}; font-size:13px; font-weight:600; color:{{ banner.c }}">
+    <span style="width:8px; height:8px; border-radius:4px; background:{{ banner.c }}"></span>{{ banner.text }}
+  </div>
+</sc-if>
+<sc-if value="{{ toast.on }}" hint-placeholder-val="{{ false }}">
+  <div data-component="Toast" style="position:absolute; left:16px; right:16px; bottom:{{ toast.bottom }}px; z-index:8; border-radius:26px; padding:12px 6px 12px 14px; display:flex; align-items:center; gap:12px; background:{{ t.glassStrong }}; backdrop-filter:blur(24px) saturate(180%); -webkit-backdrop-filter:blur(24px) saturate(180%); border:1px solid {{ t.glassBorder }}; box-shadow:{{ t.shadow }}">
+    <div style="flex:none; width:40px; height:40px; border-radius:50%; background:{{ t.lateSoft }}; color:{{ t.late }}; display:flex; align-items:center; justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M20.5 3.5 3.5 10.8l7.2 2 2 7.2z" fill="currentColor"></path><path d="M3 3l18 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg></div>
+    <div style="flex:1; min-width:0"><div style="font-size:15px; font-weight:700">{{ toast.title }}</div><div style="font-size:13px; line-height:18px; color:{{ t.text2 }}; text-wrap:pretty">{{ toast.body }}</div></div>
+    <div data-component="CloseButton" onClick="{{ toast.close }}" style="flex:none; width:44px; height:44px; display:flex; align-items:center; justify-content:center; color:{{ t.text2 }}; cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></div>
+  </div>
+</sc-if>
+
+<!-- STATUS BAR -->
+<div data-component="StatusBar" style="position:absolute; left:0; right:0; top:0; height:54px; pointer-events:none; z-index:10">
+  <div style="position:absolute; left:50%; top:11px; width:124px; height:36px; margin-left:-62px; border-radius:18px; background:#000"></div>
+  <div style="position:absolute; left:52px; top:18px; font-size:17px; font-weight:600; color:{{ t.text }}">{{ clock }}</div>
+  <div style="position:absolute; right:30px; top:20px; display:flex; align-items:center; gap:6px; color:{{ t.text }}">
+    <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"></rect><rect x="5" y="5.5" width="3" height="6.5" rx="1"></rect><rect x="10" y="3" width="3" height="9" rx="1"></rect><rect x="15" y="0" width="3" height="12" rx="1"></rect></svg>
+    <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.5c2.3 0 4.4.9 6 2.4l1.2-1.3A10.2 10.2 0 0 0 8 .7 10.2 10.2 0 0 0 .8 3.6L2 4.9a8.4 8.4 0 0 1 6-2.4Zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.2-1.3A6.7 6.7 0 0 0 8 4.3a6.7 6.7 0 0 0-4.6 1.8l1.2 1.3c.9-.8 2.1-1.300 3.4-1.300Zm0 3.5c-.5 0-1 .2-1.3.5L8 11.5l1.3-1.4c-.3-.3-.8-.5-1.3-.5Z"></path></svg>
+    <svg width="27" height="13" viewBox="0 0 27 13"><rect x="0.5" y="0.5" width="23" height="12" rx="4" fill="none" stroke="currentColor" opacity="0.4"></rect><rect x="2" y="2" width="18" height="9" rx="2.5" fill="currentColor"></rect><path d="M25 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2Z" fill="currentColor" opacity="0.5"></path></svg>
+  </div>
+</div>
+
+<!-- TAB BAR -->
+<sc-if value="{{ showTabs }}" hint-placeholder-val="{{ true }}">
+  <div data-component="TabBar" style="position:absolute; left:20px; right:20px; bottom:26px; height:64px; box-sizing:border-box; border-radius:32px; padding:4px; z-index:6; display:grid; grid-template-columns:repeat(4, 1fr); gap:2px; background:{{ t.glass }}; backdrop-filter:blur(24px) saturate(180%); -webkit-backdrop-filter:blur(24px) saturate(180%); border:1px solid {{ t.glassBorder }}; box-shadow:{{ t.shadow }}">
+    <div data-component="TabBarItem" onClick="{{ tab.goMap }}" style="border-radius:28px; background:{{ tab.mapBg }}; color:{{ tab.mapC }}; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer; transition:background .3s ease">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6 9 4ZM9 4v14M15 6v14"></path></svg>
+      <span style="font-size:10px; font-weight:600">Mappa</span>
+    </div>
+    <div data-component="TabBarItem" onClick="{{ tab.goSearch }}" style="border-radius:28px; background:{{ tab.searchBg }}; color:{{ tab.searchC }}; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer; transition:background .3s ease">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
+      <span style="font-size:10px; font-weight:600">Cerca</span>
+    </div>
+    <div data-component="TabBarItem" onClick="{{ tab.goTrain }}" style="border-radius:28px; background:{{ tab.trainBg }}; color:{{ tab.trainC }}; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer; transition:background .3s ease">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="14" rx="4"></rect><path d="M5 10.5h14M8.5 21l2-4M15.5 21l-2-4"></path></svg>
+      <span style="font-size:10px; font-weight:600">Treni</span>
+    </div>
+    <div data-component="TabBarItem" onClick="{{ tab.goFav }}" style="border-radius:28px; background:{{ tab.favBg }}; color:{{ tab.favC }}; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer; transition:background .3s ease">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.25 4.1 1 5.8L12 16.9l-5.25 2.7 1-5.8L3.5 9.7l5.9-.9z"></path></svg>
+      <span style="font-size:10px; font-weight:600">Preferiti</span>
+    </div>
+  </div>
+</sc-if>
+<div style="position:absolute; left:50%; bottom:8px; width:138px; height:5px; margin-left:-69px; border-radius:3px; background:{{ t.text }}; pointer-events:none; z-index:10"></div>
+</div>
+</div>
+<div style="font-size:13px; color:{{ pageText }}; text-align:center; max-width:390px">Prototipo · tocca bus e fermate, trascina gli sheet e la mappa · tempo simulato {{ speedLabel }}</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;dark&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Prototipo&quot;},&quot;speed&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[1,6,20],&quot;default&quot;:6,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Prototipo&quot;},&quot;scenario&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;normal&quot;,&quot;loading&quot;,&quot;night&quot;,&quot;offline&quot;,&quot;stale&quot;,&quot;noresults&quot;,&quot;trainCancel&quot;,&quot;noGps&quot;],&quot;default&quot;:&quot;normal&quot;,&quot;tsType&quot;:&quot;'normal'|'loading'|'night'|'offline'|'stale'|'noresults'|'trainCancel'|'noGps'&quot;,&quot;section&quot;:&quot;Prototipo&quot;}}">
+class Component extends DCLogic {
+  static LC = {1:'#D3241C',2:'#0A64B4',3:'#00915A',4:'#C25E00',5:'#7A3D99',7:'#C2007A',8:'#7A5230',11:'#00808C',13:'#4F46C8',21:'#8C6A00',23:'#4A5D68'};
+  static TH = {
+    light:{bg:'#F2F2F7',surface:'#FFFFFF',card:'rgba(255,255,255,0.9)',sheet:'rgba(250,250,252,0.84)',glass:'rgba(255,255,255,0.68)',glassStrong:'rgba(255,255,255,0.86)',glassBorder:'rgba(255,255,255,0.75)',hair:'rgba(60,60,67,0.13)',fill:'rgba(118,118,128,0.12)',text:'#0B0B0F',text2:'#5C5C66',text3:'#9A9AA2',accent:'#1F5BE0',accentSoft:'rgba(31,91,224,0.13)',ok:'#12814A',okSoft:'rgba(18,129,74,0.14)',late:'#B25B00',lateSoft:'rgba(214,122,0,0.15)',cancel:'#CF2A1C',cancelSoft:'rgba(207,42,28,0.12)',star:'#E3A200',segOn:'#FFFFFF',shadow:'0 6px 24px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06)',cardShadow:'0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04)',ring:'#FFFFFF',mapBg:'#E8E8E6',tiles:'World_Light_Gray',past:'#B8B8BE',stopRing:'#8E8E96',tag:'#0B0B0F'},
+    dark:{bg:'#000000',surface:'#1C1C1F',card:'rgba(255,255,255,0.07)',sheet:'rgba(28,28,31,0.8)',glass:'rgba(40,40,44,0.6)',glassStrong:'rgba(44,44,48,0.82)',glassBorder:'rgba(255,255,255,0.10)',hair:'rgba(255,255,255,0.11)',fill:'rgba(118,118,128,0.24)',text:'#F5F5F7',text2:'#A9A9B3',text3:'#6E6E77',accent:'#6E9BFF',accentSoft:'rgba(110,155,255,0.2)',ok:'#3DD68C',okSoft:'rgba(61,214,140,0.18)',late:'#FFB340',lateSoft:'rgba(255,179,64,0.16)',cancel:'#FF6B5E',cancelSoft:'rgba(255,107,94,0.16)',star:'#FFC933',segOn:'#5A5A60',shadow:'0 6px 24px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.3)',cardShadow:'none',ring:'#1C1C1F',mapBg:'#242426',tiles:'World_Dark_Gray',past:'#55555C',stopRing:'#8E8E96',tag:'#55555C'}
+  };
+  static S = {
+    staz:['Stazione FS',44.8093,10.3285],pace:['Piazzale della Pace',44.8045,10.3255],mezzo:['Ponte di Mezzo',44.8005,10.3225],bixioV:['Via Bixio',44.7990,10.3195],bixio:['Barriera Bixio',44.7972,10.3168],montebello:['Via Montebello',44.7900,10.3175],volta:['Piazzale Volta',44.7820,10.3200],dattaro:['Ponte Dattaro',44.7740,10.3190],cus:['Via Langhirano · CUS',44.7680,10.3140],campus:['Campus Scienze',44.7650,10.3110],
+    garibV:['Via Garibaldi',44.8045,10.3283],garib:['Piazza Garibaldi',44.8015,10.3280],farini:['Barriera Farini',44.7975,10.3255],rustici:['Viale Rustici',44.7880,10.3240],pellico:['Via Silvio Pellico',44.7800,10.3230],langh:['Via Langhirano Sud',44.7720,10.3200],
+    emiliaO:['Via Emilia Ovest',44.8060,10.2960],dazeglio:["Via D'Azeglio",44.8030,10.3180],mazzini:['Via Mazzini',44.8013,10.3250],repub:['Barriera Repubblica',44.7988,10.3400],emiliaE:['Via Emilia Est',44.7960,10.3520],
+    leonardo:['San Leonardo',44.8230,10.3360],trento:['Via Trento',44.8160,10.3330],montanaraV:['Via Montanara',44.7900,10.3100],montanara:['Montanara',44.7830,10.3030],
+    mentana:['Viale Mentana',44.8060,10.3360],martiri:['Viale Martiri della Libertà',44.7960,10.3360],santacroce:['Piazzale Santa Croce',44.8040,10.3130],verdi:['Ponte Verdi',44.8085,10.3190],
+    venezia:['Via Venezia',44.8150,10.3520],spezia:['Via Spezia',44.7955,10.3135],cinghio:['Cinghio',44.7870,10.3020],
+    stradone:['Stradone',44.7985,10.3300],traversetolo:['Via Traversetolo',44.7920,10.3350],cittadella:['Cittadella',44.7840,10.3420],botteghino:['Botteghino',44.7760,10.3480],
+    europa:['Via Europa',44.8150,10.3200],paradigna:['Paradigna',44.8220,10.3150],piacenza:['Viale Piacenza',44.8120,10.3050],osp:['Ospedale Maggiore',44.8038,10.3095],
+    zarotto:['Via Zarotto',44.7880,10.3330],torelli:['Via Torelli',44.7780,10.3250]
+  };
+  static R = {1:['emiliaO','osp','dazeglio','mazzini','garib','repub','emiliaE'],2:['leonardo','trento','staz','pace','mezzo','bixio','montanaraV','montanara'],3:['staz','mentana','repub','martiri','farini','bixio','santacroce','verdi'],4:['venezia','mentana','garib','spezia','cinghio'],5:['stradone','traversetolo','cittadella','botteghino'],7:['staz','pace','mezzo','bixioV','bixio','montebello','volta','dattaro','cus','campus'],8:['staz','europa','paradigna'],11:['montanara','montanaraV','bixio','santacroce','osp','piacenza'],13:['staz','garibV','garib','farini','rustici','pellico','langh','campus'],21:['repub','zarotto','torelli','campus'],23:['osp','verdi','staz','mentana']};
+  static BUS0 = [[1,.1],[1,.35,1],[1,.55],[1,.8,1],[2,.05],[2,.3,1],[2,.5],[2,.75,1],[2,.92],[3,.1],[3,.3],[3,.55],[3,.8],[4,.15,1],[4,.45],[4,.8,1],[5,.3],[5,.75,1],[7,.12,1],[7,.42],[7,.78],[8,.4],[8,.8,1],[11,.2],[11,.7,1],[13,.2],[13,.6,1],[13,.9],[21,.3],[21,.7,1],[23,.25],[23,.65,1],[7,.6,1],[13,.05]];
+  static TR = {
+    dep:[['RV',2266,5,'4',0,'Bologna C.le@8:52|Modena@9:14|Reggio Emilia@9:31|Parma@9:45|Fidenza@9:57|Piacenza@10:17|Lodi@10:38|Milano Centrale@11:05'],
+      ['R',2117,0,'3',0,'Piacenza@9:10|Fiorenzuola@9:22|Fidenza@9:36|Parma@9:52|Reggio Emilia@10:08|Modena@10:24|Bologna C.le@10:50'],
+      ['R',2875,0,'6',0,'Parma@9:58|Fornovo@10:20|Borgo Val di Taro@10:58|Pontremoli@11:20|Aulla Lunigiana@11:38|La Spezia C.le@12:02'],
+      ['R',2087,0,'–',1,'Parma@10:03|Fidenza@10:15|Fiorenzuola@10:28|Piacenza@10:44'],
+      ['IC',605,12,'1',0,'Milano Centrale@8:45|Lodi@9:05|Piacenza@9:25|Fidenza@9:46|Parma@10:06|Reggio Emilia@10:24|Modena@10:40|Bologna C.le@11:05|Rimini@12:10|Ancona@13:20|Pescara@14:50|Bari Centrale@17:45|Lecce@19:20'],
+      ['R',2591,0,'7',0,'Parma@10:12|Casalmaggiore@10:40|Piadena@10:55|Brescia@11:45'],
+      ['R',91540,3,'2E',0,'Parma@10:15|Brescello-Viadana@10:37|Guastalla@10:49|Suzzara@11:10'],
+      ['R',2093,0,'5',0,'Parma@10:20|Fidenza@10:33']],
+    arr:[['RV',2263,2,'3',0,'Milano Centrale@8:15|Lodi@8:38|Piacenza@9:00|Fidenza@9:25|Parma@9:43|Reggio Emilia@9:58|Modena@10:14|Bologna C.le@10:40'],
+      ['R',2870,0,'5',0,'La Spezia C.le@7:52|Aulla Lunigiana@8:15|Pontremoli@8:33|Borgo Val di Taro@8:58|Fornovo@9:25|Parma@9:48'],
+      ['RV',2268,8,'4',0,'Bologna C.le@9:00|Modena@9:24|Reggio Emilia@9:40|Parma@9:55|Fidenza@10:07|Piacenza@10:27|Milano Centrale@11:15'],
+      ['R',2588,0,'7',0,'Brescia@8:30|Piadena@9:18|Casalmaggiore@9:33|Parma@10:01'],
+      ['R',91537,0,'–',1,'Suzzara@9:20|Guastalla@9:41|Brescello-Viadana@9:52|Parma@10:09'],
+      ['R',2090,4,'2',0,'Piacenza@9:30|Fiorenzuola@9:42|Fidenza@9:57|Parma@10:14'],
+      ['R',2121,0,'6',0,'Fidenza@10:10|Parma@10:23'],
+      ['R',2878,0,'5',0,'La Spezia C.le@8:32|Pontremoli@9:13|Fornovo@10:05|Parma@10:28']]
+  };
+  static PEEK=688; static HALF=400; static FULL=56;
+  static ME=[44.8028,10.3262];
+
+  static dist(a,b){const k=Math.cos(a[0]*Math.PI/180);return Math.hypot((b[1]-a[1])*111320*k,(b[0]-a[0])*110540);}
+  static wx(lo,z){return (lo+180)/360*256*Math.pow(2,z);}
+  static wy(la,z){const s=Math.sin(la*Math.PI/180);return (0.5-Math.log((1+s)/(1-s))/(4*Math.PI))*256*Math.pow(2,z);}
+  static geo(){
+    if(Component._g) return Component._g;
+    const C=Component, g={}, lines={};
+    for(const L in C.R){const ids=C.R[L], ring=L==='3', pts=ids.map(i=>[C.S[i][1],C.S[i][2]]); if(ring) pts.push(pts[0]);
+      const cum=[0]; for(let i=1;i<pts.length;i++) cum.push(cum[i-1]+C.dist(pts[i-1],pts[i]));
+      const ix={}; ids.forEach((id,i)=>{ix[id]=i;(lines[id]=lines[id]||[]).push(+L);});
+      g[L]={ids,pts,cum,len:cum[cum.length-1],ring,ix};}
+    Component._g={g,lines}; return Component._g;
+  }
+
+  phoneRef = React.createRef();
+  inputRef = React.createRef();
+  state = this.initState();
+
+  initState(){
+    const C=Component, {g}=C.geo();
+    const buses=C.BUS0.map((b,i)=>({id:i,line:b[0],d:b[1]*g[b[0]].len,dir:(b[2]&&b[0]!==3)?-1:1,v:4.3+(i%5)*0.3,delay:[0,2,0,1,0,3,0,0,5,1][i%10],veh:301+((i*37)%180)}));
+    buses[19].delay=2; buses[19].veh=412;
+    let favs={stops:['bixio','garib'],trips:[{from:'casa',to:'campus'}]};
+    try{const s=JSON.parse(localStorage.getItem('parmaLive.favs.v1')); if(s&&Array.isArray(s.stops)&&Array.isArray(s.trips)) favs=s;}catch(e){}
+    return {t:34860,buses,tab:'map',filter:[],cam:this.camAt(44.7975,10.3240,14,422),camT:0,sheet:null,sy:{map:844,search:844},sheetAnim:true,
+      search:{from:'me',to:null,focus:null,q:'',view:'form',sel:0},trains:{mode:'dep',detail:null},favs,scale:1,starPop:null,
+      scenario:'normal',booting:true,syncT:34860,staleAt:Date.now(),toast:null,info:false};
+  }
+  componentDidMount(){
+    this.iv=setInterval(()=>this.tick(),1000);
+    this.onResize=()=>{const s=Math.min(1,(window.innerHeight-70)/844,(window.innerWidth-24)/390); this.setState({scale:Math.max(0.4,s)});};
+    this.onResize(); window.addEventListener('resize',this.onResize);
+    setTimeout(()=>this.setState({booting:false}),1600);
+    if((this.props.scenario ?? 'normal')!=='normal') this.setScenario(this.props.scenario);
+  }
+  static SCEN = [['normal','Normale','Dati live, bus in movimento'],['loading','Caricamento','Skeleton mentre arrivano i dati'],['night','Notte','Nessun bus in servizio'],['offline','Offline','Ultimo dato salvato con orario'],['stale','Dato vecchio','Nessun aggiornamento da oltre 60 s'],['noresults','Nessun risultato A→B','Con suggerimento a piedi'],['trainCancel','Treno cancellato','R 2087 per Piacenza con alternativa'],['noGps','Posizione negata','Permesso di localizzazione rifiutato']];
+  setScenario(sc){
+    const s=this.state, upd={scenario:sc,syncT:s.t,staleAt:Date.now(),toast:null,booting:false};
+    if(sc==='night') upd.t=4320; else if(s.scenario==='night') upd.t=34860;
+    if(sc==='trainCancel'){upd.tab='train'; upd.trains={mode:'dep',detail:'dep3-0'}; upd.info=false;}
+    if(sc==='noGps'){upd.search={...s.search,from:s.search.from==='me'?null:s.search.from,view:'form',focus:null}; upd.tab='search'; upd.info=false;}
+    if(sc!=='noGps'&&s.scenario==='noGps'&&!s.search.from) upd.search={...s.search,from:'me'};
+    if(['night','loading','offline','stale'].includes(sc)){upd.tab='map'; upd.info=false; upd.sheet=null; upd.cam=Component.CAM0(); upd.camT=Date.now(); upd.camCtx='map';}
+    this.setState(upd,()=>{ if(sc==='noresults'){ this.setState({info:false}); this.goResults('me','montanara'); } });
+  }
+  showToast(title,body){this.setState({toast:{title,body}}); clearTimeout(this.tt); this.tt=setTimeout(()=>this.setState({toast:null}),5000);}
+  skel(n,h=62,av=40){
+    const E=React.createElement, t=this.T, bar=(w,hh)=>E('div',{style:{width:w,height:hh,borderRadius:hh/2,background:t.fill}});
+    return E('div',{'data-component':'Skeleton',style:{display:'flex',flexDirection:'column',animation:'plSkel 1.3s ease-in-out infinite'}},
+      Array.from({length:n},(_,i)=>E('div',{key:i,style:{display:'grid',gridTemplateColumns:av+'px minmax(0,1fr) 48px',gap:12,alignItems:'center',height:h,borderTop:i?'1px solid '+t.hair:'none'}},
+        E('div',{style:{width:av,height:av,borderRadius:av>30?'50%':10,background:t.fill}}),
+        E('div',{style:{display:'flex',flexDirection:'column',gap:7}},bar((58+(i*23)%30)+'%',13),bar((32+(i*17)%25)+'%',10)),bar(48,18))));
+  }
+  componentWillUnmount(){clearInterval(this.iv); window.removeEventListener('resize',this.onResize);}
+  componentDidUpdate(pp,ps){ if(pp.scenario!==this.props.scenario) this.setScenario(this.props.scenario ?? 'normal'); if(this.state.search.focus && this.state.search.focus!==ps.search.focus && this.inputRef.current) this.inputRef.current.focus(); }
+
+  tick(){
+    const sp=Number(this.props.speed ?? 6), {g}=Component.geo();
+    const frozen=['offline','stale','loading'].includes(this.state.scenario)||this.state.booting;
+    this.setState(s=>({t:s.t+sp, syncT:frozen?s.syncT:s.t+sp, buses:frozen?s.buses:s.buses.map(b=>{const G=g[b.line]; let d=b.d+b.dir*b.v*sp, dir=b.dir;
+      if(G.ring) d=((d%G.len)+G.len)%G.len; else if(d>G.len){d=2*G.len-d;dir=-1;} else if(d<0){d=-d;dir=1;}
+      return {...b,d,dir};})}));
+  }
+
+  camAt(lat,lon,z,sy){const C=Component,x=C.wx(lon,z)-195,y=C.wy(lat,z)-sy;return {z,ox:x,oy:y,bx:Math.round(x),by:Math.round(y)};}
+  setCam(c,ctx){this.setState({cam:c,camT:Date.now(),camCtx:ctx||this.ctx()});}
+  static CAM0(){return Component.prototype.camAt(44.7975,10.3240,14,422);}
+  fitCam(pts,box){
+    const C=Component; const xs=pts.map(p=>C.wx(p[1],0)), ys=pts.map(p=>C.wy(p[0],0));
+    const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+    let z=Math.log2(Math.min((box[2]-box[0])/Math.max(x1-x0,1e-6),(box[3]-box[1])/Math.max(y1-y0,1e-6)));
+    z=Math.max(11,Math.min(15.5,z)); const k=Math.pow(2,z);
+    const ox=(x0+x1)/2*k-(box[0]+box[2])/2, oy=(y0+y1)/2*k-(box[1]+box[3])/2;
+    return {z,ox,oy,bx:Math.round(ox),by:Math.round(oy)};
+  }
+  pos(L,d){
+    const G=Component.geo().g[L]; let i=1; while(i<G.cum.length-1&&G.cum[i]<d) i++;
+    const a=G.pts[i-1], b=G.pts[i], seg=(G.cum[i]-G.cum[i-1])||1, k=Math.min(1,Math.max(0,(d-G.cum[i-1])/seg));
+    const dx=(b[1]-a[1])*Math.cos(a[0]*Math.PI/180), dy=b[0]-a[0];
+    return {lat:a[0]+(b[0]-a[0])*k, lon:a[1]+(b[1]-a[1])*k, ang:Math.atan2(-dy,dx)*180/Math.PI};
+  }
+  eta(b,sc,q){
+    const G=Component.geo().g[b.line], len=G.len, v=b.v;
+    if(G.ring) return ((((sc-b.d)%len)+len)%len)/v;
+    if(b.dir===q){ if(q===1?sc>=b.d-1:sc<=b.d+1) return Math.abs(sc-b.d)/v; return (q===1?(len-b.d)+len+sc:b.d+len+(len-sc))/v; }
+    return (b.dir===1?(len-b.d)+(len-sc):b.d+sc)/v;
+  }
+  terminal(L,q){const G=Component.geo().g[L]; if(G.ring) return 'Circolare'; return Component.S[q===1?G.ids[G.ids.length-1]:G.ids[0]][0];}
+  arrivalsAt(id){
+    if(this.state.scenario==='night') return [];
+    const C=Component,{g,lines}=C.geo(), out=[];
+    (lines[id]||[]).forEach(L=>{const G=g[L],k=G.ix[id],sc=G.cum[k],n=G.ids.length;
+      (G.ring?[1]:[1,-1]).forEach(q=>{ if(!G.ring&&((q===1&&k===n-1)||(q===-1&&k===0))) return;
+        const nx=G.ring?G.ids[(k+1)%n]:G.ids[k+q];
+        this.state.buses.filter(b=>b.line===L).forEach(b=>{const e=this.eta(b,sc,q); if(e<2700) out.push({L,q,dest:this.terminal(L,q),via:C.S[nx][0],e,b});});});});
+    return out.sort((a,b)=>a.e-b.e);
+  }
+  nextBus(L,sc,q,after){
+    let best=null; this.state.buses.forEach(b=>{if(b.line!==L) return; const e=this.eta(b,sc,q); if(e>=after&&e<2700&&(!best||e<best.e)) best={e,b};});
+    return best||{e:Math.max(after,0)+600,b:null};
+  }
+  place(id){
+    const C=Component,S=C.S;
+    if(id==='me') return {id,name:'Posizione attuale',short:'Qui',lat:C.ME[0],lon:C.ME[1]};
+    if(id==='casa') return {id,name:'Casa',short:'Casa',sub:'Via Emilia Est 23',lat:44.7962,lon:10.3505};
+    if(id==='campus') return {id,name:'Campus Scienze e Tecnologie',short:'Campus',sub:'Parco Area delle Scienze',lat:S.campus[1],lon:S.campus[2],stop:'campus'};
+    if(id==='osp') return {id,name:'Ospedale Maggiore',short:'Ospedale',sub:'Via Gramsci 14',lat:S.osp[1],lon:S.osp[2],stop:'osp'};
+    const s=S[id]; return {id,name:s[0],short:s[0],sub:'Fermata · linee '+(C.geo().lines[id]||[]).join(', '),lat:s[1],lon:s[2],stop:id};
+  }
+  plan(fromId,toId){
+    if(['night','noresults'].includes(this.state.scenario)||!fromId||!toId) return [];
+    const C=Component,{g}=C.geo(),S=C.S, from=this.place(fromId), to=this.place(toId);
+    const cand=p=>Object.keys(S).map(id=>{const w=p.stop===id?0:C.dist([p.lat,p.lon],[S[id][1],S[id][2]]);return {id,w,wm:w?Math.max(1,Math.round(w/75)):0};}).filter(c=>c.w<=850);
+    const O=cand(from), D=cand(to); const opts=[];
+    const leg=(L,a,b)=>{const G=g[L],ia=G.ix[a],ib=G.ix[b]; if(ia==null||ib==null||ia===ib) return null;
+      const q=G.ring?1:(ib>ia?1:-1), sa=G.cum[ia], sb=G.cum[ib];
+      const ride=G.ring?((sb-sa+G.len)%G.len):Math.abs(sb-sa); if(G.ring&&ride>G.len*0.6) return null;
+      const ns=G.ring?((ib-ia+G.ids.length)%G.ids.length):Math.abs(ib-ia);
+      return {L:+L,a,b,q,sa,sb,rideS:ride/5+20*ns};};
+    for(const L in g){ for(const o of O){ for(const d of D){ const l=leg(L,o.id,d.id); if(!l) continue;
+      const nb=this.nextBus(+L,l.sa,l.q,o.wm*60); const arr=nb.e+l.rideS+d.wm*60;
+      opts.push({legs:[{...l,e:nb.e,bus:nb.b}],w0:o.wm,w1:d.wm,arr,x:null,sig:L}); } } }
+    const Ls=Object.keys(g);
+    for(const LA of Ls) for(const LB of Ls){ if(LA===LB) continue;
+      const X=g[LA].ids.filter(id=>g[LB].ix[id]!=null);
+      for(const x of X) for(const o of O){ const la=leg(LA,o.id,x); if(!la) continue; const nA=this.nextBus(+LA,la.sa,la.q,o.wm*60); const tA=nA.e+la.rideS;
+        for(const d of D){ const lb=leg(LB,x,d.id); if(!lb) continue; const nB=this.nextBus(+LB,lb.sa,lb.q,tA+60);
+          opts.push({legs:[{...la,e:nA.e,bus:nA.b},{...lb,e:nB.e,bus:nB.b}],w0:o.wm,w1:d.wm,arr:nB.e+lb.rideS+d.wm*60,x,sig:LA+'>'+LB}); } } }
+    const best={}; opts.filter(o=>o.w0+o.w1<=14).forEach(o=>{const sc=o.arr+(o.legs.length-1)*300+(o.w0+o.w1)*20; o.score=sc; if(!best[o.sig]||sc<best[o.sig].score) best[o.sig]=o;});
+    return Object.values(best).sort((a,b)=>a.score-b.score).slice(0,3);
+  }
+  fmt(sec){const h=Math.floor(sec/3600)%24,m=Math.floor(sec/60)%60;return h+':'+String(m).padStart(2,'0');}
+  fmtMin(m){return this.fmt(Math.round(m)*60);}
+  cd(sec,size,color,okC){
+    const m=Math.floor(sec/60), arr=m<1, txt=arr?'in arrivo':String(m), E=React.createElement;
+    return E('span',{key:txt,'data-component':'Countdown',style:{display:'inline-flex',alignItems:'baseline',gap:3,color:arr?okC:color,animation:'plRoll .55s cubic-bezier(.25,1.6,.45,1) both',whiteSpace:'nowrap'}},
+      E('span',{style:{fontSize:arr?Math.round(size*0.7):size,fontWeight:700,letterSpacing:'-0.02em',lineHeight:1.1}},txt),
+      arr?null:E('span',{style:{fontSize:Math.max(12,Math.round(size*0.55)),fontWeight:600}},'min'));
+  }
+
+  // --- azioni
+  guard(fn){return e=>{if(this.justDragged||this.justPanned) return; if(e&&e.stopPropagation) e.stopPropagation(); fn(e);};}
+  ctx(){return this.state.tab==='search'?'search':'map';}
+  animSheet(ctx,y){this.setState(s=>({sheetAnim:true,sy:{...s.sy,[ctx]:y}}));}
+  openSheet(sheet){
+    const C=Component, cur=this.state.sheet, y=this.state.sy.map;
+    if(cur&&y<844){ this.setState(s=>({sheet,sheetAnim:true,sy:{...s.sy,map:y>C.HALF?C.HALF:y}})); return; }
+    this.setState(s=>({sheet,sheetAnim:false,sy:{...s.sy,map:844}}),()=>setTimeout(()=>this.animSheet('map',C.HALF),30));
+  }
+  selectBus(b){ const p=this.pos(b.line,b.d); this.setCam(this.camAt(p.lat,p.lon,14.3,220),'map'); this.setState({tab:'map'}); this.openSheet({kind:'bus',id:b.id}); }
+  openStop(id){ const s=Component.S[id]; this.setCam(this.camAt(s[1],s[2],15,200),'map'); this.setState({tab:'map'}); this.openSheet({kind:'stop',id}); }
+  closeSheet(){
+    if(this.ctx()==='search'){this.backToForm();return;}
+    this.animSheet('map',844); clearTimeout(this.ct); this.ct=setTimeout(()=>this.setState({sheet:null}),380);
+  }
+  goResults(from,to){
+    const C=Component;
+    this.setState(s=>({tab:'search',search:{...s.search,from,to,focus:null,q:'',view:'results',sel:0},sheetAnim:false,sy:{...s.sy,search:844}}),()=>{
+      this.fitResults(); setTimeout(()=>this.animSheet('search',C.HALF),30);});
+  }
+  fitResults(){
+    const {search}=this.state; if(!search.to) return; const C=Component,S=C.S, f=this.place(search.from), t=this.place(search.to);
+    const pts=[[f.lat,f.lon],[t.lat,t.lon]]; this.plan(search.from,search.to).forEach(o=>o.legs.forEach(l=>{pts.push([S[l.a][1],S[l.a][2]],[S[l.b][1],S[l.b][2]]);}));
+    this.setCam(this.fitCam(pts,[40,150,350,370]),'search');
+  }
+  backToForm(){this.setState(s=>({search:{...s.search,view:'form'},sy:{...s.sy,search:844}}));}
+  saveFavs(f){try{localStorage.setItem('parmaLive.favs.v1',JSON.stringify(f));}catch(e){} this.setState({favs:f,starPop:Date.now()}); setTimeout(()=>this.setState({starPop:null}),250);}
+  toggleStopFav(id){const f=this.state.favs; const has=f.stops.includes(id); this.saveFavs({...f,stops:has?f.stops.filter(x=>x!==id):[...f.stops,id]});}
+  toggleTripFav(from,to){const f=this.state.favs; const has=f.trips.some(x=>x.from===from&&x.to===to); this.saveFavs({...f,trips:has?f.trips.filter(x=>!(x.from===from&&x.to===to)):[...f.trips,{from,to}]});}
+
+  ratio(){const el=this.phoneRef.current; return el?el.getBoundingClientRect().height/844:1;}
+  onMapDown=e=>{
+    if(e.button>0) return; const r=this.ratio(), c=this.state.cam; const st={x0:e.clientX,y0:e.clientY,ox:c.ox,oy:c.oy,moved:false};
+    const mv=ev=>{const dx=(ev.clientX-st.x0)/r, dy=(ev.clientY-st.y0)/r; if(!st.moved&&Math.hypot(dx,dy)<5) return; st.moved=true;
+      this.setState(s=>({cam:{...s.cam,ox:st.ox-dx,oy:st.oy-dy}}));};
+    const up=()=>{window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up); if(st.moved){this.justPanned=true; setTimeout(()=>{this.justPanned=false;},60);}};
+    window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up);
+  };
+  onMapClick=()=>{ if(this.justPanned) return; const C=Component, ctx=this.ctx(); if((ctx==='map'&&this.state.sheet)||(ctx==='search')){ if(this.state.sy[ctx]<C.PEEK) this.animSheet(ctx,C.PEEK); } };
+  onSheetDown=e=>{
+    if(e.button>0) return; const C=Component, ctx=this.ctx(), y0=this.state.sy[ctx];
+    const sc=e.target.closest&&e.target.closest('[data-scroll]'); if(sc&&y0<=C.FULL+2&&sc.scrollTop>0) return;
+    const r=this.ratio(), st={cy:e.clientY,y0,moved:false,hist:[[performance.now(),y0]]};
+    const mv=ev=>{let dy=(ev.clientY-st.cy)/r; if(!st.moved&&Math.abs(dy)<6) return; st.moved=true;
+      let y=st.y0+dy; if(y<C.FULL) y=C.FULL-(C.FULL-y)*0.25; st.y=y; st.hist.push([performance.now(),y]); if(st.hist.length>5) st.hist.shift();
+      this.setState(s=>({sheetAnim:false,sy:{...s.sy,[ctx]:y}}));};
+    const up=()=>{window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up); if(!st.moved) return;
+      this.justDragged=true; setTimeout(()=>{this.justDragged=false;},60);
+      const h=st.hist, a=h[0], b=h[h.length-1], v=(b[1]-a[1])/Math.max(1,b[0]-a[0]); const proj=st.y+v*180;
+      if(proj>C.PEEK+70&&ctx==='map'){this.closeSheet();return;}
+      const det=[C.FULL,C.HALF,C.PEEK]; let best=det[0]; det.forEach(d=>{if(Math.abs(d-proj)<Math.abs(best-proj)) best=d;}); this.animSheet(ctx,best);};
+    window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up);
+  };
+
+  renderVals(){
+    const C=Component, {g,lines}=C.geo(), S=C.S, LC=C.LC, st=this.state, dark=!!this.props.dark, t=dark?C.TH.dark:C.TH.light;
+    const now=st.t, tab=st.tab, sr=st.search, cam=st.cam, z=cam.z, ctx=this.ctx(); this.T=t;
+    const scn=st.scenario, loading=scn==='loading'||st.booting, night=scn==='night', offline=scn==='offline', stale=scn==='stale', noGps=scn==='noGps', fresh=!(offline||stale);
+    const staleSecs=61+Math.floor((Date.now()-st.staleAt)/1000);
+    const L=n=>({n,color:LC[n]});
+    const sheetKind = tab==='map'&&st.sheet ? st.sheet.kind : (tab==='search'&&sr.view==='results'&&sr.to ? 'results' : null);
+    const mode = tab==='map' ? (sheetKind||'live') : (sheetKind==='results'?'results':null);
+    const showMap = !!mode;
+    // camera / tiles
+    const W=(la,lo)=>[C.wx(lo,z)-cam.bx, C.wy(la,z)-cam.by];
+    const SX=(la,lo)=>[C.wx(lo,z)-cam.ox, C.wy(la,z)-cam.oy];
+    const tiles=[]; if(showMap){ const zt=Math.min(18,Math.floor(z)), ts=256*Math.pow(2,z-zt), base='https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/'+t.tiles;
+      for(let tx=Math.floor(cam.ox/ts); tx<=Math.floor((cam.ox+390)/ts); tx++) for(let ty=Math.floor(cam.oy/ts); ty<=Math.floor((cam.oy+844)/ts); ty++)
+        tiles.push({src:`${base}_Base/MapServer/tile/${zt}/${ty}/${tx}`, ref:`${base}_Reference/MapServer/tile/${zt}/${ty}/${tx}`, x:+(tx*ts-cam.bx).toFixed(2), y:+(ty*ts-cam.by).toFixed(2), s:+ts.toFixed(2)}); }
+    const tr = (!fresh||Date.now()-st.camT<400) ? 'opacity .3s ease' : 'left 1s linear, top 1s linear, opacity .3s ease';
+    const segPts=(Ln,c0,c1)=>{const G=g[Ln]; const out=[this.pos(Ln,c0)]; G.cum.forEach((c,i)=>{if(c>c0&&c<c1) out.push({lat:G.pts[i][0],lon:G.pts[i][1]});}); out.push(this.pos(Ln,c1)); return out;};
+    const dOf=ps=>ps.map((p,i)=>{const [x,y]=SX(p.lat,p.lon);return (i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1);}).join(' ');
+    const seg=(Ln,a,b,q)=>{const G=g[Ln]; if(G.ring&&b<a) return dOf(segPts(Ln,a,G.len))+' '+dOf(segPts(Ln,0,b)); return dOf(segPts(Ln,Math.min(a,b),Math.max(a,b)));};
+    const cased=(d,c,w,op=1)=>[{d,c:dark?'#000':'#fff',w:w+4,dash:'none',op:dark?0.55*op:op},{d,c,w,dash:'none',op}];
+    const busEl=(b,{s=28,op=1,zi=1}={})=>{const p=this.pos(b.line,b.d),[x,y]=W(p.lat,p.lon),h=s/2,tip=h+10;
+      return {x:+x.toFixed(1),y:+y.toFixed(1),rot:(p.ang+90+(b.dir<0?180:0)).toFixed(0),n:b.line,color:LC[b.line],s,off:-h,fs:s>34?17:(b.line>9?11:13),
+        cone:`M${-h*0.62},${-h*0.62} L0,${-tip} L${h*0.62},${-h*0.62} Z`,op,z:zi,tr,onTap:this.guard(()=>this.selectBus(b))};};
+    const stopEl=(id,o={})=>{const [x,y]=W(S[id][1],S[id][2]),size=o.size||12;return {x,y,size,off:-size/2,bw:o.bw||3,c:o.c||t.stopRing,z:o.z||0,hasLabel:!!o.label,label:o.label||'',tag:o.tag||'',tagBg:o.tagBg||t.tag,lx:o.lx??size/2+6,ly:o.ly??-15,onTap:this.guard(()=>this.openStop(id))};};
+    const map={tiles,routes:[],stops:[],buses:[],hasMe:false,me:{x:0,y:0}};
+    if(mode&&!noGps){ const [mx,my]=W(C.ME[0],C.ME[1]); map.me={x:mx,y:my}; map.hasMe=true; }
+    const allStops=()=>z>=13.6?Object.keys(S).map(id=>stopEl(id)):[];
+    let selBus=null;
+    if(mode==='live'){ map.stops=allStops(); map.buses=(loading||night)?[]:st.buses.filter(b=>!st.filter.length||st.filter.includes(b.line)).map(b=>busEl(b,{op:fresh?1:offline?0.5:0.75})); }
+    if(mode==='bus'){ selBus=st.buses.find(b=>b.id===st.sheet.id); const G=g[selBus.line], c=LC[selBus.line];
+      if(G.ring) map.routes=cased(seg(selBus.line,0,G.len),c,6);
+      else { const past=selBus.dir===1?[0,selBus.d]:[selBus.d,G.len], ahead=selBus.dir===1?[selBus.d,G.len]:[0,selBus.d];
+        map.routes=[{d:seg(selBus.line,past[0],past[1]),c:t.past,w:5,dash:'1 9',op:1},...cased(seg(selBus.line,ahead[0],ahead[1]),c,6)]; }
+      const endId=G.ring?null:(selBus.dir===1?G.ids[G.ids.length-1]:G.ids[0]);
+      map.stops=G.ids.map(id=>stopEl(id,id===endId?{size:20,bw:5,c,label:S[id][0],tag:'Capolinea',tagBg:c,z:2}:{size:14,bw:3,c}));
+      map.buses=st.buses.map(b=>b.id===selBus.id?busEl(b,{s:40,zi:5}):busEl(b,{op:0.22}));
+    }
+    if(mode==='stop'){ const id=st.sheet.id, at=lines[id]||[];
+      at.forEach(Ln=>{const G=g[Ln]; map.routes.push(...cased(seg(Ln,0,G.len),LC[Ln],4,0.75));});
+      map.stops=[...allStops().filter(s=>s.x!==W(S[id][1],S[id][2])[0]), stopEl(id,{size:24,bw:5,c:t.accent,label:S[id][0],tag:'Fermata',tagBg:t.accent,z:3})];
+      map.buses=st.buses.map(b=>busEl(b,{op:at.includes(b.line)?1:0.22}));
+    }
+    // results
+    let plans=[];
+    if(tab==='search'&&sr.to) plans=this.plan(sr.from,sr.to);
+    if(mode==='results'){ const sel=Math.min(sr.sel,Math.max(0,plans.length-1)), f=this.place(sr.from), to=this.place(sr.to);
+      const inv=new Set(); plans.forEach(p=>p.legs.forEach(l=>inv.add(l.L)));
+      plans.forEach((p,i)=>{ if(i===sel) return; p.legs.forEach(l=>map.routes.push({d:seg(l.L,l.sa,l.sb,l.q),c:LC[l.L],w:3,dash:'none',op:0.35})); });
+      const P=plans[sel];
+      if(!P){ const [fx,fy]=SX(f.lat,f.lon),[tx,ty]=SX(to.lat,to.lon); map.routes.push({d:`M${fx} ${fy} L${tx} ${ty}`,c:t.accent,w:4,dash:'0.1 7',op:1}); map.stops.push(stopEl(to.stop||'campus',{size:18,bw:4,c:t.tag,label:to.name,tag:'Arrivo',tagBg:t.tag,z:3})); }
+      if(P){ P.legs.forEach(l=>map.routes.push(...cased(seg(l.L,l.sa,l.sb,l.q),LC[l.L],6)));
+        const a=P.legs[0].a, b=P.legs[P.legs.length-1].b, [fx,fy]=SX(f.lat,f.lon),[ax,ay]=SX(S[a][1],S[a][2]),[bx,by]=SX(S[b][1],S[b][2]),[tx,ty]=SX(to.lat,to.lon);
+        map.routes.push({d:`M${fx} ${fy} L${ax} ${ay}`,c:t.accent,w:4,dash:'0.1 7',op:1},{d:`M${bx} ${by} L${tx} ${ty}`,c:t.text,w:4,dash:'0.1 7',op:0.8});
+        P.legs.forEach((l,i)=>map.stops.push(stopEl(l.a,{size:18,bw:4,c:LC[l.L],label:S[l.a][0],tag:i?'Cambio · '+l.L:'Salita · '+l.L,tagBg:LC[l.L],z:3})));
+        map.stops.push(stopEl(b,{size:18,bw:4,c:t.tag,label:S[b][0],tag:'Discesa',tagBg:t.tag,z:3}));
+        // evita sovrapposizioni: etichette alternate a sinistra
+        map.stops.forEach(s=>{ const w=s.tag.length*6.5+s.label.length*7.2+44, sx=s.x+cam.bx-cam.ox; s.lx = sx+s.size/2+6+w>382 ? -(w+s.size/2+6) : s.size/2+6; if(sx+s.lx<8) s.lx=8-sx; });
+        for(let i=1;i<map.stops.length;i++) for(let j=0;j<i;j++){ const a=map.stops[i], b=map.stops[j]; if(Math.abs((a.y+a.ly)-(b.y+b.ly))<32 && Math.abs((a.x+a.lx)-(b.x+b.lx))<160) a.ly=(b.y+b.ly)-a.y+(a.y>=b.y?34:-34); }
+        if(sr.from!=='me'){ map.hasMe=false; }
+      }
+      const selBuses=new Set(P?P.legs.map(l=>l.bus&&l.bus.id):[]);
+      map.buses=st.buses.filter(b=>inv.has(b.line)).map(b=>{const inSel=P&&P.legs.some(l=>l.L===b.line); return busEl(b,{s:selBuses.has(b.id)?36:28,op:inSel?1:0.3,zi:selBuses.has(b.id)?5:1});});
+    }
+
+    // bus sheet
+    let bs={on:false};
+    if(sheetKind==='bus'&&selBus){ const b=selBus, G=g[b.line], n=G.ids.length;
+      let ahead=[]; if(G.ring){ G.ids.forEach((id,i)=>ahead.push({id,dd:((G.cum[i]-b.d)%G.len+G.len)%G.len})); ahead.sort((a,c)=>a.dd-c.dd); }
+      else if(b.dir===1){ G.ids.forEach((id,i)=>{if(G.cum[i]>b.d) ahead.push({id,dd:G.cum[i]-b.d});}); } else { G.ids.forEach((id,i)=>{if(G.cum[i]<b.d) ahead.push({id,dd:b.d-G.cum[i]});}); ahead.reverse(); }
+      const q=G.ring?1:b.dir;
+      bs={on:true,n:b.line,color:LC[b.line],dest:this.terminal(b.line,q),fromLabel:'da '+(G.ring?'Stazione FS':this.terminal(b.line,-q)),vehLabel:'Vettura '+b.veh,late:b.delay>0,
+        status:b.delay>0?`+${b.delay} min ritardo`:'In orario',stBg:b.delay>0?t.lateSoft:t.okSoft,stC:b.delay>0?t.late:t.ok,etaC:b.delay>0?t.late:t.text,
+        stops:ahead.map((a,i)=>({name:S[a.id][0],eta:this.fmt(now+a.dd/b.v),plan:this.fmt(now+a.dd/b.v-b.delay*60),dotBg:i===ahead.length-1?LC[b.line]:'#fff',fw:i===ahead.length-1?700:500,lineBottom:i===ahead.length-1?25:0,onTap:this.guard(()=>this.openStop(a.id))}))};
+    }
+    // stop sheet
+    let ss={on:false};
+    if(sheetKind==='stop'){ const id=st.sheet.id, arr=this.arrivalsAt(id).slice(0,7), fav=st.favs.stops.includes(id);
+      const rows=arr.map(a=>({...L(a.L),dest:a.dest,sub:(a.b.delay>0?`+${a.b.delay} min · `:'')+'via '+a.via,subC:a.b.delay>0?t.late:t.text2,destC:t.text,cdC:t.text,cd:this.cd(a.e,24,t.text,t.ok),live:true,sched:false,onTap:this.guard(()=>this.selectBus(a.b))}));
+      if(!fresh) rows.forEach(r=>{r.live=false; r.sched=true; r.sub='stimato · '+r.sub;});
+      if(loading) rows.length=0;
+      const ls=lines[id]||[]; const base=night?342:Math.ceil((now/60+46)/5)*5;
+      if(!loading) ls.slice(0,3).forEach((Ln,i)=>{const cancel=!night&&id==='bixio'&&i===0; const tm=this.fmtMin(base+i*7);
+        rows.push({...L(Ln),dest:this.terminal(Ln,g[Ln].ring?1:(g[Ln].ix[id]===g[Ln].ids.length-1?-1:1)),sub:cancel?'Corsa soppressa':'Orario programmato',subC:cancel?t.cancel:t.text2,destC:cancel?t.text2:t.text,cdC:cancel?t.cancel:t.text2,
+          cd:React.createElement('span',{style:{fontSize:20,fontWeight:700,lineHeight:1.3,textDecoration:cancel?'line-through':'none'}},tm),live:false,sched:!cancel,onTap:()=>{}});});
+      ss={on:true,loading,skel:loading?this.skel(6):null,empty:night&&!loading,name:S[id][0],code:1000+Object.keys(S).indexOf(id)*7,lines:ls.map(L),rows,starC:fav?t.star:t.text,starFill:fav?'currentColor':'none',starScale:st.starPop?1.25:1,toggleStar:this.guard(()=>this.toggleStopFav(id))};
+    }
+    // results sheet
+    const stepsOf=p=>{const out=[]; if(p.w0) out.push({walk:true,min:p.w0},{sep:true}); p.legs.forEach((l,i)=>{if(i) out.push({sep:true}); out.push({bus:true,n:l.L,color:LC[l.L]});}); if(p.w1) out.push({sep:true},{walk:true,min:p.w1}); return out;};
+    let rsh={on:false}, rs={};
+    if(sheetKind==='results'){ const fav=st.favs.trips.some(x=>x.from===sr.from&&x.to===sr.to), sel=Math.min(sr.sel,Math.max(0,plans.length-1));
+      const fP=this.place(sr.from), tP=this.place(sr.to), wd=C.dist([fP.lat,fP.lon],[tP.lat,tP.lon])*1.25, wm=Math.max(1,Math.round(wd/75));
+      rsh={on:true,title:loading?'Ricerca in corso…':plans.length?`${plans.length} soluzion${plans.length>1?'i':'e'}`:'Nessuna soluzione',none:!loading&&!plans.length,loading,skel:loading?this.skel(3,96,32):null,
+        noneTitle:night?'Nessun bus in servizio adesso':'Nessun bus utile nei prossimi 45 minuti',noneBody:night?'Il servizio urbano riprende alle 5:30. Puoi arrivare a piedi:':'Nessuna linea collega questi due punti con al massimo un cambio. Puoi arrivare a piedi:',
+        walkTitle:`A piedi · ${wm} min`,walkMeta:`${(wd/1000).toFixed(1).replace('.',',')} km · arrivo alle ${this.fmt(now+wm*60)}`,starC:fav?t.star:t.text,starFill:fav?'currentColor':'none',starLabel:fav?'Salvato':'Salva',starScale:st.starPop?1.3:1,
+        toggleStar:this.guard(()=>this.toggleTripFav(sr.from,sr.to)),
+        cards:loading?[]:plans.map((p,i)=>{const l0=p.legs[0], live=!!l0.bus, del=l0.bus&&l0.bus.delay;
+          return {steps:stepsOf(p),dur:Math.max(1,Math.round(p.arr/60)),cd:this.cd(l0.e,15,live?t.ok:t.text2,t.ok),cdC:live?t.ok:t.text2,
+            from:`da ${S[l0.a][0]}${del?` · +${del} min`:''}${live?'':' · programmato'}`,
+            meta:`${this.fmt(now+Math.max(0,l0.e-p.w0*60))} → ${this.fmt(now+p.arr)} · ${p.legs.length>1?'cambio a '+S[p.legs[1].a][0]:'diretto'} · ${p.w0+p.w1} min a piedi`,
+            ring:i===sel?`0 0 0 2px ${t.accent}`:`0 0 0 1px ${t.hair}`,onTap:this.guard(()=>this.setState(s=>({search:{...s.search,sel:i}})))};})};
+      const f=this.place(sr.from), to=this.place(sr.to);
+      rs={fromName:f.name,fromC:sr.from==='me'?t.accent:t.text,toName:to.name,swap:this.guard(()=>{if(sr.from&&sr.to) this.goResults(sr.to,sr.from);})};
+    }
+    // search form
+    const ic={home:'M4 11 12 4l8 7v9h-5v-6H9v6H4z',cap:'M2 9l10-5 10 5-10 5zM6 11v5c3 2 9 2 12 0v-5',work:'M3 8h18v12H3zM9 8V5h6v3M3 13h18',pin:'M12 21s7-6.3 7-11.5a7 7 0 0 0-14 0C5 14.7 12 21 12 21z',loc:'M20.5 3.5 3.5 10.8l7.2 2 2 7.2z',clock:'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2'};
+    const pick=id=>this.guard(()=>{const f=sr.focus==='from'?id:sr.from, to=sr.focus==='from'?sr.to:id; if(f&&to&&f!==to) this.goResults(f,to); else this.setState(s=>({search:{...s.search,from:f,to,focus:f?(to?null:'to'):'from',q:''}}));});
+    let sf={};
+    if(tab==='search'&&sr.view==='form'){ const q=sr.q.trim().toLowerCase();
+      const pool=['me','casa','campus','osp',...Object.keys(S).filter(id=>id!=='campus'&&id!=='osp')].map(id=>this.place(id)).filter(p=>p.id!=='me'||(sr.focus==='from'&&!noGps));
+      const list=q?pool.filter(p=>(p.name+' '+(p.sub||'')).toLowerCase().includes(q)):pool.filter(p=>[noGps?'':'me','casa','campus','osp','staz','bixio','garib'].includes(p.id));
+      const fp=sr.from?this.place(sr.from):null, tp=sr.to?this.place(sr.to):null;
+      sf={focused:!!sr.focus,idle:!sr.focus,q:sr.q,gpsHint:noGps&&!sr.from&&!sr.focus,fromInput:sr.focus==='from',fromText:sr.focus!=='from',toInput:sr.focus==='to',toText:sr.focus!=='to',
+        fromName:fp?fp.name:'Scegli partenza',fromC:sr.from==='me'?t.accent:(fp?t.text:t.text3),toName:tp?tp.name:'Dove vuoi andare?',toC:tp?t.text:t.text3,
+        focusFrom:()=>this.setState(s=>({search:{...s.search,focus:'from',q:''}})),focusTo:()=>this.setState(s=>({search:{...s.search,focus:'to',q:''}})),
+        cancel:()=>this.setState(s=>({search:{...s.search,focus:null,q:''}})),onQ:e=>{const v=e.target.value; this.setState(s=>({search:{...s.search,q:v}}));},
+        swap:this.guard(()=>{if(sr.from&&sr.to) this.goResults(sr.to,sr.from); else this.setState(s=>({search:{...s.search,from:s.search.to,to:s.search.from}}));}),
+        sugg:list.slice(0,8).map((p,i)=>({name:p.name,sub:p.sub||'GPS',border:i?`1px solid ${t.hair}`:'none',icon:p.id==='me'?ic.loc:p.id==='casa'?ic.home:p.stop?ic.pin:ic.pin,iconBg:p.id==='me'?t.accentSoft:t.fill,iconC:p.id==='me'?t.accent:t.text2,onTap:pick(p.id)}))};
+    }
+    const goTo=id=>this.guard(()=>{if(sr.from&&sr.from!==id) this.goResults(sr.from,id); else if(noGps) this.setState(s=>({tab:'search',search:{...s.search,to:id,from:null,focus:'from',view:'form',q:''}})); else this.goResults('me',id);});
+    // trains
+    const tm=s=>{const [h,m]=s.split(':');return +h*60+(+m);};
+    const nowM=now/60, tmode=st.trains.mode;
+    const inst=mode0=>{const out=[]; C.TR[mode0].forEach((r,ri)=>{for(let k=0;k<4;k++){const route=r[5].split('|').map(x=>{const [n,h]=x.split('@');return {name:n,sch:tm(h)+60*k};});
+      const pi=route.findIndex(x=>x.name==='Parma'); out.push({key:mode0+ri+'-'+k,cat:r[0],num:r[1]+2*k,delay:r[2],bin:r[3],cancel:!!r[4],route,pi,parma:route[pi].sch});}}); return out.sort((a,b)=>a.parma-b.parma);};
+    const deps=inst('dep'), arrs=inst('arr');
+    let tb={}, td={};
+    if(tab==='train'){
+      const all=tmode==='dep'?deps:arrs;
+      const rows=all.filter(x=>x.parma+(x.cancel?0:x.delay)>=nowM-1).slice(0,8);
+      tb={loading,skel:loading?this.skel(7,64,44):null,segX:tmode==='dep'?'0%':'100%',depC:tmode==='dep'?t.text:t.text2,arrC:tmode==='arr'?t.text:t.text2,
+        dep:()=>this.setState({trains:{mode:'dep',detail:null}}),arr:()=>this.setState({trains:{mode:'arr',detail:null}}),
+        rows:loading?[]:rows.map((x,i)=>{const k=x.cancel?'cancel':x.delay?'late':'ok', name=tmode==='dep'?x.route[x.route.length-1].name:x.route[0].name;
+          return {time:this.fmtMin(x.parma),dest:name,num:`${x.cat} ${x.num}`,status:x.cancel?'Cancellato':x.delay?`+${x.delay} min`:'In orario',bin:x.bin,border:i?`1px solid ${t.hair}`:'none',
+            stC:k==='ok'?t.ok:k==='late'?t.late:t.cancel,timeC:x.cancel?t.text3:t.text,deco:x.cancel?'line-through':'none',destC:x.cancel?t.text2:t.text,
+            binBg:x.cancel?t.fill:(dark?'#F5F5F7':'#0B0B0F'),binC:x.cancel?t.text3:(dark?'#000':'#fff'),onTap:()=>this.setState(s=>({trains:{...s.trains,detail:x.key}}))};})};
+      const x=st.trains.detail&&[...deps,...arrs].find(y=>y.key===st.trains.detail);
+      if(x){ const R=x.route, est=r=>r.sch+(x.cancel?0:x.delay); let last=-1; R.forEach((r,i)=>{if(est(r)<=nowM) last=i;});
+        const nextFrac = last>=0&&last<R.length-1 ? Math.min(1,Math.max(0,(nowM-est(R[last]))/Math.max(1,est(R[last+1])-est(R[last])))) : 0;
+        const odName=x.key.startsWith('dep')?R[R.length-1].name:R[0].name;
+        const alt=x.cancel&&deps.find(y=>!y.cancel&&y.key!==x.key&&y.parma>=x.parma&&y.route.slice(y.pi+1).some(r=>r.name===odName));
+        td={on:true,sigC:x.cancel?t.cancel:t.ok,cancelOn:x.cancel,cancelBody:`Il treno ${x.cat} ${x.num} ${x.key.startsWith('dep')?'per':'da'} ${odName} delle ${this.fmtMin(x.parma)} oggi non circola.`,
+          hasAlt:!!alt,altText:alt?`${alt.cat} ${alt.num} · ${this.fmtMin(alt.parma)} · bin ${alt.bin}`:'',altTap:alt?()=>this.setState(s=>({trains:{...s.trains,detail:alt.key}})):()=>{},
+          back:()=>this.setState(s=>({trains:{...s.trains,detail:null}})),backLabel:tmode==='dep'?'Partenze':'Arrivi',cat:x.cat,num:x.num,od:`${R[0].name} → ${R[R.length-1].name}`,
+          status:x.cancel?'Cancellato':x.delay?`+${x.delay} min`:'In orario',stC:x.cancel?t.cancel:x.delay?t.late:t.ok,bin:x.bin,parmaEst:x.cancel?'':'prev. '+this.fmtMin(est(R[x.pi])),
+          lastLabel:x.cancel?'Treno':last<0?'In attesa di partenza da':last===R.length-1?'Arrivato a':'Ultimo rilevamento',
+          last:x.cancel?'non circola oggi':last<0?R[0].name:`${R[last].name}, ${this.fmtMin(est(R[last]))}`,
+          stops:R.map((r,i)=>{const past=!x.cancel&&i<=last, here=i===x.pi;
+            return {plan:this.fmtMin(r.sch),name:r.name,est:x.cancel?'':(x.delay?this.fmtMin(est(r)):''),estC:t.late,timeC:past?t.text3:t.text2,nameC:past||x.cancel?t.text2:t.text,fw:here?700:500,deco:x.cancel?'line-through':'none',
+              upC:i===0?'transparent':(i<=last?t.accent:t.hair),downC:i===R.length-1?'transparent':(i<last?t.accent:t.hair),
+              dot:here?22:14,dotOff:here?0:4,dotTop:here?15:19,dotBg:past?t.accent:t.surface,dotBd:past||here?t.accent:t.text3,
+              train:!x.cancel&&i===last&&last<R.length-1,trainTop:Math.round(11+nextFrac*52),hasNote:here,note:'Parma · binario '+x.bin};})};
+      }
+    }
+    // favorites
+    let fv={};
+    if(tab==='fav'){ const fs=st.favs;
+      fv={loading,skel:loading?this.skel(4):null,empty:!loading&&!fs.stops.length&&!fs.trips.length,hasTrips:!loading&&fs.trips.length>0,hasStops:!loading&&fs.stops.length>0,
+        trips:loading?[]:fs.trips.map(x=>{const f=this.place(x.from), to=this.place(x.to), P=this.plan(x.from,x.to)[0];
+          if(!P) return {title:`${f.short} → ${to.short}`,lines:[],cd:'—',from:night?'Nessun bus in servizio':'Nessuna corsa a breve',then:night?'Prima corsa alle 5:42':'',onTap:goTo(x.to),unstar:this.guard(()=>this.toggleTripFav(x.from,x.to))};
+          const l0=P.legs[0], nb2=this.nextBus(l0.L,l0.sa,l0.q,l0.e+60);
+          return {title:`${f.short} → ${to.short}`,lines:P.legs.map(l=>L(l.L)),cd:this.cd(l0.e,40,t.ok,t.ok),from:`Linea ${l0.L} da ${S[l0.a][0]}`,
+            then:`arrivo ${this.fmt(now+P.arr)}${nb2.b?` · poi tra ${Math.floor(nb2.e/60)} min`:''}`,onTap:this.guard(()=>this.goResults(x.from,x.to)),unstar:this.guard(()=>this.toggleTripFav(x.from,x.to))};}),
+        stops:loading?[]:fs.stops.map(id=>({name:S[id][0],isEmpty:night,emptyMsg:'Nessun passaggio fino alle 5:42',onTap:this.guard(()=>this.openStop(id)),unstar:this.guard(()=>this.toggleStopFav(id)),
+          rows:this.arrivalsAt(id).slice(0,3).map(a=>({...L(a.L),dest:a.dest,cd:this.cd(a.e,20,t.text,t.ok)}))}))};
+    }
+    // tabs
+    const tk=tab, tabV={};
+    [['map','Map'],['search','Search'],['train','Train'],['fav','Fav']].forEach(([k,N])=>{tabV[k+'C']=k===tk?t.accent:t.text; tabV[k+'Bg']=k===tk?t.accentSoft:'transparent';
+      tabV['go'+N]=()=>this.setState(s=>({tab:k,...(k==='map'&&s.camCtx==='search'?{cam:C.CAM0(),camT:Date.now(),camCtx:'map'}:{}),trains:k==='train'&&s.tab==='train'?{...s.trains,detail:null}:s.trains,search:k==='search'&&s.tab==='search'?{...s.search,view:'form'}:s.search}),()=>{if(k==='search'&&this.state.search.view==='results'&&this.state.camCtx!=='search') this.fitResults();});});
+    const sheetOpen=!!sheetKind, sy=st.sy[ctx];
+    const feed = loading?{tag:'CARICAMENTO',tagC:t.text2,dot:t.text3,label:'· posizioni dei bus…'}
+      : night?{tag:'NOTTE',tagC:t.text2,dot:t.text3,label:'· nessun bus in servizio'}
+      : offline?{tag:'OFFLINE',tagC:t.text2,dot:t.text3,label:`· ultimo dato alle ${this.fmt(st.syncT)}`}
+      : stale?{tag:'DATO VECCHIO',tagC:t.late,dot:t.late,label:`· aggiornato ${staleSecs} s fa`}
+      : {tag:'LIVE',tagC:t.ok,dot:t.ok,pulse:true,label:`· aggiornato ${1+(Math.floor(now/Number(this.props.speed ?? 6))%4)} s fa · ${st.buses.length} bus`};
+    const E=React.createElement;
+    return {
+      t, pageBg:dark?'#0E0E10':'#DCDCE2', pageText:dark?'#8E8E96':'#5C5C66', scale:st.scale, frameW:Math.round(390*st.scale), frameH:Math.round(844*st.scale), phoneRef:this.phoneRef, inputRef:this.inputRef,
+      speedLabel:`×${Number(this.props.speed ?? 6)}`, clock:this.fmt(now),
+      tileEls:tiles.flatMap(tl=>['src','ref'].map(k=>React.createElement('img',{key:tl[k],src:tl[k],alt:'',draggable:false,style:{position:'absolute',left:tl.x,top:tl.y,width:tl.s,height:tl.s,display:'block',pointerEvents:'none'}}))),
+      showMap, cam:{tx:cam.bx-cam.ox, ty:cam.by-cam.oy, sx:cam.ox-cam.bx, sy:cam.oy-cam.by}, map,
+      mapTop:mode==='live'||mode==='bus'||mode==='stop', showChips:mode==='live'&&!loading, showLocate:mode==='live'&&!night,
+      feed, liveDot:E('span',{key:feed.tag,style:{flex:'none',width:8,height:8,borderRadius:4,background:feed.dot,animation:feed.pulse?'plPulse 1.6s ease-out infinite':'none'}}),
+      chipSkelOn:mode==='live'&&loading, chipSkel:E('div',{'data-component':'Skeleton',style:{display:'flex',gap:8,padding:'4px 16px',animation:'plSkel 1.3s ease-in-out infinite'}},[80,44,44,44,44,44,44].map((w,i)=>E('div',{key:i,style:{flex:'none',width:w,height:44,borderRadius:22,background:t.glassStrong,boxShadow:t.shadow}}))),
+      infoTop:mode==='live'?116:58, openInfo:()=>this.setState({info:true}), attrOn:mode==='live'&&!night, nightCard:mode==='live'&&night, noGps, locC:noGps?t.text3:t.accent,
+      banner:{on:(offline||stale)&&!(mode==='live'||mode==='bus'||mode==='stop')&&!st.info,c:offline?t.text2:t.late,text:offline?`Offline · dati delle ${this.fmt(st.syncT)}`:`Dati non aggiornati · ${staleSecs} s fa`},
+      toast:{on:!!st.toast,title:st.toast?st.toast.title:'',body:st.toast?st.toast.body:'',bottom:sheetOpen?24:104,close:()=>this.setState({toast:null})},
+      info:{on:st.info,close:()=>this.setState({info:false}),
+        sources:[['Dati: BusOne (busone.app) e TEP','Posizioni dei bus e orari delle linee urbane'],['Treni: ViaggiaTreno','Partenze, arrivi e ritardi della stazione di Parma'],['© OpenStreetMap contributors','Dati cartografici'],['Mappa base: Esri, HERE, Garmin','World Light / Dark Gray Canvas']].map((r,i)=>({title:r[0],sub:r[1],border:i?'1px solid '+t.hair:'none'})),
+        scenarios:C.SCEN.map((r,i)=>({label:r[1],desc:r[2],on:scn===r[0],border:i?'1px solid '+t.hair:'none',onTap:()=>this.setScenario(r[0])}))},
+      live:{label:`· aggiornato ${1+(Math.floor(now/Number(this.props.speed ?? 6))%4)} s fa · ${st.buses.length} bus`},
+      allChip:{bg:st.filter.length?t.glass:t.text,c:st.filter.length?t.text:t.bg}, clearFilter:()=>this.setState({filter:[]}),
+      chips:[1,2,3,4,5,7,8,11,13,21,23].map(n=>{const on=st.filter.includes(n);return {...L(n),bg:on?t.glassStrong:t.glass,op:st.filter.length&&!on?0.45:1,onTap:()=>this.setState(s=>({filter:on?s.filter.filter(x=>x!==n):[...s.filter,n]}))};}),
+      locate:()=>noGps?this.showToast('Posizione non disponibile','Hai negato l’accesso alla posizione. Attivalo in Impostazioni › Privacy › Localizzazione.'):this.setCam(this.camAt(C.ME[0],C.ME[1],14.6,422),'map'),
+      onMapDown:this.onMapDown, onMapClick:this.onMapClick, onSheetDown:this.onSheetDown,
+      sheetOpen, sheetY:sy, sheetTr:st.sheetAnim?'transform .55s cubic-bezier(.3,1.32,.5,1)':'none',
+      listOverflow:sy<=C.FULL+2?'auto':'hidden', listTouch:sy<=C.FULL+2?'pan-y':'none',
+      closeSheet:this.guard(()=>this.closeSheet()), bs, ss, rsh, rs, resultsTop:sheetKind==='results', backToForm:this.guard(()=>this.backToForm()),
+      searchForm:tab==='search'&&sr.view==='form', sf,
+      favPlaces:[{name:'Casa',sub:'Via Emilia Est 23',icon:ic.home,onTap:goTo('casa')},{name:'Università',sub:'Campus Scienze',icon:ic.cap,onTap:goTo('campus')},{name:'Lavoro',sub:'Ospedale Maggiore',icon:ic.work,onTap:goTo('osp')}],
+      recents:['campus','staz','osp','bixio','garib'].map((id,i)=>{const p=this.place(id);return {name:p.name,sub:p.sub,border:i?`1px solid ${t.hair}`:'none',onTap:goTo(id)};}),
+      trainBoard:tab==='train'&&!td.on, trainDetail:tab==='train'&&!!td.on, tb, td,
+      favTab:tab==='fav', fv,
+      tab:tabV, showTabs:!sheetOpen&&!st.info
+    };
+  }
+}
+</script>
+</body>
+</html>

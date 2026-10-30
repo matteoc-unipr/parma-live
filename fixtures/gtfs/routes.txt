@@ -1,0 +1,158 @@
+route_id,agency_id,route_short_name,route_long_name,route_type,route_url,route_color,route_text_color
+1,TEPP,1,Linea_urbana 1,3,http://www.tep.pr.it,,
+102,TEPP,102,Linea_Notturna_2,3,http://www.tep.pr.it,,
+103,TEPP,103,Linea_Notturna_3,3,http://www.tep.pr.it,,
+105,TEPP,105,Linea_Notturna_5,3,http://www.tep.pr.it,,
+107,TEPP,107,Linea_Notturna_7,3,http://www.tep.pr.it,,
+108,TEPP,108,Linea_Notturna_8,3,http://www.tep.pr.it,,
+109,TEPP,109,Linea_Notturna_9,3,http://www.tep.pr.it,,
+11,TEPP,11,Linea_urbana 11,3,http://www.tep.pr.it,C2007E,FFFFFF
+111,TEPP,111,Linea_Notturna_11,3,http://www.tep.pr.it,,
+12,TEPP,12,Linea_urbana 12,3,http://www.tep.pr.it,5EB19E,FFFFFF
+12000,TEPP,12000,Rinforzi_linea_urbana 12,3,http://www.tep.pr.it,,
+121,TEPP,121,Linea_Notturna_21,3,http://www.tep.pr.it,,
+13,TEPP,13,Linea_urbana 13,3,http://www.tep.pr.it,E3001B,FFFFFF
+13000,TEPP,13000,Rinforzi_linea_13,3,http://www.tep.pr.it,,
+14000,TEPP,14000,Rinforzi_linea_urbana 21,3,http://www.tep.pr.it,,
+1421,TEPP,Campus Express,Campus Express,3,http://www.tep.pr.it,FFFFFF,000000
+15,TEPP,15,Linea_urbana 15,3,http://www.tep.pr.it,,
+16,TEPP,16,Stazione FS_SPIP,3,http://www.tep.pr.it,,
+2,TEPP,2,Linea_urbana 2,3,http://www.tep.pr.it,,
+20,TEPP,20,Linea_urbana 20 Hospitalbus,3,http://www.tep.pr.it,,
+2000,TEPP,2000,Rinforzi_linea_urbana 2,3,http://www.tep.pr.it,,
+2083,TEPP,2083,Panocchia-Corcagnano-Parma,3,http://www.tep.pr.it,BE1E2D,FFFFFF
+2086,TEPP,2086,Parma-Ugozzolo_cimitero,3,http://www.tep.pr.it,1D3A8F,FFFFFF
+21,TEPP,21,Linea_urbana 21,3,http://www.tep.pr.it,A4B425,FFFFFF
+2100,TEPP,2100,Roccabianca-Sissa-Trecasali-Parma,3,http://www.tep.pr.it,8B2346,FFFFFF
+2105,TEPP,2105,S.Secondo-R.Campocanneto-Viarolo-Parma,3,http://www.tep.pr.it,8B2346,FFFFFF
+2106,TEPP,2106,Busseto-Polesine-Roccabianca-S.Secondo,3,http://www.tep.pr.it,8B2346,FFFFFF
+2107,TEPP,2107,Roncopascolo-Eia-Parma,3,http://www.tep.pr.it,8B2346,FFFFFF
+2110,TEPP,2110,S.Secondo-Bianconese-Parma,3,http://www.tep.pr.it,8B2346,FFFFFF
+2115,TEPP,2115,Busseto-Zibello-Frescarolo-Fidenza,3,http://www.tep.pr.it,8B2346,FFFFFF
+2116,TEPP,2116,Busseto-Fidenza,3,http://www.tep.pr.it,8B2346,FFFFFF
+2120,TEPP,2120,Busseto-Soragna-Fontanellato-Parma,3,http://www.tep.pr.it,8B2346,FFFFFF
+2121,TEPP,2121,Busseto-Soragna-Fontanellato-S.Secondo,3,http://www.tep.pr.it,8B2346,FFFFFF
+2125,TEPP,2125,Roccabianca-Diolo-Soragna-Fidenza,3,http://www.tep.pr.it,8B2346,FFFFFF
+2130,TEPP,2130,Soragna-Chiusa_Ferranda-Fidenza,3,http://www.tep.pr.it,8B2346,FFFFFF
+2135,TEPP,2135,S.Secondo-Fontanellato-Casalbarbato-Fidenza,3,http://www.tep.pr.it,8B2346,FFFFFF
+2205,TEPP,2205,Salsomaggiore_Terme-Fidenza-Parma,3,http://www.tep.pr.it,00A9E0,FFFFFF
+2210,TEPP,2210,Bore-Pellegrino-Salsomaggiore_T.-Fidenza,3,http://www.tep.pr.it,00A9E0,FFFFFF
+2211,TEPP,2211,Pellegrino-Fiori-Pozzolo-Bore,3,http://www.tep.pr.it,00A9E0,FFFFFF
+2220,TEPP,2220,Bore-Vernasca-Castelnuovo_F.-Fidenza,3,http://www.tep.pr.it,00A9E0,FFFFFF
+2225,TEPP,2225,Salsomaggiore_Terme-Tabiano_Bagni,3,http://www.tep.pr.it,00A9E0,FFFFFF
+2226,TEPP,2226,Servizio Urbano Tabiano,3,http://www.tep.pr.it,00A9E0,FFFFFF
+2230,TEPP,2230,Salsomaggiore_Terme-P.Cusignano-Fidenza,3,http://www.tep.pr.it,00A9E0,FFFFFF
+2231,TEPP,2231,Pie'_di_Via-Cangelasio_T.-Salsomaggiore_T,3,http://www.tep.pr.it,00A9E0,FFFFFF
+2240,TEPP,2240,Fidenza-Tabiano_C.-Tabiano_B.-Fidenza,3,http://www.tep.pr.it,00A9E0,FFFFFF
+2250,TEPP,2250,Fidenza-Borghetto-Noceto,3,http://www.tep.pr.it,00A9E0,FFFFFF
+2251,TEPP,2251,Noceto-Fontevivo-Fontanellato-Fidenza,3,http://www.tep.pr.it,00A9E0,FFFFFF
+2252,TEPP,2252,Fornovo-Medesano-Noceto-Fidenza,3,http://www.tep.pr.it,00A9E0,FFFFFF
+2255,TEPP,2255,Medesano-Ghiaie-Noceto,3,http://www.tep.pr.it,00A9E0,FFFFFF
+2260,TEPP,2260,Varano_Marchesi-Noceto-Parma,3,http://www.tep.pr.it,00A9E0,FFFFFF
+2265,TEPP,2265,Varano_Marchesi-Cornaccina-Medesano,3,http://www.tep.pr.it,00A9E0,FFFFFF
+2270,TEPP,2270,Fornovo-Medesano-Noceto-Parma,3,http://www.tep.pr.it,00A9E0,FFFFFF
+2271,TEPP,2271,Parma-Collecchio-Medesano,3,http://www.tep.pr.it,00A9E0,FFFFFF
+2275,TEPP,2275,Rubbiano-Ramiola-Fornovo,3,http://www.tep.pr.it,00A9E0,FFFFFF
+23,TEPP,23,Linea_urbana 23,3,http://www.tep.pr.it,E6B012,FFFFFF
+2300,TEPP,2300,Bardi-Varsi-Varano_Melegari-Fornovo,3,http://www.tep.pr.it,9E3E97,FFFFFF
+2310,TEPP,2310,Pellegrino-Montesalso-Varano_Melegari,3,http://www.tep.pr.it,9E3E97,FFFFFF
+2315,TEPP,2315,Bore-Ponte_Vetrioni-Vianino-Fornovo,3,http://www.tep.pr.it,9E3E97,FFFFFF
+2320,TEPP,2320,Bore-Passo_del_Pelizzone-Bardi,3,http://www.tep.pr.it,9E3E97,FFFFFF
+2325,TEPP,2325,Bardi-Casanova-Villora-Varsi,3,http://www.tep.pr.it,9E3E97,FFFFFF
+2340,TEPP,2340,Varsi-Rocca-Pessola-Ponte_Vetrioni,3,http://www.tep.pr.it,9E3E97,FFFFFF
+2341,TEPP,2341,Varsi-Rocca-Tosca-Bardi,3,http://www.tep.pr.it,9E3E97,FFFFFF
+2345,TEPP,2345,Varsi-Valmozzola-Ostia-Borgotaro,3,http://www.tep.pr.it,9E3E97,FFFFFF
+2350,TEPP,2350,Bardi-Ca'_Bagaglia-Porcigatone-Borgotaro,3,http://www.tep.pr.it,9E3E97,FFFFFF
+2351,TEPP,2351,Taverna-Linguada'-Bardi,3,http://www.tep.pr.it,9E3E97,FFFFFF
+2352,TEPP,2352,Bre'-Brugnola-Noveglia-Bardi,3,http://www.tep.pr.it,9E3E97,FFFFFF
+2353,TEPP,2353,Carghilla-Caffaraccia-Borgotaro,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2354,TEPP,2354,Rovinaglia-Borgotaro,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2355,TEPP,2355,Bardi-Cereseto-Compiano-Bedonia,3,http://www.tep.pr.it,9E3E97,FFFFFF
+2360,TEPP,2360,Bardi-Pione-Ponteceno,3,http://www.tep.pr.it,9E3E97,FFFFFF
+2361,TEPP,2361,Frassineto-S.Giustina-Pione-Bardi,3,http://www.tep.pr.it,9E3E97,FFFFFF
+2400,TEPP,2400,C.Croci-Costadasino-Prelerna-Solignano,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2410,TEPP,2410,Borgotaro-Solignano-Fornovo,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2411,TEPP,2411,Pieve_di_Gusaliggio-Mormorola-Valmozzola,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2415,TEPP,2415,Bedonia-S.Maria_del_Taro-Passo_del_Bocco,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2416,TEPP,2416,Alpe-Pontestrambo,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2417,TEPP,2417,Alpe-Pontestrambo-Bedonia,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2420,TEPP,2420,Molino_Anzola-Ponteceno-Bedonia,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2421,TEPP,2421,Spora-Travaglini-Romezzano-Molino_Anzola,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2422,TEPP,2422,Frassineto-Liveglia-Cornolo-Ponteceno,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2430,TEPP,2430,Molino_Anzola-Montarsiccio-Bedonia,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2431,TEPP,2431,Cavignaga-Bedonia,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2432,TEPP,2432,Caneso-Carniglia-Bedonia,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2435,TEPP,2435,Servizio Urbano di Borgo Val di Taro,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2440,TEPP,2440,Bedonia-Compiano_pte-Bertorella-Borgotaro,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2445,TEPP,2445,Bedonia-Tornolo-Tarsogno-Borgotaro,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2450,TEPP,2450,Montegroppo-Albareto-Borgotaro,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2451,TEPP,2451,Codogno-Cacciarasca-Albareto-Borgotaro,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2452,TEPP,2452,Buzzo'-Borgotaro,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2470,TEPP,2470,Berceto-Lozzola-Ghiare-Borgotaro,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2471,TEPP,2471,Corchia-Berceto,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2472,TEPP,2472,Pagazzano-Berceto,3,http://www.tep.pr.it,F6A01A,FFFFFF
+2500,TEPP,2500,Cafragna-Collecchio-Vicofertile-Parma,3,http://www.tep.pr.it,296836,FFFFFF
+2510,TEPP,2510,Berceto-Cassio-Casola-Fornovo,3,http://www.tep.pr.it,296836,FFFFFF
+2520,TEPP,2520,Calestano-Braglia-Sivizzano-Fornovo,3,http://www.tep.pr.it,296836,FFFFFF
+2525,TEPP,2525,Fornovo-Gaiano-Collecchio-Parma,3,http://www.tep.pr.it,296836,FFFFFF
+2530,TEPP,2530,Calestano-Felino-Sala_Baganza-Parma,3,http://www.tep.pr.it,296836,FFFFFF
+2531,TEPP,2531,Berceto-Casaselvatica-Ravarano-Calestano,3,http://www.tep.pr.it,296836,FFFFFF
+2532,TEPP,2532,Felino-Sala_Baganza-Collecchio_M.-Parma,3,http://www.tep.pr.it,296836,FFFFFF
+2535,TEPP,2535,Calestano-Limido-S.Martino_Sinzano-Parma,3,http://www.tep.pr.it,296836,FFFFFF
+2545,TEPP,2545,S.Michele_Tiorre-Felino-Gaione-Parma,3,http://www.tep.pr.it,296836,FFFFFF
+2600,TEPP,2600,Calestano-Fragnolo-Cozzano-Langhirano,3,http://www.tep.pr.it,296836,FFFFFF
+2601,TEPP,2601,Fragnolo-Calestano,3,http://www.tep.pr.it,296836,FFFFFF
+2605,TEPP,2605,Pilastro-Arola-Strognano-anghirano,3,http://www.tep.pr.it,296836,FFFFFF
+2606,TEPP,2606,Costa_di_Castrignano-Langhirano,3,http://www.tep.pr.it,296836,FFFFFF
+2610,TEPP,2610,Monticelli Terme-Traversetolo-Lesignano Bagni-Langhirano,3,http://www.tep.pr.it,8DC63F,FFFFFF
+2620,TEPP,2620,Bosco-Corniglio-Pastorello-Langhirano,3,http://www.tep.pr.it,BE1E2D,FFFFFF
+2621,TEPP,2621,Casarola-Riana-Grammatica-Corniglio,3,http://www.tep.pr.it,BE1E2D,FFFFFF
+2622,TEPP,2622,Corniglio-Miano-Agna-Corniglio,3,http://www.tep.pr.it,BE1E2D,FFFFFF
+2623,TEPP,2623,Montebello-Ballone-Corniglio,3,http://www.tep.pr.it,,
+2640,TEPP,2640,Tizzano-Boschetto-Capoponte-Langhirano,3,http://www.tep.pr.it,BE1E2D,FFFFFF
+2641,TEPP,2641,Reno-Capoponte-Boschetto-Tizzano,3,http://www.tep.pr.it,BE1E2D,FFFFFF
+2642,TEPP,2642,Tizzano-Neviano-Castelnovo,3,http://www.tep.pr.it,FFFFFF,000000
+2650,TEPP,2650,Monchio-Palanzano-Lagrimone-Langhirano,3,http://www.tep.pr.it,BE1E2D,FFFFFF
+2651,TEPP,2651,Casagalvana-Capriglio-Lagrimone,3,http://www.tep.pr.it,BE1E2D,FFFFFF
+2655,TEPP,2655,Rigoso-Valcieca-Selvanizza-Palanzano,3,http://www.tep.pr.it,BE1E2D,FFFFFF
+2656,TEPP,2656,Rigoso-Valditacca-Monchio,3,http://www.tep.pr.it,BE1E2D,FFFFFF
+2670,TEPP,2670,Langhirano-Torrechiara-Corcagnano-Parma,3,http://www.tep.pr.it,BE1E2D,FFFFFF
+2671,TEPP,2671,Riano-Langhirano,3,http://www.tep.pr.it,BE1E2D,FFFFFF
+2675,TEPP,2675,Vezzano-Sasso-Capoponte-Langhirano,3,http://www.tep.pr.it,BE1E2D,FFFFFF
+2680,TEPP,2680,Langhirano-Faviano-Mulazzano-Langhirano,3,http://www.tep.pr.it,BE1E2D,FFFFFF
+2685,TEPP,2685,Neviano_Arduini-Urzano-S.Michele_Cavana-Langhirano,3,http://www.tep.pr.it,BE1E2D,FFFFFF
+2686,TEPP,2686,Neviano_Arduini-Capoponte-Langhirano,3,http://www.tep.pr.it,BE1E2D,FFFFFF
+2700,TEPP,2700,Langhirano-Lesignano_Bagni-Basilicanova-Parma,3,http://www.tep.pr.it,8DC63F,FFFFFF
+2705,TEPP,2705,Scurano-Sasso-Neviano-Traversetolo,3,http://www.tep.pr.it,8DC63F,FFFFFF
+2706,TEPP,2706,Traversetolo-Mamiano-Basilicanova-Parma,3,http://www.tep.pr.it,8DC63F,FFFFFF
+2715,TEPP,2715,Castelnovo_Monti-Vetto-Traversetolo,3,http://www.tep.pr.it,8DC63F,FFFFFF
+2720,TEPP,2720,Villa_di_Bazzano-Traversetolo,3,http://www.tep.pr.it,8DC63F,FFFFFF
+2725,TEPP,2725,Bazzano-Neviano_Arduini,3,http://www.tep.pr.it,8DC63F,FFFFFF
+2730,TEPP,2730,S.Polo_d'Enza-Traversetolo-Parma,3,http://www.tep.pr.it,8DC63F,FFFFFF
+2735,TEPP,2735,Montecchio-Monticelli_Terme-Parma,3,http://www.tep.pr.it,8DC63F,FFFFFF
+2736,TEPP,2736,Traversetolo-Basilicanova-Basilicagoiano_Montecchio,3,http://www.tep.pr.it,8DC63F,FFFFFF
+2740,TEPP,2740,S.Geminiano-Monticelli_Terme-Parma,3,http://www.tep.pr.it,8DC63F,FFFFFF
+2745,TEPP,2745,Traversetolo-Tortiano-Martorano-Parma,3,http://www.tep.pr.it,8DC63F,FFFFFF
+2810,TEPP,2810,Castelnovo_Sotto-Poviglio-Sorbolo-Parma,3,http://www.tep.pr.it,1D3A8F,FFFFFF
+2812,TEPP,2812,Sabbioneta-Casalmaggiore-Colorno-Parma,3,http://www.tep.pr.it,1D3A8F,FFFFFF
+2815,TEPP,2815,Mezzano_Inferiore-Coenzo-Sorbolo-Parma,3,http://www.tep.pr.it,1D3A8F,FFFFFF
+2820,TEPP,2820,Mezzano_Inferiore-Colorno-Parma,3,http://www.tep.pr.it,1D3A8F,FFFFFF
+2821,TEPP,2821,Ravadese-Pizzolese-Parma,3,http://www.tep.pr.it,1D3A8F,FFFFFF
+2822,TEPP,2822,Mezzani-Str.Burla-Parma,3,http://www.tep.pr.it,1D3A8F,FFFFFF
+2825,TEPP,2825,Parma-S.Polo_di_Torrile-Trecasali-S.Secondo,3,http://www.tep.pr.it,1D3A8F,FFFFFF
+2830,TEPP,2830,Coltaro-Colorno-Torrile-Vicomero-Parma,3,http://www.tep.pr.it,1D3A8F,FFFFFF
+2840,TEPP,2840,Mezzano_Inferiore-Colorno-Sissa-S.Secondo,3,http://www.tep.pr.it,1D3A8F,FFFFFF
+2871,TEPP,2871,Viadana-Brescello-Sorbolo-Parma,3,http://www.tep.pr.it,1D3A8F,FFFFFF
+3,TEPP,3,Linea_urbana 3,3,http://www.tep.pr.it,,
+3000,TEPP,3000,Rinforzi_linea_urbana_23,3,http://www.tep.pr.it,,
+4,TEPP,4,Linea_urbana 4,3,http://www.tep.pr.it,,
+5,TEPP,5,Linea_urbana 5,3,http://www.tep.pr.it,,
+6,TEPP,6,Linea_urbana 6,3,http://www.tep.pr.it,38B4E6,FFFFFF
+6000,TEPP,6000,Rinforzi_linea_urbana 6,3,http://www.tep.pr.it,,
+61,TEPP,61,Servizio_Fiere_di_Parma,3,http://www.tep.pr.it,,
+7,TEPP,7,Linea_urbana 7,3,http://www.tep.pr.it,009444,FFFFFF
+7000,TEPP,7000,Rinforzi_linea_urbana 7,3,http://www.tep.pr.it,,
+8,TEPP,8,Linea_urbana 8,3,http://www.tep.pr.it,,
+8000,TEPP,8000,Rinforzi_linea_urbana 8,3,http://www.tep.pr.it,,
+9,TEPP,9,Linea_urbana 9,3,http://www.tep.pr.it,,
+9005,TEPP,9005,Navette Notturne Arci,3,http://www.tep.pr.it,,

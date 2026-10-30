@@ -1,0 +1,129 @@
+/* Parma Live — design tokens. Light by default; dark via [data-theme="dark"] or prefers-color-scheme. */
+:root {
+  /* Superfici */
+  --pl-bg: #F2F2F7;
+  --pl-surface: #FFFFFF;
+  --pl-card: rgba(255,255,255,0.90);
+  --pl-sheet: rgba(250,250,252,0.84);
+  --pl-glass: rgba(255,255,255,0.68);
+  --pl-glass-strong: rgba(255,255,255,0.86);
+  --pl-glass-border: rgba(255,255,255,0.75);
+  --pl-hair: rgba(60,60,67,0.13);
+  --pl-fill: rgba(118,118,128,0.12);
+  --pl-seg-on: #FFFFFF;
+  --pl-map-bg: #E8E8E6;
+  --pl-marker-ring: #FFFFFF;
+
+  /* Testo */
+  --pl-text: #0B0B0F;
+  --pl-text-2: #5C5C66;
+  --pl-text-3: #9A9AA2;
+
+  /* Accento e stati */
+  --pl-accent: #1F5BE0;
+  --pl-accent-soft: rgba(31,91,224,0.13);
+  --pl-ok: #12814A;
+  --pl-ok-soft: rgba(18,129,74,0.14);
+  --pl-late: #B25B00;
+  --pl-late-soft: rgba(214,122,0,0.15);
+  --pl-cancel: #CF2A1C;
+  --pl-cancel-soft: rgba(207,42,28,0.12);
+  --pl-star: #E3A200;
+  --pl-route-past: #B8B8BE;
+  --pl-tag: #0B0B0F;
+
+  /* Ombre */
+  --pl-shadow-float: 0 6px 24px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06);
+  --pl-shadow-card: 0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
+  --pl-shadow-sheet: 0 -4px 40px rgba(0,0,0,0.18);
+
+  /* Vetro */
+  --pl-blur-glass: blur(24px) saturate(180%);
+  --pl-blur-sheet: blur(30px) saturate(180%);
+
+  /* Colori linea TEP (indicativi: sostituire con gli ufficiali) */
+  --pl-line-1: #D3241C;  --pl-line-2: #0A64B4;  --pl-line-3: #00915A;
+  --pl-line-4: #C25E00;  --pl-line-5: #7A3D99;  --pl-line-7: #C2007A;
+  --pl-line-8: #7A5230;  --pl-line-11: #00808C; --pl-line-13: #4F46C8;
+  --pl-line-21: #8C6A00; --pl-line-23: #4A5D68;
+
+  /* Tipografia */
+  --pl-font: -apple-system, "SF Pro Text", Inter, system-ui, sans-serif;
+  --pl-font-features: "tnum" 1, "cv11" 1;
+  --pl-type-large-title: 700 34px/41px var(--pl-font);   /* tracking -0.025em */
+  --pl-type-countdown-xl: 700 40px/40px var(--pl-font);  /* tracking -0.03em */
+  --pl-type-title: 700 26px/30px var(--pl-font);         /* tracking -0.02em */
+  --pl-type-countdown: 700 24px/26px var(--pl-font);     /* tracking -0.02em */
+  --pl-type-title-3: 700 20px/25px var(--pl-font);
+  --pl-type-headline: 600 17px/22px var(--pl-font);
+  --pl-type-body: 400 17px/22px var(--pl-font);
+  --pl-type-subhead: 500 15px/20px var(--pl-font);
+  --pl-type-footnote: 600 13px/18px var(--pl-font);      /* sezioni: maiuscolo, tracking 0.04em */
+  --pl-type-caption: 600 10px/12px var(--pl-font);       /* etichette tab bar */
+
+  /* Raggi */
+  --pl-radius-xs: 8px;    /* pill categoria treno */
+  --pl-radius-sm: 12px;   /* box binario */
+  --pl-radius-md: 18px;   /* banner inline */
+  --pl-radius-lg: 24px;   /* card */
+  --pl-radius-xl: 32px;   /* tab bar */
+  --pl-radius-sheet: 40px;
+  --pl-radius-pill: 999px;
+
+  /* Spaziature (base 4) */
+  --pl-space-1: 4px;  --pl-space-2: 8px;  --pl-space-3: 12px; --pl-space-4: 16px;
+  --pl-space-5: 20px; --pl-space-6: 24px; --pl-space-8: 32px;
+  --pl-touch-min: 44px;
+  --pl-sheet-inset: 8px;
+
+  /* Moto */
+  --pl-ease-spring: cubic-bezier(.3,1.32,.5,1);   /* sheet, segmented: leggero rimbalzo */
+  --pl-ease-pop: cubic-bezier(.25,1.6,.45,1);     /* countdown che cambia */
+  --pl-dur-sheet: 550ms;
+  --pl-dur-countdown: 550ms;
+  --pl-dur-bus-step: 1000ms;                      /* = intervallo di polling, linear */
+}
+
+[data-theme="dark"] {
+  --pl-bg: #000000;
+  --pl-surface: #1C1C1F;
+  --pl-card: rgba(255,255,255,0.07);
+  --pl-sheet: rgba(28,28,31,0.80);
+  --pl-glass: rgba(40,40,44,0.60);
+  --pl-glass-strong: rgba(44,44,48,0.82);
+  --pl-glass-border: rgba(255,255,255,0.10);
+  --pl-hair: rgba(255,255,255,0.11);
+  --pl-fill: rgba(118,118,128,0.24);
+  --pl-seg-on: #5A5A60;
+  --pl-map-bg: #242426;
+  --pl-marker-ring: #1C1C1F;
+  --pl-text: #F5F5F7;
+  --pl-text-2: #A9A9B3;
+  --pl-text-3: #6E6E77;
+  --pl-accent: #6E9BFF;
+  --pl-accent-soft: rgba(110,155,255,0.20);
+  --pl-ok: #3DD68C;
+  --pl-ok-soft: rgba(61,214,140,0.18);
+  --pl-late: #FFB340;
+  --pl-late-soft: rgba(255,179,64,0.16);
+  --pl-cancel: #FF6B5E;
+  --pl-cancel-soft: rgba(255,107,94,0.16);
+  --pl-star: #FFC933;
+  --pl-route-past: #55555C;
+  --pl-tag: #55555C;
+  --pl-shadow-float: 0 6px 24px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.30);
+  --pl-shadow-card: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --pl-bg: #000000; --pl-surface: #1C1C1F; --pl-card: rgba(255,255,255,0.07); --pl-sheet: rgba(28,28,31,0.80);
+    --pl-glass: rgba(40,40,44,0.60); --pl-glass-strong: rgba(44,44,48,0.82); --pl-glass-border: rgba(255,255,255,0.10);
+    --pl-hair: rgba(255,255,255,0.11); --pl-fill: rgba(118,118,128,0.24); --pl-seg-on: #5A5A60; --pl-map-bg: #242426; --pl-marker-ring: #1C1C1F;
+    --pl-text: #F5F5F7; --pl-text-2: #A9A9B3; --pl-text-3: #6E6E77;
+    --pl-accent: #6E9BFF; --pl-accent-soft: rgba(110,155,255,0.20);
+    --pl-ok: #3DD68C; --pl-ok-soft: rgba(61,214,140,0.18); --pl-late: #FFB340; --pl-late-soft: rgba(255,179,64,0.16);
+    --pl-cancel: #FF6B5E; --pl-cancel-soft: rgba(255,107,94,0.16); --pl-star: #FFC933; --pl-route-past: #55555C; --pl-tag: #55555C;
+    --pl-shadow-float: 0 6px 24px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.30); --pl-shadow-card: none;
+  }
+}

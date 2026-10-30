@@ -1,0 +1,29 @@
+{
+  "feeds": {
+    "trip_updates": {
+      "count": 73,
+      "timestamp": 1793383337
+    },
+    "vehicle_positions": {
+      "count": 61,
+      "timestamp": 1793383304
+    }
+  },
+  "gtfs": {
+    "built_at": "2026-10-20T18:45:27.277396285Z",
+    "size_bytes": 5300654
+  },
+  "namespace": "tep",
+  "realtime_provenance": {
+    "vehicle_positions": {
+      "published": "measured-gps",
+      "archive_source": "measured-gps"
+    },
+    "trip_updates": {
+      "published": "oracle-predicted",
+      "archive_source": "synthesized-from-real-gps",
+      "observed_upstream": true
+    }
+  },
+  "ws_clients": 2
+}

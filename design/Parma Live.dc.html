@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#E3E3E8} a{color:#1F5BE0} a:hover{color:#0F3FB0}</style>
+</helmet>
+<div style="padding:72px; background:#E3E3E8; font-family:Inter, -apple-system, system-ui, sans-serif; font-feature-settings:'tnum' 1, 'cv11' 1; color:#0B0B0F; display:flex; flex-direction:column; gap:72px; width:max-content">
+  <div style="display:flex; flex-direction:column; gap:8px">
+    <div style="font-size:15px; font-weight:600; color:#5C5C66; letter-spacing:0.04em">PWA iPhone · 390 × 844 · uso personale</div>
+    <div style="font-size:64px; font-weight:800; letter-spacing:-0.035em; line-height:1">Parma Live</div>
+    <div style="font-size:20px; color:#5C5C66; max-width:820px; text-wrap:pretty">Mini design system e 8 schermate, ciascuna in chiaro e scuro. Bus TEP in tempo reale, ricerca A→B e treni dalla Stazione FS.</div>
+  </div>
+
+  <section data-screen-label="Design system" style="display:flex; flex-direction:column; gap:24px">
+    <div style="font-size:32px; font-weight:700; letter-spacing:-0.02em">Design system</div>
+    <div style="display:flex; gap:32px; align-items:flex-start">
+      <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+        <div style="width:820px; box-sizing:border-box; border-radius:40px; padding:40px; background:{{ th.t.bg }}; color:{{ th.t.text }}; display:flex; flex-direction:column; gap:36px">
+          <div style="font-size:24px; font-weight:700">{{ th.name }}</div>
+
+          <div style="display:flex; flex-direction:column; gap:14px">
+            <div style="font-size:13px; font-weight:600; letter-spacing:0.05em; color:{{ th.t.text2 }}">COLORI</div>
+            <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:12px">
+              <sc-for list="{{ th.swatches }}" as="sw" hint-placeholder-count="10">
+                <div style="display:flex; flex-direction:column; gap:8px">
+                  <div style="height:64px; border-radius:18px; background:{{ sw.v }}; box-shadow:inset 0 0 0 1px {{ th.t.hair }}"></div>
+                  <div><div style="font-size:14px; font-weight:600">{{ sw.name }}</div><div style="font-size:12px; color:{{ th.t.text2 }}">{{ sw.v }}</div></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:14px">
+            <div style="font-size:13px; font-weight:600; letter-spacing:0.05em; color:{{ th.t.text2 }}">VETRO · tab bar, sheet, controlli sopra la mappa</div>
+            <div style="position:relative; height:150px; border-radius:28px; overflow:hidden">
+              {{ th.tileEl }}
+              <div style="position:absolute; left:24px; top:24px; height:44px; padding:0 16px; border-radius:22px; display:flex; align-items:center; gap:8px; background:{{ th.t.glass }}; backdrop-filter:blur(24px) saturate(180%); -webkit-backdrop-filter:blur(24px) saturate(180%); border:1px solid {{ th.t.glassBorder }}; box-shadow:{{ th.t.shadow }}; font-size:15px; font-weight:600">Glass · blur 24 · saturazione 180%</div>
+              <div style="position:absolute; left:24px; right:24px; bottom:24px; height:52px; border-radius:26px; display:flex; align-items:center; padding:0 18px; background:{{ th.t.sheet }}; backdrop-filter:blur(30px) saturate(180%); -webkit-backdrop-filter:blur(30px) saturate(180%); border:1px solid {{ th.t.glassBorder }}; font-size:15px; font-weight:600">Sheet · più opaco, per testi lunghi</div>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:14px">
+            <div style="font-size:13px; font-weight:600; letter-spacing:0.05em; color:{{ th.t.text2 }}">TIPOGRAFIA · SF Pro su iOS, Inter come fallback · cifre tabulari</div>
+            <div style="display:flex; flex-direction:column; gap:10px">
+              <sc-for list="{{ type }}" as="ty" hint-placeholder-count="8">
+                <div style="display:grid; grid-template-columns:200px 1fr; align-items:baseline; gap:16px; border-top:1px solid {{ th.t.hair }}; padding-top:10px">
+                  <div style="font-size:13px; color:{{ th.t.text2 }}"><div style="font-weight:600; color:{{ th.t.text }}">{{ ty.name }}</div>{{ ty.spec }}</div>
+                  <div style="font-size:{{ ty.size }}px; line-height:{{ ty.lh }}px; font-weight:{{ ty.w }}; letter-spacing:{{ ty.ls }}">{{ ty.sample }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px">
+            <div style="display:flex; flex-direction:column; gap:14px">
+              <div style="font-size:13px; font-weight:600; letter-spacing:0.05em; color:{{ th.t.text2 }}">RAGGI</div>
+              <div style="display:flex; gap:12px; align-items:flex-end">
+                <sc-for list="{{ radii }}" as="ra" hint-placeholder-count="5">
+                  <div style="display:flex; flex-direction:column; gap:6px; align-items:center">
+                    <div style="width:56px; height:56px; border-radius:{{ ra.r }}px; background:{{ th.t.surface }}; box-shadow:inset 0 0 0 1px {{ th.t.hair }}"></div>
+                    <div style="font-size:12px; font-weight:600">{{ ra.r }}</div><div style="font-size:11px; color:{{ th.t.text2 }}">{{ ra.use }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:14px">
+              <div style="font-size:13px; font-weight:600; letter-spacing:0.05em; color:{{ th.t.text2 }}">SPAZIATURE · base 4</div>
+              <div style="display:flex; gap:10px; align-items:flex-end; height:92px">
+                <sc-for list="{{ spaces }}" as="sp" hint-placeholder-count="7">
+                  <div style="display:flex; flex-direction:column; gap:6px; align-items:center">
+                    <div style="width:{{ sp }}px; height:{{ sp }}px; border-radius:3px; background:{{ th.t.accent }}"></div>
+                    <div style="font-size:12px; font-weight:600">{{ sp }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="font-size:13px; color:{{ th.t.text2 }}">Target touch minimo 44 pt · margini laterali 16 · inset sheet 8</div>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:14px">
+            <div style="font-size:13px; font-weight:600; letter-spacing:0.05em; color:{{ th.t.text2 }}">BADGE DI LINEA · 26 / 32 / 40 / 54</div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center">
+              <sc-for list="{{ lines }}" as="l" hint-placeholder-count="11">
+                <div style="width:40px; height:40px; border-radius:50%; background:{{ l.color }}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700">{{ l.n }}</div>
+              </sc-for>
+              <div style="width:1px; height:40px; background:{{ th.t.hair }}; margin:0 6px"></div>
+              <div style="width:26px; height:26px; border-radius:50%; background:#C2007A; color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700">7</div>
+              <div style="width:32px; height:32px; border-radius:50%; background:#C2007A; color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700">7</div>
+              <div style="width:54px; height:54px; border-radius:50%; background:#C2007A; color:#fff; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:800">7</div>
+            </div>
+            <div style="font-size:13px; color:{{ th.t.text2 }}">Colori indicativi: da sostituire con quelli ufficiali TEP. Testo sempre bianco, contrasto ≥ 4.5:1.</div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:14px">
+            <div style="font-size:13px; font-weight:600; letter-spacing:0.05em; color:{{ th.t.text2 }}">STATI E SORGENTE DATO</div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center">
+              <div style="height:30px; padding:0 12px; border-radius:15px; background:{{ th.t.okSoft }}; color:{{ th.t.ok }}; display:flex; align-items:center; font-size:14px; font-weight:700">In orario</div>
+              <div style="height:30px; padding:0 12px; border-radius:15px; background:{{ th.t.lateSoft }}; color:{{ th.t.late }}; display:flex; align-items:center; font-size:14px; font-weight:700">+2 min</div>
+              <div style="height:30px; padding:0 12px; border-radius:15px; background:{{ th.t.cancelSoft }}; color:{{ th.t.cancel }}; display:flex; align-items:center; font-size:14px; font-weight:700">Cancellato</div>
+              <div style="width:1px; height:30px; background:{{ th.t.hair }}; margin:0 6px"></div>
+              <div style="display:flex; align-items:flex-start; gap:3px; color:{{ th.t.ok }}"><span style="font-size:24px; line-height:26px; font-weight:700">in arrivo</span></div>
+              <div style="display:flex; align-items:flex-start; gap:3px; color:{{ th.t.text }}"><span style="font-size:24px; line-height:26px; font-weight:700">2</span><span style="font-size:14px; line-height:26px; font-weight:600">min</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="2" fill="currentColor" stroke="none"></circle></svg></div>
+              <div style="display:flex; align-items:flex-start; gap:3px; color:{{ th.t.text2 }}"><span style="font-size:20px; line-height:26px; font-weight:700">10:02</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></div>
+            </div>
+            <div style="font-size:13px; color:{{ th.t.text2 }}; text-wrap:pretty">Onde = posizione GPS in tempo reale, countdown in minuti. Orologio = solo orario programmato, mostrato come ora e in grigio.</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <sc-for list="{{ screens }}" as="sc" hint-placeholder-count="8">
+    <section data-screen-label="{{ sc.label }}" style="display:flex; flex-direction:column; gap:28px">
+      <div style="display:flex; align-items:baseline; gap:16px">
+        <div style="font-size:32px; font-weight:700; letter-spacing:-0.02em">{{ sc.label }}</div>
+        <div style="font-size:17px; color:#5C5C66">{{ sc.desc }}</div>
+      </div>
+      <div style="display:flex; gap:56px; padding:12px">
+        <dc-import name="Phone" screen="{{ sc.n }}" dark="{{ false }}" hint-size="390px,844px"></dc-import>
+        <dc-import name="Phone" screen="{{ sc.n }}" dark="{{ true }}" hint-size="390px,844px"></dc-import>
+      </div>
+    </section>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const LC={1:'#D3241C',2:'#0A64B4',3:'#00915A',4:'#C25E00',5:'#7A3D99',7:'#C2007A',8:'#7A5230',11:'#00808C',13:'#4F46C8',21:'#8C6A00',23:'#4A5D68'};
+    const light={bg:'#F2F2F7',surface:'#FFFFFF',sheet:'rgba(250,250,252,0.82)',glass:'rgba(255,255,255,0.68)',glassBorder:'rgba(255,255,255,0.75)',hair:'rgba(60,60,67,0.13)',text:'#0B0B0F',text2:'#5C5C66',text3:'#9A9AA2',accent:'#1F5BE0',ok:'#12814A',okSoft:'rgba(18,129,74,0.14)',late:'#B25B00',lateSoft:'rgba(214,122,0,0.15)',cancel:'#CF2A1C',cancelSoft:'rgba(207,42,28,0.12)',shadow:'0 6px 24px rgba(0,0,0,0.10)'};
+    const dark={bg:'#000000',surface:'#1C1C1F',sheet:'rgba(28,28,31,0.78)',glass:'rgba(40,40,44,0.6)',glassBorder:'rgba(255,255,255,0.10)',hair:'rgba(255,255,255,0.11)',text:'#F5F5F7',text2:'#A9A9B3',text3:'#6E6E77',accent:'#6E9BFF',ok:'#3DD68C',okSoft:'rgba(61,214,140,0.18)',late:'#FFB340',lateSoft:'rgba(255,179,64,0.16)',cancel:'#FF6B5E',cancelSoft:'rgba(255,107,94,0.16)',shadow:'0 6px 24px rgba(0,0,0,0.45)'};
+    const sw=t=>[['Sfondo',t.bg],['Superficie',t.surface],['Vetro',t.glass],['Sheet',t.sheet],['Separatore',t.hair],['Testo',t.text],['Testo 2',t.text2],['Testo 3',t.text3],['Accento',t.accent],['In orario',t.ok],['Ritardo',t.late],['Cancellato',t.cancel]].map(([name,v])=>({name,v}));
+    const tileEl=s=>React.createElement('img',{src:tile(s),alt:'',style:{position:'absolute',left:0,top:'50%',width:'100%',transform:'translateY(-50%)'}});
+    const tile=s=>`https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/${s}_Base/MapServer/tile/14/5906/8661`;
+    return {
+      themes:[{name:'Chiaro',t:light,swatches:sw(light),tileEl:tileEl('World_Light_Gray')},{name:'Scuro',t:dark,swatches:sw(dark),tileEl:tileEl('World_Dark_Gray')}],
+      type:[
+        {name:'Large Title',spec:'34 / 41 · Bold',size:34,lh:41,w:700,ls:'-0.025em',sample:'Preferiti'},
+        {name:'Countdown XL',spec:'40 / 40 · Bold · tnum',size:40,lh:40,w:700,ls:'-0.03em',sample:'3 min'},
+        {name:'Title',spec:'26 / 30 · Bold',size:26,lh:30,w:700,ls:'-0.02em',sample:'Barriera Bixio'},
+        {name:'Countdown',spec:'24 / 26 · Bold · tnum',size:24,lh:26,w:700,ls:'-0.02em',sample:'12 min · 10:02'},
+        {name:'Headline',spec:'17 / 22 · Semibold',size:17,lh:22,w:600,ls:'0',sample:'Campus Scienze e Tecnologie'},
+        {name:'Body',spec:'17 / 22 · Regular',size:17,lh:22,w:400,ls:'0',sample:'Ospedale Maggiore, via Gramsci'},
+        {name:'Subhead',spec:'15 / 20 · Medium',size:15,lh:20,w:500,ls:'0',sample:'da Piazza Garibaldi · 4 min a piedi'},
+        {name:'Footnote',spec:'13 / 18 · Semibold',size:13,lh:18,w:600,ls:'0.04em',sample:'PROSSIME FERMATE'},
+        {name:'Caption',spec:'10 / 12 · Semibold',size:10,lh:12,w:600,ls:'0',sample:'Mappa  Cerca  Treni  Preferiti'}
+      ],
+      radii:[{r:12,use:'binario'},{r:18,use:'swatch'},{r:24,use:'card'},{r:32,use:'tab bar'},{r:40,use:'sheet'}],
+      spaces:[4,8,12,16,20,24,32],
+      lines:Object.keys(LC).map(n=>({n,color:LC[n]})),
+      screens:[
+        {n:1,label:'01 · Mappa live',desc:'32 bus TEP con cono di direzione, filtro linee, centra su di me'},
+        {n:2,label:'02 · Dettaglio bus',desc:'Linea 7 → Campus, +2 min, prossime 5 fermate, percorso evidenziato'},
+        {n:3,label:'03 · Tabellone fermata',desc:'Barriera Bixio: arrivi live e programmati, corsa soppressa'},
+        {n:4,label:'04 · Cerca A→B',desc:'Da posizione attuale, preferiti e recenti'},
+        {n:5,label:'05 · Risultati A→B',desc:'Solo linee 7 e 13 sulla mappa, salita e discesa'},
+        {n:6,label:'06 · Treni',desc:'Partenze da Parma: orario, numero, binario, ritardo'},
+        {n:7,label:'07 · Dettaglio treno',desc:'RV 2266, ultimo rilevamento Reggio Emilia'},
+        {n:8,label:'08 · Preferiti',desc:'Tragitti e fermate con countdown live'}
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

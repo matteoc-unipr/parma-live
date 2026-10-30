@@ -1,0 +1,36 @@
+# Rigenera i dati GTFS e ridistribuisce l'app su Cloudflare Pages.
+# Ogni notte (l'indice orari copre ieri dopo mezzanotte, oggi e domani), a ogni push su main e a mano.
+# Secrets: BUSONE_CONTACT, CLOUDFLARE_API_TOKEN (permesso Pages:Edit), CLOUDFLARE_ACCOUNT_ID.
+name: Dati e deploy
+
+on:
+  schedule:
+    - cron: '30 2 * * *'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: node scripts/build-gtfs.ts
+        env:
+          BUSONE_CONTACT: ${{ secrets.BUSONE_CONTACT }}
+      - run: npm run build -w app
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy app/dist --project-name=parma-live --branch=main

@@ -1,0 +1,8 @@
+node_modules/
+dist/
+dev-dist/
+.wrangler/
+.dev.vars
+*.zip
+.DS_Store
+app/public/data/
