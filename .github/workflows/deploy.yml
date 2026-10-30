@@ -1,6 +1,6 @@
-# Rigenera i dati GTFS e ridistribuisce l'app su Cloudflare Pages.
+# Rigenera i dati GTFS e ridistribuisce l'app (Worker con asset statici) su Cloudflare.
 # Ogni notte (l'indice orari copre ieri dopo mezzanotte, oggi e domani), a ogni push su main e a mano.
-# Secrets: BUSONE_CONTACT, CLOUDFLARE_API_TOKEN (permesso Pages:Edit), CLOUDFLARE_ACCOUNT_ID.
+# Secrets: BUSONE_CONTACT, CLOUDFLARE_API_TOKEN (template "Edit Cloudflare Workers"), CLOUDFLARE_ACCOUNT_ID.
 name: Dati e deploy
 
 on:
@@ -18,8 +18,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
@@ -29,8 +29,7 @@ jobs:
         env:
           BUSONE_CONTACT: ${{ secrets.BUSONE_CONTACT }}
       - run: npm run build -w app
-      - uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy app/dist --project-name=parma-live --branch=main
+      - run: npx wrangler deploy -c app/wrangler.toml
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

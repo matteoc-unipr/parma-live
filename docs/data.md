@@ -89,11 +89,16 @@ Cache `no-cache` + `Last-Modified`. Header `incrementality: FULL_DATASET`. 61 ve
 
 ## ViaggiaTreno
 `http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/…`
-- Da questa macchina, con curl, **ogni endpoint risponde 403 "Access Denied" (Akamai)**: `autocompletaStazione`, `cercaStazione`, `partenze`. Nessuna fixture salvata.
+- **403 "Access Denied" (Akamai)** su ogni endpoint, sia da curl in locale sia **dal Worker deployato** (`/vt/autocompletaStazione/PARMA`, 30/10/2026). Akamai blocca anche gli IP di Cloudflare.
 - Non ho provato a cambiare User-Agent: sarebbe un aggiramento del bot check.
-- Codice stazione Parma: **`S05014`**. Fonte: treniamo.it (`/station/S05014-parma`). **Non verificato** contro l'API.
-- Formato data per `partenze`/`arrivi` (noto, **non verificato**): `Date.prototype.toString()` di JavaScript, URL-encoded, ad esempio `Fri Oct 30 2026 18:55:52 GMT+0100` → `Fri%20Oct%2030%202026%2018%3A55%3A52%20GMT%2B0100`. `andamentoTreno` usa invece la mezzanotte del giorno di partenza in ms epoch.
-- **Rischio**: se Akamai blocca anche gli IP di Cloudflare Workers, il piano "sempre via Worker" non funziona. Va provato da un Worker deployato.
+- Codice stazione Parma: **`S05014`**, confermato dal codice RFI `05014` nel GTFS Trenitalia di BusOne.
+- Formato data (noto, non verificato): `Date.prototype.toString()` URL-encoded, ad esempio `Fri%20Oct%2030%202026%2018%3A55%3A52%20GMT%2B0100`.
+
+## BusOne `/trenitalia/` (alternativa valutata)
+Stessi header e stessi termini di `/tep/`. Statico da 24,5 MB zip (shapes 81 MB estratti). Realtime: posizioni `synthesized` (stimate lungo la shape, non GPS), trip updates `operator-reported`.
+- Parma è `05014` (fermata), `05014:station` (padre) e `05014:platform:3x` (binari 1–8, con `platform_code`). Nei TripUpdates però lo `stopId` è sempre `05014`: **il binario in tempo reale non c'è**.
+- **Copertura parziale**: venerdì 30/10 risultano **57 corse** a Parma (IC 16, FR 12, REG 11, ICN 8, RV 8, EC 2), soprattutto lunga percorrenza e regionali verso La Spezia. **Mancano i regionali Trenitalia Tper** (Milano–Bologna, Brescia, Suzzara, Fidenza…), che sono la maggior parte del traffico. Il feed ha una sola agency, `TRENITALIA`.
+- TripUpdates: 823 corse in tutta Italia, 12 delle quali passano da Parma. `arrival/departure.delay` presenti. `CANCELED` mai visto. Il JSON usa camelCase (`tripUpdate`, `stopTimeUpdate`), diverso da `/tep/`, che usa snake_case.
 
 ## Dati statici generati (`app/public/data/`)
 Prodotti da `scripts/build-gtfs.ts` a partire dal `gtfs.zip` di BusOne. Le misure sotto sono del build del 30/10/2026.

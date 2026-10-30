@@ -32,6 +32,6 @@ BUSONE_CONTACT=tua@email ./scripts/fetch-fixtures.sh
 ```
 
 ## Deploy
-- **App**: la GitHub Action [deploy.yml](.github/workflows/deploy.yml) rigenera i dati e pubblica su Cloudflare Pages ogni notte, a ogni push su `main` e a mano. Il progetto Pages `parma-live` va creato come *Direct Upload*: con l'integrazione Git, Pages farebbe un build senza dati. Secrets del repo: `BUSONE_CONTACT`, `CLOUDFLARE_API_TOKEN` (Pages:Edit), `CLOUDFLARE_ACCOUNT_ID`.
+- **App**: la GitHub Action [deploy.yml](.github/workflows/deploy.yml) rigenera i dati e pubblica ogni notte, a ogni push su `main` e a mano, con `wrangler deploy -c app/wrangler.toml`. Su Cloudflare l'app è un Worker con soli asset statici, il "Pages" attuale. Secrets del repo: `BUSONE_CONTACT`, `CLOUDFLARE_API_TOKEN` (template "Edit Cloudflare Workers"), `CLOUDFLARE_ACCOUNT_ID`.
 - **Worker**: `npx wrangler login`, poi `cd worker && npx wrangler secret put BUSONE_CONTACT && npm run deploy`.
 - **Verifica ViaggiaTreno dal Worker**: `curl https://<worker>.workers.dev/vt/autocompletaStazione/PARMA`.
