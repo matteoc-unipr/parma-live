@@ -21,6 +21,9 @@ PWA personale per i trasporti di Parma (bus TEP in tempo reale, treni alla Stazi
 - Misure: `?fps` mostra fps e costo dei bus, `?bench=100` simula 100 bus. Metodo e risultati in `docs/perf.md`.
 - Il worker di MapLibre si passa con `setWorkerUrl` (import `?url`): senza, Vite non lo emette nel build.
 - Lo stesso `trip_id` vale in più giorni di servizio: una trip update si applica solo al giorno del suo `start_date`.
+- Stati realtime di una corsa a una fermata in `stopStatus` (`lib/board.ts`): live, programmato, soppressa (CANCELED), saltata (SKIPPED), già passata (NO_DATA prima della prima stima, o fermata assente). Testati: non duplicare questa logica nei componenti.
+- Tragitti = corse dirette tra due "località" (fermate con lo stesso nome, `data.places`): `directJourneys`. Niente cambi né tratti a piedi. Le righe `stop-times` con flag `1` (solo arrivo) servono a calcolare l'arrivo al capolinea.
+- Preferiti in `localStorage` `parmaLive.favs.v1` = `{ stops: stopId[], trips: { from, to }[] }` (from/to = nomi di località). Countdown a passi di 15 s.
 
 ## Design
 - Rispettare fedelmente `design/README.md`: token, componenti (`data-component`), layout chiaro/scuro, stati speciali, motion.

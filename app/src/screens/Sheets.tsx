@@ -6,7 +6,8 @@ import { buildBoard, type StopTimes } from '../lib/board'
 import { useNow } from '../lib/hooks'
 import { useUi } from '../store'
 import { BottomSheet } from '../ui/BottomSheet'
-import { CloseButton, Countdown, fmtTime, LineBadge, Skeleton, StarButton } from '../ui/bits'
+import { CloseButton, fmtTime, LineBadge, Skeleton, StarButton } from '../ui/bits'
+import { DepartureRow } from '../ui/DepartureRow'
 import { ClockIcon, LiveIcon, MoonIcon } from '../ui/icons'
 
 export function MapSheet() {
@@ -102,7 +103,7 @@ const SheetTitleRow = ({ title }: { title: string }) => (
 
 /* ---------- Tabellone fermata ---------- */
 function StopSheet({ id }: { id: string }) {
-  const now = useNow(1000)
+  const now = useNow(15_000) // countdown a passi di 15 s
   const data = useStatic((s) => s.data)
   const updates = useRealtime((s) => s.updates)
   const updatesAt = useRealtime((s) => s.updatesAt)
@@ -158,35 +159,19 @@ function StopSheet({ id }: { id: string }) {
       )}
       {board?.rows.map((row) => {
         const pattern = data?.patterns.get(row.patternId)
-        const route = data?.routes.get(pattern?.route ?? '')
-        const live = row.source === 'live'
-        const late = live && (row.delaySec ?? 0) >= 60
         const next = pattern?.stops[pattern.stops.indexOf(id) + 1]
-        const bus = live ? buses.find((b) => b.tripId === row.tripId) : undefined
-        const at = row.eta ?? row.scheduled
+        const bus = row.source === 'live' ? buses.find((b) => b.tripId === row.tripId) : undefined
         return (
-          <button
+          <DepartureRow
             key={`${row.tripId}-${row.scheduled}`}
-            data-component="DepartureRow"
-            className="departure-row"
-            onClick={() => bus && useUi.getState().openSheet({ kind: 'bus', id: bus.id })}
-          >
-            <LineBadge route={route} size={40} />
-            <div style={{ minWidth: 0 }}>
-              <div className="dest">{pattern?.headsign ?? '—'}</div>
-              <div className={`sub ${late ? 'late' : ''}`}>
-                {late ? `+${Math.round(row.delaySec! / 60)} min` : next ? `via ${data?.stops.get(next)?.name ?? next}` : ''}
-              </div>
-            </div>
-            <div className="right" style={{ color: live ? 'var(--pl-text)' : 'var(--pl-text-2)' }}>
-              {live || at - now < 3600_000 ? (
-                <Countdown seconds={Math.max(0, (at - now) / 1000)} size={24} />
-              ) : (
-                <span style={{ fontSize: 20, fontWeight: 700 }}>{fmtTime(at)}</span>
-              )}
-              {live ? <LiveIcon /> : <ClockIcon />}
-            </div>
-          </button>
+            row={row}
+            route={data?.routes.get(pattern?.route ?? '')}
+            destination={pattern?.headsign ?? '—'}
+            via={next ? `via ${data?.stops.get(next)?.name ?? next}` : undefined}
+            now={now}
+            // Tocco su un arrivo live: dettaglio di quel bus.
+            onClick={bus ? () => useUi.getState().openSheet({ kind: 'bus', id: bus.id }) : undefined}
+          />
         )
       })}
     </BottomSheet>

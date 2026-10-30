@@ -130,6 +130,11 @@ div.map { position: absolute; inset: 0; z-index: 0; background: var(--pl-map-bg)
 .departure-row .dest { font: var(--pl-type-headline); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .departure-row .sub { font-size: 13px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--pl-text-2); }
 .departure-row .sub.late { color: var(--pl-late); }
+.departure-row .sub.cancel { color: var(--pl-cancel); }
+.departure-row .time { font-weight: 700; letter-spacing: -0.01em; line-height: 1.1; }
+.departure-row:disabled { cursor: default; opacity: 1; color: inherit; }
+.departure-row.compact { grid-template-columns: 30px minmax(0,1fr) auto; height: 46px; padding-right: 8px; }
+.departure-row.compact .right { height: 24px; }
 .departure-row .right { display: flex; align-items: flex-start; gap: 3px; height: 28px; overflow: hidden; }
 .late { color: var(--pl-late); }
 .ok { color: var(--pl-ok); }

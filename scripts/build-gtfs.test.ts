@@ -139,9 +139,11 @@ VEN,20261031,1`),
     ])
   })
 
-  test('niente partenza al capolinea d’arrivo né dove pickup_type=1', () => {
-    expect(board('C')['20261030']!.map((d) => d[1])).toEqual(['X0']) // C è capolinea di D1/D2, partenza di X0
-    expect(board('B')['20261030']!.map((d) => d[1])).toEqual(['D1']) // D2 a B non carica
+  test('capolinea d’arrivo e pickup_type=1: solo arrivo (flag 1), con l’orario d’arrivo', () => {
+    // C è capolinea di D1/D2 (solo arrivo) e partenza di X0
+    expect(board('C')['20261030']!.map((d) => [d[1], d[3]])).toEqual([['D1', 1], ['D2', 1], ['X0', undefined]])
+    // D2 a B non carica; B è il capolinea di X0
+    expect(board('B')['20261030']!.map((d) => [d[1], d[3]])).toEqual([['D1', undefined], ['D2', 1], ['X0', 1]])
   })
 
   test('pattern: stessa sequenza = stesso pattern, id stabili tra build', () => {

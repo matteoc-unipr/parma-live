@@ -19,13 +19,14 @@ export function LineBadge({ route, size, style }: { route: Route | undefined; si
   )
 }
 
-/** Minuti al passaggio; sotto 60 s "in arrivo". La key = valore rianima l'ingresso a ogni cambio. */
-export function Countdown({ seconds, size = 24, color }: { seconds: number; size?: number; color?: string }) {
+/** Minuti al passaggio; sotto 60 s "in arrivo". La key = valore rianima l'ingresso a ogni cambio.
+ *  Il verde di "in arrivo" è riservato al dato live: un orario programmato resta neutro. */
+export function Countdown({ seconds, size = 24, color, live = true }: { seconds: number; size?: number; color?: string; live?: boolean }) {
   const min = Math.floor(seconds / 60)
   const arriving = min < 1
   const text = arriving ? 'in arrivo' : String(min)
   return (
-    <span key={text} data-component="Countdown" className="countdown" style={{ color: arriving ? 'var(--pl-ok)' : color }}>
+    <span key={text} data-component="Countdown" className="countdown" style={{ color: arriving && live ? 'var(--pl-ok)' : color }}>
       <b style={{ fontSize: arriving ? Math.round(size * 0.7) : size }}>{text}</b>
       {!arriving && <span style={{ fontSize: Math.max(12, Math.round(size * 0.55)) }}>min</span>}
     </span>

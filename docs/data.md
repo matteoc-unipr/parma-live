@@ -122,9 +122,9 @@ Prodotti da `scripts/build-gtfs.ts` a partire dal `gtfs.zip` di BusOne. Le misur
 | `shapes.json` | `{ shape_id: [[lon, lat], …] }`, Douglas-Peucker 4 m, 5 decimali | 860 KB |
 | `trips.json` | `{ YYYYMMDD: [[trip_id, pattern_id, start_sec], …] }`: per il match del fallback TEP e per corsa → pattern | 46 KB |
 | **Caricamento iniziale** | | **≈ 1,0 MB** |
-| `stop-times/{stop_id}.json` | on-demand: `{ YYYYMMDD: [[sec, trip_id, pattern_id], …] }` ordinato per orario | ≤ 6 KB |
+| `stop-times/{stop_id}.json` | on-demand: `{ YYYYMMDD: [[sec, trip_id, pattern_id, (1)], …] }` ordinato per orario; il 4° elemento `1` = si può solo scendere (capolinea d'arrivo o `pickup_type=1`, `sec` = arrivo) | ≤ 7 KB |
 
 - **Giorni nell'indice**: `days = [ieri, oggi, domani]` (data di Roma al momento del build). Di ieri ci sono solo i passaggi con `sec ≥ 86400`: le notturne arrivano fino a 28:50.
 - **`sec`** è misurato dall'inizio del giorno di servizio. Per GTFS questo inizio è "mezzogiorno − 12 h", non la mezzanotte: nei giorni del cambio d'ora la differenza è di un'ora.
-- **Non sono partenze** il capolinea d'arrivo di una corsa e le fermate con `pickup_type=1`.
+- Le righe **solo arrivo** (flag `1`) non vanno nel tabellone: servono a calcolare l'arrivo dei tragitti.
 - **`pattern_id`** è `route-dir-hash(fermate)`: resta stabile tra un build e l'altro, quindi i file on-demand restano coerenti con un `patterns.json` già in cache.

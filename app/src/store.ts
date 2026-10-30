@@ -26,6 +26,8 @@ type Ui = {
   info: boolean
   toast: { title: string; body: string } | null
   geo: GeoState
+  /** Cerca: località di partenza e arrivo (nomi in data.places) */
+  search: { from: string | null; to: string | null }
   /** incrementato per chiedere alla mappa di centrarsi sull'utente */
   locateTick: number
   setTab: (tab: Tab) => void
@@ -33,7 +35,18 @@ type Ui = {
   toggleLine: (routeId: string) => void
   clearFilter: () => void
   toggleFavStop: (stopId: string) => void
+  toggleFavTrip: (from: string, to: string) => void
+  setSearch: (search: Partial<Ui['search']>) => void
   showToast: (title: string, body: string) => void
+}
+
+function saveFavs(set: (p: Partial<Ui>) => void, favorites: Favorites) {
+  try {
+    localStorage.setItem(FAVS_KEY, JSON.stringify(favorites))
+  } catch {
+    /* storage pieno o bloccato: il preferito resta per la sessione */
+  }
+  set({ favorites })
 }
 
 let toastTimer: ReturnType<typeof setTimeout> | undefined
@@ -47,6 +60,7 @@ export const useUi = create<Ui>((set, get) => ({
   info: false,
   toast: null,
   geo: { status: 'unknown' },
+  search: { from: null, to: null },
   locateTick: 0,
   setTab: (tab) => set({ tab, sheet: null }),
   openSheet: (sheet) => set(sheet ? { sheet, tab: 'map', detent: 'half' } : { sheet }),
@@ -55,17 +69,20 @@ export const useUi = create<Ui>((set, get) => ({
   toggleFavStop: (id) => {
     const { favorites } = get()
     const stops = favorites.stops.includes(id) ? favorites.stops.filter((x) => x !== id) : [...favorites.stops, id]
-    const next = { ...favorites, stops }
-    try {
-      localStorage.setItem(FAVS_KEY, JSON.stringify(next))
-    } catch {
-      /* storage pieno o bloccato: il preferito resta per la sessione */
-    }
-    set({ favorites: next })
+    saveFavs(set, { ...favorites, stops })
   },
+  toggleFavTrip: (from, to) => {
+    const { favorites } = get()
+    const has = favorites.trips.some((t) => t.from === from && t.to === to)
+    const trips = has ? favorites.trips.filter((t) => t.from !== from || t.to !== to) : [...favorites.trips, { from, to }]
+    saveFavs(set, { ...favorites, trips })
+  },
+  setSearch: (search) => set((s) => ({ search: { ...s.search, ...search } })),
   showToast: (title, body) => {
     clearTimeout(toastTimer)
     set({ toast: { title, body } })
     toastTimer = setTimeout(() => set({ toast: null }), 5000)
   },
 }))
+
+if (import.meta.env.DEV) Object.assign(window, { __ui: useUi }) // per gli script di prova

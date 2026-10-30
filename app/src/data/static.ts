@@ -13,6 +13,8 @@ type StaticData = {
   patterns: Map<string, Pattern>
   shapes: Record<string, [number, number][]>
   tripPattern: Map<string, string>
+  /** Fermate con lo stesso nome (di solito una per direzione): la "località" scelta in Cerca e nei tragitti. */
+  places: Map<string, string[]>
 }
 
 const get = async <T,>(path: string): Promise<T> => {
@@ -39,6 +41,8 @@ export async function loadStatic() {
         patterns: new Map(patterns.map((p) => [p.id, p])),
         shapes,
         tripPattern: new Map(Object.values(trips).flatMap((day) => day.map(([trip, pattern]) => [trip, pattern] as const))),
+        // shortcut: raggruppa per nome esatto; due fermate omonime lontane (altri comuni) finirebbero insieme. Se capita, aggiungere la distanza.
+        places: stops.reduce((m, s) => m.set(s.name, [...(m.get(s.name) ?? []), s.id]), new Map<string, string[]>()),
       },
     })
   } catch (e) {

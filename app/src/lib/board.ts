@@ -1,4 +1,4 @@
-// Tabellone di una fermata: orari programmati (GTFS) uniti ai passaggi stimati (GTFS-RT).
+// Tabellone di una fermata e tragitti diretti: orari programmati (GTFS) uniti alle stime (GTFS-RT).
 
 /** Inizio del giorno di servizio GTFS ("mezzogiorno − 12 h"), in ms epoch, nel fuso del dispositivo.
  *  shortcut: assume il dispositivo in Europe/Rome; se serve altrove, calcolare con Intl e timeZone. */
@@ -6,13 +6,33 @@ export function serviceDayStart(date: string): number {
   return new Date(+date.slice(0, 4), +date.slice(4, 6) - 1, +date.slice(6, 8), 12).getTime() - 12 * 3600_000
 }
 
-/** [secondi dall'inizio del giorno di servizio, trip_id, pattern_id] */
-export type Departure = [number, string, string]
+/** [secondi dall'inizio del giorno di servizio, trip_id, pattern_id, 1 se si può solo scendere] */
+export type Departure = [number, string, string] | [number, string, string, 1]
 export type StopTimes = Record<string, Departure[]>
 
-export type StopUpdate = { stopId: string; seq: number; time: number | null; delay: number | null }
+export type StopRel = 'SCHEDULED' | 'SKIPPED' | 'NO_DATA'
+export type StopUpdate = { stopId: string; seq: number; time: number | null; delay: number | null; rel: StopRel }
 /** startDate: giorno di servizio della corsa (YYYYMMDD); lo stesso trip_id si ripete in più giorni. */
-export type TripUpdate = { tripId: string; startDate: string; stops: StopUpdate[] }
+export type TripUpdate = { tripId: string; startDate: string; canceled: boolean; stops: StopUpdate[] }
+
+export type StopStatus =
+  | { kind: 'live'; eta: number; delaySec: number | null }
+  | { kind: 'scheduled' | 'cancelled' | 'skipped' | 'passed' }
+
+/** Cosa dice il realtime di una corsa (di un dato giorno di servizio) a una fermata. */
+export function stopStatus(tu: TripUpdate | undefined, date: string, stopId: string): StopStatus {
+  if (!tu || tu.startDate !== date) return { kind: 'scheduled' }
+  if (tu.canceled) return { kind: 'cancelled' }
+  const stu = tu.stops.find((s) => s.stopId === stopId)
+  if (stu?.rel === 'SKIPPED') return { kind: 'skipped' }
+  if (stu?.time) return { kind: 'live', eta: stu.time * 1000, delaySec: stu.delay }
+  // NO_DATA o fermata assente: prima della prima stima = già passata, dopo = nessuna stima (vale l'orario).
+  const firstLive = Math.min(...tu.stops.filter((s) => s.time).map((s) => s.seq))
+  if (!Number.isFinite(firstLive)) return { kind: 'scheduled' }
+  // BusOne elenca tutte le fermate; il feed TEP solo le future: in entrambi i casi un'assenza è un passaggio già avvenuto.
+  if (!stu || stu.seq < firstLive) return { kind: 'passed' }
+  return { kind: 'scheduled' }
+}
 
 export type BoardRow = {
   tripId: string
@@ -22,39 +42,91 @@ export type BoardRow = {
   /** ms epoch stimati (solo live) */
   eta: number | null
   delaySec: number | null
-  source: 'live' | 'scheduled'
+  source: 'live' | 'scheduled' | 'cancelled' | 'skipped'
 }
 
 const WINDOW_MS = 90 * 60_000
 
 export function buildBoard(stopId: string, times: StopTimes, updates: Map<string, TripUpdate>, now: number, limit = 12) {
   const live: BoardRow[] = []
-  const scheduled: BoardRow[] = []
+  const others: BoardRow[] = []
   const upcoming: BoardRow[] = []
   for (const [date, deps] of Object.entries(times)) {
     const base = serviceDayStart(date)
-    for (const [sec, tripId, patternId] of deps) {
+    for (const [sec, tripId, patternId, alightOnly] of deps) {
+      if (alightOnly) continue // qui si scende soltanto: non è una partenza
       const at = base + sec * 1000
-      const any = updates.get(tripId)
-      const tu = any?.startDate === date ? any : undefined
-      const stu = tu?.stops.find((s) => s.stopId === stopId)
-      if (stu?.time) {
-        const eta = stu.time * 1000
-        if (eta >= now - 30_000 && eta <= now + WINDOW_MS)
-          live.push({ tripId, patternId, scheduled: at, eta, delaySec: stu.delay, source: 'live' })
+      const st = stopStatus(updates.get(tripId), date, stopId)
+      if (st.kind === 'passed') continue
+      if (st.kind === 'live') {
+        if (st.eta >= now - 30_000 && st.eta <= now + WINDOW_MS)
+          live.push({ tripId, patternId, scheduled: at, eta: st.eta, delaySec: st.delaySec, source: 'live' })
         continue
       }
-      // Corsa in tempo reale ma senza stima per questa fermata: già passata (NO_DATA).
-      if (tu) continue
-      const row: BoardRow = { tripId, patternId, scheduled: at, eta: null, delaySec: null, source: 'scheduled' }
-      if (at >= now - 60_000 && at <= now + WINDOW_MS) scheduled.push(row)
-      else if (at > now) upcoming.push(row)
+      const row: BoardRow = { tripId, patternId, scheduled: at, eta: null, delaySec: null, source: st.kind }
+      if (at >= now - 60_000 && at <= now + WINDOW_MS) others.push(row)
+      else if (at > now && st.kind === 'scheduled') upcoming.push(row)
     }
   }
   live.sort((a, b) => a.eta! - b.eta!)
-  scheduled.sort((a, b) => a.scheduled - b.scheduled)
-  const rows = [...live, ...scheduled].slice(0, limit)
+  others.sort((a, b) => a.scheduled - b.scheduled)
+  const rows = [...live, ...others].slice(0, limit)
   // Di notte: solo le prime corse del mattino, programmate.
   if (!rows.length) return { rows: upcoming.sort((a, b) => a.scheduled - b.scheduled).slice(0, 6), night: true }
   return { rows, night: false }
+}
+
+export type Journey = {
+  tripId: string
+  patternId: string
+  fromStop: string
+  toStop: string
+  /** ms epoch: partenza e arrivo, stimati se live */
+  depart: number
+  arrive: number
+  live: boolean
+  delaySec: number | null
+}
+
+/** Corse dirette da una qualsiasi fermata di `from` a una di `to` (stesso trip, arrivo dopo la partenza). */
+export function directJourneys(
+  from: Map<string, StopTimes>,
+  to: Map<string, StopTimes>,
+  updates: Map<string, TripUpdate>,
+  now: number,
+  limit = 3,
+) {
+  const arrivals = new Map<string, { sec: number; stopId: string }>()
+  for (const [stopId, times] of to)
+    for (const [date, deps] of Object.entries(times))
+      for (const [sec, tripId] of deps) arrivals.set(`${date}|${tripId}`, { sec, stopId })
+
+  const out: Journey[] = []
+  for (const [fromStop, times] of from)
+    for (const [date, deps] of Object.entries(times)) {
+      const base = serviceDayStart(date)
+      for (const [sec, tripId, patternId, alightOnly] of deps) {
+        const arr = arrivals.get(`${date}|${tripId}`)
+        if (alightOnly || !arr || arr.sec <= sec) continue
+        const tu = updates.get(tripId)
+        const dep = stopStatus(tu, date, fromStop)
+        const end = stopStatus(tu, date, arr.stopId)
+        if (dep.kind !== 'live' && dep.kind !== 'scheduled') continue // cancellata, saltata o già passata
+        if (end.kind === 'skipped' || end.kind === 'cancelled') continue
+        const delayMs = dep.kind === 'live' ? (dep.delaySec ?? 0) * 1000 : 0
+        const depart = dep.kind === 'live' ? dep.eta : base + sec * 1000
+        if (depart < now - 30_000) continue
+        out.push({
+          tripId,
+          patternId,
+          fromStop,
+          toStop: arr.stopId,
+          depart,
+          arrive: end.kind === 'live' ? end.eta : base + arr.sec * 1000 + delayMs,
+          live: dep.kind === 'live',
+          delaySec: dep.kind === 'live' ? dep.delaySec : null,
+        })
+      }
+    }
+  return out.sort((a, b) => a.depart - b.depart).slice(0, limit)
 }

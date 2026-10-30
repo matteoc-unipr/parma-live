@@ -76,12 +76,13 @@ const parseUpdates = (json: any) =>
           {
             tripId: tu.trip.trip_id,
             startDate: tu.trip.start_date,
-            stops: (tu.stop_time_update ?? [])
-              .filter((s: any) => s.schedule_relationship !== 'NO_DATA')
-              .map((s: any) => {
-                const ev = s.arrival ?? s.departure
-                return { stopId: s.stop_id, seq: s.stop_sequence, time: ev?.time ?? null, delay: ev?.delay ?? null }
-              }),
+            canceled: tu.trip.schedule_relationship === 'CANCELED',
+            // NO_DATA e SKIPPED restano: servono a capire se la fermata è già passata o verrà saltata (lib/board.ts).
+            stops: (tu.stop_time_update ?? []).map((s: any) => {
+              const ev = s.arrival ?? s.departure
+              const rel = s.schedule_relationship === 'SKIPPED' || s.schedule_relationship === 'NO_DATA' ? s.schedule_relationship : 'SCHEDULED'
+              return { stopId: s.stop_id, seq: s.stop_sequence, time: rel === 'SCHEDULED' ? (ev?.time ?? null) : null, delay: ev?.delay ?? null, rel }
+            }),
           },
         ]
       }),
@@ -222,3 +223,5 @@ export function startRealtime() {
     window.removeEventListener('offline', setOnline)
   }
 }
+
+if (import.meta.env.DEV) Object.assign(window, { __rt: useRealtime }) // per gli script di prova

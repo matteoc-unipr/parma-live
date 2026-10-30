@@ -8,8 +8,8 @@ import { unzipSync } from 'fflate'
 type Row = Record<string, string>
 type Gtfs = Record<'routes' | 'stops' | 'trips' | 'stop_times' | 'shapes' | 'calendar' | 'calendar_dates', Row[]>
 export type Pattern = { id: string; route: string; dir: number; headsign: string; shape: string; stops: string[] }
-/** [secondi dall'inizio del giorno di servizio, trip_id, pattern id] */
-export type Departure = [number, string, string]
+/** [secondi dall'inizio del giorno di servizio, trip_id, pattern id, 1 se si può solo scendere] */
+export type Departure = [number, string, string] | [number, string, string, 1]
 
 const DAY = 86400
 
@@ -179,14 +179,15 @@ export function build(g: Gtfs, today: string) {
       const sts = stopTimesByTrip.get(trip.trip_id!)!
       if (parseTime(sts.at(-1)!.arrival_time!) < minSec) continue
       tripsByDay[date].push([trip.trip_id!, pattern, parseTime(sts[0]!.departure_time!)])
-      // Il capolinea d'arrivo e le fermate senza salita non sono partenze.
-      for (const st of sts.slice(0, -1)) {
-        const sec = parseTime(st.departure_time!)
-        if (sec < minSec || st.pickup_type === '1') continue
+      // Capolinea d'arrivo e fermate senza salita: solo arrivo (flag 1, orario d'arrivo). Servono ai tragitti, non al tabellone.
+      sts.forEach((st, i) => {
+        const alightOnly = i === sts.length - 1 || st.pickup_type === '1'
+        const sec = parseTime(alightOnly ? st.arrival_time! : st.departure_time!)
+        if (sec < minSec) return
         const board = byStop.get(st.stop_id!) ?? {}
-        ;(board[date] ??= []).push([sec, trip.trip_id!, pattern])
+        ;(board[date] ??= []).push(alightOnly ? [sec, trip.trip_id!, pattern, 1] : [sec, trip.trip_id!, pattern])
         byStop.set(st.stop_id!, board)
-      }
+      })
     }
   }
   for (const board of byStop.values()) for (const list of Object.values(board)) list.sort((a, b) => a[0] - b[0])
