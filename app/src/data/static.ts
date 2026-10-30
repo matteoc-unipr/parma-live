@@ -56,8 +56,33 @@ export const loadStopTimes = (stopId: string) => {
   return stopTimesCache.get(stopId)!
 }
 
-// Colori ufficiali dal GTFS; dove mancano, i segnaposto del design.
+// Colori: ufficiali dal GTFS; poi i segnaposto del design; poi uno "casuale" stabile per linea.
 const designLines: Record<string, string> = tokens.color.line
 export const lineColor = (route: Route | undefined) =>
-  route?.color ?? designLines[route?.short ?? ''] ?? tokens.color.light.text2
+  route?.color ?? designLines[route?.short ?? ''] ?? fallbackColor(route?.short ?? route?.id ?? '')
+
+const hex = (n: number) => Math.round(n * 255).toString(16).padStart(2, '0')
+const hsl = (h: number, s: number, l: number) => {
+  const k = (n: number) => (n + h / 30) % 12
+  const a = s * Math.min(l, 1 - l)
+  const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1))
+  return [f(0), f(8), f(4)] as const
+}
+const luminance = (rgb: readonly number[]) => {
+  const [r, g, b] = rgb.map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4))
+  return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!
+}
+/** Contrasto WCAG del bianco su questo colore. */
+export const contrastWithWhite = (rgb: readonly number[]) => 1.05 / (luminance(rgb) + 0.05)
+
+/** Colore stabile ricavato dal nome della linea (stessa linea, stesso colore), scurito finché il numero bianco resta leggibile (≥ 3:1). */
+export function fallbackColor(key: string) {
+  let h = 0x811c9dc5
+  for (const c of key) h = Math.imul(h ^ c.charCodeAt(0), 0x01000193)
+  const hue = ((h >>> 0) % 360 + 360) % 360
+  let l = 0.46
+  let rgb = hsl(hue, 0.68, l)
+  while (contrastWithWhite(rgb) < 3 && l > 0.2) rgb = hsl(hue, 0.68, (l -= 0.02))
+  return `#${rgb.map(hex).join('').toUpperCase()}`
+}
 export const lineLabel = (route: Route | undefined) => (route?.short === 'Campus Express' ? 'CE' : (route?.short ?? '?'))

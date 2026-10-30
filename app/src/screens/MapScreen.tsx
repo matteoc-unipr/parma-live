@@ -8,7 +8,7 @@ import { feedStatus, useRealtime } from '../data/realtime'
 import { lineColor, useStatic } from '../data/static'
 import { nearestIndex } from '../lib/geo'
 import { addBusLayers, busAt, busMotion, onMissingImage, useBusLayer } from '../map/busLayer'
-import { useDarkMode, useNow } from '../lib/hooks'
+import { isDark, useDarkMode, useNow } from '../lib/hooks'
 import { useUi } from '../store'
 import { fmtTime, LineBadge } from '../ui/bits'
 import { InfoIcon, LocateIcon, MoonIcon } from '../ui/icons'
@@ -72,7 +72,7 @@ const EMPTY: FeatureCollection = { type: 'FeatureCollection', features: [] }
 const layerData = { stops: EMPTY, route: EMPTY }
 
 function addLayers(m: maplibregl.Map) {
-  const dark = window.matchMedia('(prefers-color-scheme: dark)').matches
+  const dark = isDark()
   m.addSource('stops', { type: 'geojson', data: layerData.stops })
   m.addSource('route', { type: 'geojson', data: layerData.route })
   // Percorso del bus selezionato: passato tratteggiato, restante col bordo.

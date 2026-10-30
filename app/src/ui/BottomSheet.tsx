@@ -2,19 +2,30 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useUi, type Detent } from '../store'
 
-const FULL = 56
+// Detent full: y=56 nel design (status bar 54); nell'app installata va sotto la safe area vera.
+const safeTop = () => {
+  const probe = document.createElement('div')
+  probe.style.paddingTop = 'env(safe-area-inset-top)'
+  document.body.appendChild(probe)
+  const px = parseFloat(getComputedStyle(probe).paddingTop) || 0
+  probe.remove()
+  return px
+}
+const FULL = Math.max(56, safeTop() + 6)
+// Altezza dell'html (allungata in styles.css), non innerHeight: nell'app installata iOS è più corta dello schermo.
+const screenH = () => document.documentElement.getBoundingClientRect().height
 const detentY = (d: Detent, h: number) => (d === 'full' ? FULL : d === 'half' ? Math.round((h * 400) / 844) : h - 156)
 
 export function BottomSheet({ header, children, closable = true }: { header: ReactNode; children: ReactNode; closable?: boolean }) {
   const detent = useUi((s) => s.detent)
-  const [h, setH] = useState(window.innerHeight)
+  const [h, setH] = useState(screenH)
   const [dragY, setDragY] = useState<number | null>(null)
   const [entered, setEntered] = useState(false)
   const drag = useRef<{ startY: number; y0: number; active: boolean; samples: [number, number][] } | null>(null)
   const justDragged = useRef(false)
 
   useEffect(() => {
-    const onResize = () => setH(window.innerHeight)
+    const onResize = () => setH(screenH())
     window.addEventListener('resize', onResize)
     const raf = requestAnimationFrame(() => setEntered(true)) // parte da fuori schermo e sale a half
     return () => {

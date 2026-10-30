@@ -28,6 +28,8 @@ type Ui = {
   geo: GeoState
   /** Cerca: località di partenza e arrivo (nomi in data.places) */
   search: { from: string | null; to: string | null }
+  /** tema chiaro anche quando il sistema è scuro */
+  lightAlways: boolean
   /** incrementato per chiedere alla mappa di centrarsi sull'utente */
   locateTick: number
   setTab: (tab: Tab) => void
@@ -37,6 +39,7 @@ type Ui = {
   toggleFavStop: (stopId: string) => void
   toggleFavTrip: (from: string, to: string) => void
   setSearch: (search: Partial<Ui['search']>) => void
+  setLightAlways: (on: boolean) => void
   showToast: (title: string, body: string) => void
 }
 
@@ -47,6 +50,20 @@ function saveFavs(set: (p: Partial<Ui>) => void, favorites: Favorites) {
     /* storage pieno o bloccato: il preferito resta per la sessione */
   }
   set({ favorites })
+}
+
+const THEME_KEY = 'parmaLive.theme.v1'
+const readLightAlways = () => {
+  try {
+    return localStorage.getItem(THEME_KEY) === 'light'
+  } catch {
+    return false
+  }
+}
+// data-theme="light" fa vincere i token chiari anche con il sistema scuro (tokens.css).
+const applyTheme = (lightAlways: boolean) => {
+  if (lightAlways) document.documentElement.dataset.theme = 'light'
+  else delete document.documentElement.dataset.theme
 }
 
 let toastTimer: ReturnType<typeof setTimeout> | undefined
@@ -61,6 +78,7 @@ export const useUi = create<Ui>((set, get) => ({
   toast: null,
   geo: { status: 'unknown' },
   search: { from: null, to: null },
+  lightAlways: readLightAlways(),
   locateTick: 0,
   setTab: (tab) => set({ tab, sheet: null }),
   openSheet: (sheet) => set(sheet ? { sheet, tab: 'map', detent: 'half' } : { sheet }),
@@ -78,6 +96,15 @@ export const useUi = create<Ui>((set, get) => ({
     saveFavs(set, { ...favorites, trips })
   },
   setSearch: (search) => set((s) => ({ search: { ...s.search, ...search } })),
+  setLightAlways: (on) => {
+    try {
+      localStorage.setItem(THEME_KEY, on ? 'light' : 'auto')
+    } catch {
+      /* resta per la sessione */
+    }
+    applyTheme(on)
+    set({ lightAlways: on })
+  },
   showToast: (title, body) => {
     clearTimeout(toastTimer)
     set({ toast: { title, body } })
@@ -85,4 +112,5 @@ export const useUi = create<Ui>((set, get) => ({
   },
 }))
 
+applyTheme(useUi.getState().lightAlways) // prima del primo render: niente lampo di tema sbagliato
 if (import.meta.env.DEV) Object.assign(window, { __ui: useUi }) // per gli script di prova

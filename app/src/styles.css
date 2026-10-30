@@ -1,11 +1,15 @@
 /* Stili dei componenti: misure dal design (design/README.md), colori solo da tokens.css. */
 :root {
-  --safe-top: max(env(safe-area-inset-top), 12px);
+  /* +10 px: chip, indicatori e titoli non incollati alla status bar dell'app installata */
+  --safe-top: calc(max(env(safe-area-inset-top), 12px) + 10px);
   --safe-bottom: env(safe-area-inset-bottom);
 }
 
 * { box-sizing: border-box; }
 html, body, #root { margin: 0; height: 100%; overflow: hidden; }
+/* PWA iOS con status bar black-translucent: la pagina parte sotto la status bar ma 100% vale lo schermo
+   meno la status bar, e in fondo resta una fascia nera alta proprio safe-area-inset-top. In Safari vale 0. */
+html { height: calc(100% + env(safe-area-inset-top)); }
 body {
   background: var(--pl-bg);
   color: var(--pl-text);
@@ -220,3 +224,12 @@ div.map { position: absolute; inset: 0; z-index: 0; background: var(--pl-map-bg)
 .fav-row { display: grid; grid-template-columns: 30px minmax(0,1fr) auto; gap: 12px; align-items: center; height: 46px; border-top: 1px solid var(--pl-hair); padding-right: 8px; }
 .attribution-row { padding: 12px 0; }
 .attribution-row + .attribution-row { border-top: 1px solid var(--pl-hair); }
+
+/* Switch iOS 51×31 */
+.switch { flex: none; position: relative; width: 51px; height: 31px; border-radius: 16px; background: var(--pl-fill); transition: background .25s ease; }
+.switch::after {
+  content: ''; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15), 0 1px 1px rgba(0,0,0,0.16); transition: transform .3s var(--pl-ease-spring);
+}
+.switch.on { background: var(--pl-ok); }
+.switch.on::after { transform: translateX(20px); }

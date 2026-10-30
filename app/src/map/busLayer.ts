@@ -20,7 +20,8 @@ export function addBusLayers(m: MlMap) {
   m.addLayer({
     id: 'bus-cone', type: 'symbol', source: SOURCE, filter: ['has', 'bearing'],
     layout: {
-      'icon-image': ['concat', 'cone-', ['get', 'color']],
+      // Il colore del bordo è nel nome: cambiando tema MapLibre conserva le immagini già create.
+      'icon-image': ['concat', 'cone-', ['get', 'color'], '-', ring],
       'icon-rotate': ['get', 'bearing'],
       'icon-rotation-alignment': 'map',
       'icon-size': ['case', sel, 40 / 28, 1],
@@ -53,7 +54,7 @@ export function addBusLayers(m: MlMap) {
   })
 }
 
-/** Immagini dei coni generate al volo, una per colore di linea (cone-#RRGGBB). */
+/** Immagini dei coni generate al volo, una per colore di linea e di bordo (cone-#RRGGBB-#RRGGBB). */
 export function onMissingImage(m: MlMap, id: string) {
   if (!id.startsWith('cone-')) return
   const ratio = 2
@@ -69,11 +70,12 @@ export function onMissingImage(m: MlMap, id: string) {
   ctx.lineTo(0, -(h + 10))
   ctx.lineTo(h * 0.62, -h * 0.62)
   ctx.closePath()
-  ctx.fillStyle = id.slice(5)
+  const [fill, ring] = id.slice(5).split('-')
+  ctx.fillStyle = fill!
   ctx.fill()
   ctx.lineWidth = 1.5
   ctx.lineJoin = 'round'
-  ctx.strokeStyle = css('--pl-marker-ring')
+  ctx.strokeStyle = ring ?? css('--pl-marker-ring')
   ctx.stroke()
   m.addImage(id, ctx.getImageData(0, 0, size * ratio, size * ratio), { pixelRatio: ratio })
 }

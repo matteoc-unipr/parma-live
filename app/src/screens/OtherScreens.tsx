@@ -293,6 +293,27 @@ function Results({ from, to }: { from: string; to: string }) {
 }
 
 /* ---------- Info ---------- */
+function ThemeSwitch() {
+  const on = useUi((s) => s.lightAlways)
+  return (
+    <div className="card" style={{ padding: '0 16px' }}>
+      <label style={{ display: 'flex', alignItems: 'center', gap: 12, minHeight: 56, cursor: 'pointer' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 16, fontWeight: 600 }}>Tema chiaro anche di notte</div>
+          <div style={{ fontSize: 13, color: 'var(--pl-text-2)' }}>Ignora la modalità scura del telefono</div>
+        </div>
+        <button
+          role="switch"
+          aria-checked={on}
+          aria-label="Tema chiaro anche di notte"
+          className={`switch ${on ? 'on' : ''}`}
+          onClick={() => useUi.getState().setLightAlways(!on)}
+        />
+      </label>
+    </div>
+  )
+}
+
 const SOURCES = [
   { title: 'Dati: BusOne (busone.app) e TEP', sub: 'Posizioni e passaggi dei bus in tempo reale, orari GTFS' },
   { title: 'Treni: RFI', sub: 'Monitor arrivi e partenze della stazione di Parma' },
@@ -317,6 +338,8 @@ export function InfoScreen() {
           <div style={{ fontSize: 13, color: 'var(--pl-text-2)' }}>Versione 0.1 · uso personale</div>
         </div>
       </div>
+      <div className="section-header" style={{ paddingTop: 10 }}>ASPETTO</div>
+      <ThemeSwitch />
       <div className="section-header" style={{ paddingTop: 10 }}>FONTI DATI</div>
       <div className="card" style={{ padding: '0 16px' }}>
         {SOURCES.map((s) => (
