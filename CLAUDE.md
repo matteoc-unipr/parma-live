@@ -21,7 +21,8 @@ PWA personale per i trasporti di Parma (bus TEP in tempo reale, treni alla Stazi
 ## Fonti dati: regole
 - **Bus**: BusOne Proxy `https://proxy.busone.app/tep` (`gtfs.zip`, `gtfs-rt/*.pb|.json`, `ws`, `status`). Gli ID di corse, linee e fermate sono coerenti tra statico e realtime.
 - Ogni richiesta automatica a BusOne invia `X-BusOne-Client: parma-live (uso personale); <email>` e `X-BusOne-Use: personal`.
-- Il realtime e il WebSocket passano **sempre dal Worker** (`/busone/*`), che aggiunge gli header e mette in cache il realtime per 5 s. L'email vive solo nel secret `BUSONE_CONTACT`: mai nel codice dell'app né nel repo.
+- Il realtime e il WebSocket passano **sempre dal Worker** (`/busone/*`), che aggiunge gli header. L'email vive solo nel secret `BUSONE_CONTACT`: mai nel codice dell'app né nel repo.
+- Il Worker non fa cache: su `workers.dev` non esiste una cache condivisa gratuita. **L'app non chiede lo stesso feed realtime più di una volta ogni 5 s** e tiene al massimo una richiesta in volo. Ricarica il feed sui tick del WebSocket: posizioni ogni 30 s, trip updates ogni ~1 s, da limitare.
 - Il GTFS statico non si carica a runtime: `scripts/build-gtfs.ts` lo trasforma in `app/public/data/` (formato in `docs/data.md`). I file generati non vanno in git.
 - Uso **solo personale**. Attribuzione obbligatoria e visibile: "BusOne (https://busone.app) e TEP".
 - **Fallback** solo se BusOne non risponde: feed ufficiale TEP `https://temporeale.cl.tep.pr.it/temporeale/{vehicle_positions,trip_updates}.pb`. Non ha `trip_id`: match su `route_id + direction_id + start_date + start_time`. Non ha CORS, quindi passa dal Worker.

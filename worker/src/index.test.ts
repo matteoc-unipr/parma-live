@@ -17,25 +17,13 @@ test('rotta sconosciuta: 404', async () => {
   expect((await get('/nope')).status).toBe(404)
 })
 
-test('BusOne realtime: header di identificazione, CORS, cache 5 s', async () => {
-  vi.useFakeTimers({ toFake: ['Date'] })
+test('BusOne realtime: header di identificazione e CORS', async () => {
   const res = await get('/busone/gtfs-rt/vehicle-positions.pb')
   expect(upstream).toHaveBeenCalledWith('https://proxy.busone.app/tep/gtfs-rt/vehicle-positions.pb', {
     headers: { 'X-BusOne-Client': 'parma-live (uso personale); me@example.com', 'X-BusOne-Use': 'personal' },
   })
   expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*')
   expect(res.headers.get('Last-Modified')).toBe('ieri')
-  expect(await res.text()).toBe('x')
-
-  vi.advanceTimersByTime(4000)
-  const cached = await get('/busone/gtfs-rt/vehicle-positions.pb')
-  expect(await cached.text()).toBe('x')
-  expect(upstream).toHaveBeenCalledTimes(1)
-
-  vi.advanceTimersByTime(1500)
-  await get('/busone/gtfs-rt/vehicle-positions.pb')
-  expect(upstream).toHaveBeenCalledTimes(2)
-  vi.useRealTimers()
 })
 
 test('BusOne WebSocket: upgrade inoltrato con gli header', async () => {

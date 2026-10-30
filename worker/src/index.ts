@@ -6,10 +6,6 @@ const BUSONE = 'https://proxy.busone.app/tep/'
 const VIAGGIATRENO = 'http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/'
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Expose-Headers': 'Last-Modified' }
 
-// shortcut: cache in memoria per isolate (su workers.dev cf.cacheTtl e Cache API sono no-op); con un dominio custom passare a caches.default.
-const REALTIME_TTL_MS = 5000
-const memo = new Map<string, { at: number; body: ArrayBuffer; init: ResponseInit }>()
-
 const withCors = (res: Response) => {
   const out = new Response(res.body, res)
   for (const [k, v] of Object.entries(CORS)) out.headers.set(k, v)
@@ -31,15 +27,9 @@ export default {
       }
       // Il WebSocket dal browser non può inviare header: lo apriamo noi e passiamo la 101 al client.
       if (req.headers.get('Upgrade') === 'websocket') return fetch(upstream, { headers: { ...headers, Upgrade: 'websocket' } })
-      if (!path.includes('/gtfs-rt/')) return withCors(await fetch(upstream, { headers }))
-      const hit = memo.get(upstream)
-      if (hit && Date.now() - hit.at < REALTIME_TTL_MS) return withCors(new Response(hit.body, hit.init))
-      const res = await fetch(upstream, { headers })
-      // Il body di una Response non può sopravvivere alla richiesta: in cache teniamo i byte.
-      const body = await res.arrayBuffer()
-      const init = { status: res.status, headers: new Headers(res.headers) }
-      if (res.ok) memo.set(upstream, { at: Date.now(), body, init })
-      return withCors(new Response(body, init))
+      // shortcut: nessuna cache. Su workers.dev Cache API e cf.cacheTtl sono no-op e la memoria è per-isolate (0 hit misurati):
+      // il limite di una richiesta realtime ogni 5 s lo applica l'app. Con un dominio custom passare a caches.default.
+      return withCors(await fetch(upstream, { headers }))
     }
 
     // shortcut: passthrough senza cache né parsing, serve a verificare che Akamai non blocchi i Worker; il proxy treni vero arriva con la UI treni.
