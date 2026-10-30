@@ -4,9 +4,10 @@ import type { GeoJSONSource } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
 import { useEffect, useMemo, useRef } from 'react'
-import { feedStatus, useRealtime, type Bus } from '../data/realtime'
-import { lineColor, lineLabel, useStatic } from '../data/static'
+import { feedStatus, useRealtime } from '../data/realtime'
+import { lineColor, useStatic } from '../data/static'
 import { nearestIndex } from '../lib/geo'
+import { addBusLayers, busAt, busMotion, onMissingImage, useBusLayer } from '../map/busLayer'
 import { useDarkMode, useNow } from '../lib/hooks'
 import { useUi } from '../store'
 import { fmtTime, LineBadge } from '../ui/bits'
@@ -37,7 +38,10 @@ export function MapScreen() {
       touchPitch: false,
     })
     m.touchZoomRotate.disableRotation()
+    if (import.meta.env.DEV) Object.assign(window, { __map: m }) // per gli script di prova
     m.on('style.load', () => addLayers(m))
+    // MapLibre 6: le immagini mancanti si risolvono qui (con l'evento styleimagemissing arrivano dopo il layout).
+    m.setMissingStyleImageResolver((id) => onMissingImage(m, id))
     map.current = m
     return () => m.remove()
     // eslint-disable-next-line react-hooks/exhaustive-deps -- il tema si cambia con setStyle sotto
@@ -48,7 +52,7 @@ export function MapScreen() {
   }, [dark])
 
   useStopsLayer(map, data)
-  useBusMarkers(map)
+  useBusLayer(map)
   useSelectedRoute(map)
   useUserLocation(map)
   useCameraRules(map)
@@ -86,6 +90,7 @@ function addLayers(m: maplibregl.Map) {
     paint: { 'circle-radius': 3, 'circle-color': '#fff', 'circle-stroke-width': 3, 'circle-stroke-color': '#8E8E96' } })
   m.addLayer({ id: 'stop-selected', type: 'circle', source: 'stops', filter: ['==', ['get', 'id'], selectedStopId()],
     paint: { 'circle-radius': 7, 'circle-color': '#fff', 'circle-stroke-width': 5, 'circle-stroke-color': css('--pl-accent') } })
+  addBusLayers(m)
 }
 
 const selectedStopId = () => {
@@ -137,98 +142,6 @@ function useStopsLayer(map: React.RefObject<maplibregl.Map | null>, data: Return
     const m = map.current
     if (m?.getLayer('stop-selected')) m.setFilter('stop-selected', ['==', ['get', 'id'], selectedStop])
   }, [map, selectedStop])
-}
-
-/* ---------- Bus (marker DOM: cono ruotato verso la direzione di marcia) ---------- */
-type MarkerEntry = { marker: maplibregl.Marker; el: HTMLDivElement; lngLat: [number, number]; anim?: number }
-
-function busElement(bus: Bus, onTap: () => void) {
-  const el = document.createElement('div')
-  el.className = 'bus-marker'
-  el.dataset.component = 'BusMarker'
-  el.innerHTML = '<div class="hit"></div><svg width="80" height="80" viewBox="-40 -40 80 80"><path stroke-width="1.5" stroke-linejoin="round"></path></svg><div class="badge"></div>'
-  el.addEventListener('click', (e) => {
-    e.stopPropagation()
-    onTap()
-  })
-  el.setAttribute('role', 'button')
-  el.setAttribute('aria-label', `Bus ${bus.label}`)
-  return el
-}
-
-function paintBus(el: HTMLDivElement, color: string, label: string, size: number, bearing: number | null, opacity: number, z: number) {
-  const h = size / 2
-  const tip = h + 10
-  const path = el.querySelector('path')!
-  path.setAttribute('d', `M${-h * 0.62},${-h * 0.62} L0,${-tip} L${h * 0.62},${-h * 0.62} Z`)
-  path.setAttribute('fill', color)
-  path.style.stroke = 'var(--pl-marker-ring)' // le var CSS non valgono negli attributi SVG
-  const svg = el.querySelector('svg')!
-  svg.style.transform = `rotate(${bearing ?? 0}deg)`
-  svg.style.visibility = bearing === null ? 'hidden' : 'visible'
-  const badge = el.querySelector<HTMLDivElement>('.badge')!
-  Object.assign(badge.style, {
-    width: `${size}px`, height: `${size}px`, left: `${-h}px`, top: `${-h}px`, background: color,
-    fontSize: `${size > 34 ? 17 : label.length > 1 ? 11 : 13}px`,
-  })
-  badge.textContent = label
-  el.style.zIndex = String(z)
-  return opacity
-}
-
-function useBusMarkers(map: React.RefObject<maplibregl.Map | null>) {
-  const buses = useRealtime((s) => s.buses)
-  const status = useRealtime((s) => feedStatus(s, Date.now()))
-  const data = useStatic((s) => s.data)
-  const filter = useUi((s) => s.filter)
-  const sheet = useUi((s) => s.sheet)
-  const markers = useRef(new Map<string, MarkerEntry>())
-
-  useEffect(() => {
-    const m = map.current
-    if (!m) return
-    const selected = sheet?.kind === 'bus' ? sheet.id : null
-    const visible = buses.filter((b) => !filter.length || filter.includes(b.routeId) || b.id === selected)
-    const seen = new Set<string>()
-    const baseOpacity = status === 'offline' ? 0.5 : status === 'stale' ? 0.75 : 1
-    for (const bus of visible) {
-      seen.add(bus.id)
-      const route = data?.routes.get(bus.routeId)
-      let entry = markers.current.get(bus.id)
-      const to: [number, number] = [bus.lon, bus.lat]
-      if (!entry) {
-        const el = busElement(bus, () => useUi.getState().openSheet({ kind: 'bus', id: bus.id }))
-        entry = { el, lngLat: to, marker: new maplibregl.Marker({ element: el }).setLngLat(to).addTo(m) }
-        markers.current.set(bus.id, entry)
-      } else if (status !== 'offline') {
-        animateTo(entry, to)
-      }
-      const isSel = bus.id === selected
-      // MapLibre gestisce da sé style.opacity del marker: va passata da setOpacity.
-      const opacity = paintBus(entry.el, lineColor(route), lineLabel(route), isSel ? 40 : 28, bus.bearing, selected && !isSel ? 0.22 : baseOpacity, isSel ? 2 : 1)
-      entry.marker.setOpacity(String(opacity))
-    }
-    for (const [id, entry] of markers.current) {
-      if (seen.has(id)) continue
-      entry.marker.remove()
-      markers.current.delete(id)
-    }
-  }, [map, buses, data, filter, sheet, status])
-}
-
-// Spostamento lineare in 1000 ms (= --pl-dur-bus-step) tra due fix.
-function animateTo(entry: MarkerEntry, to: [number, number]) {
-  if (entry.anim) cancelAnimationFrame(entry.anim)
-  const from = entry.lngLat
-  if (from[0] === to[0] && from[1] === to[1]) return
-  const t0 = performance.now()
-  const step = (t: number) => {
-    const k = Math.min(1, (t - t0) / 1000)
-    entry.lngLat = [from[0] + (to[0] - from[0]) * k, from[1] + (to[1] - from[1]) * k]
-    entry.marker.setLngLat(entry.lngLat)
-    if (k < 1) entry.anim = requestAnimationFrame(step)
-  }
-  entry.anim = requestAnimationFrame(step)
 }
 
 /* ---------- Percorso del bus selezionato ---------- */
@@ -303,11 +216,7 @@ function useCameraRules(map: React.RefObject<maplibregl.Map | null>) {
   useEffect(() => {
     const m = map.current
     if (!m || !sheet) return
-    const { buses } = useRealtime.getState()
-    const point =
-      sheet.kind === 'bus'
-        ? buses.find((b) => b.id === sheet.id)
-        : data?.stops.get(sheet.id)
+    const point = sheet.kind === 'bus' ? busMotion.poseAt(sheet.id, performance.now()) : data?.stops.get(sheet.id)
     if (!point) return
     m.easeTo({ center: [point.lon, point.lat], zoom: Math.max(m.getZoom(), 15), offset: [0, 220 - m.getContainer().clientHeight / 2], duration: 600 })
   }, [map, sheet, data])
@@ -320,6 +229,8 @@ function useCameraRules(map: React.RefObject<maplibregl.Map | null>) {
     const m = map.current
     if (!m) return
     const onClick = (e: maplibregl.MapMouseEvent) => {
+      const bus = busAt(m, e.point.x, e.point.y)
+      if (bus) return useUi.getState().openSheet({ kind: 'bus', id: bus })
       if (m.queryRenderedFeatures(e.point, { layers: m.getLayer('stops') ? ['stops'] : [] }).length) return
       const { sheet, detent } = useUi.getState()
       if (sheet && detent !== 'peek') useUi.setState({ detent: 'peek' })

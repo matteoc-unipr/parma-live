@@ -1,6 +1,7 @@
 // Realtime BusOne via Worker: il WebSocket segnala una nuova emissione, poi si scarica il feed JSON.
 import { create } from 'zustand'
 import type { TripUpdate } from '../lib/board'
+import { startBench } from '../dev/bench'
 
 export const WORKER = import.meta.env.VITE_WORKER_URL as string
 
@@ -19,6 +20,8 @@ type Realtime = {
   buses: Bus[]
   /** timestamp dell'header del feed (ms) */
   feedAt: number | null
+  /** ms tra le ultime due emissioni: durata dell'interpolazione dei bus */
+  feedInterval: number
   /** ultimo fetch riuscito (ms) */
   syncAt: number | null
   failed: boolean
@@ -30,6 +33,7 @@ type Realtime = {
 export const useRealtime = create<Realtime>(() => ({
   buses: [],
   feedAt: null,
+  feedInterval: 0,
   syncAt: null,
   failed: false,
   online: navigator.onLine,
@@ -107,9 +111,15 @@ function throttled(path: string, apply: (json: unknown) => void) {
 
 const fetchVehicles = throttled('vehicle-positions.json', (json) => {
   const header = (json as { header?: { timestamp?: number } }).header
+  const feedAt = header?.timestamp ? header.timestamp * 1000 : Date.now()
+  const prev = useRealtime.getState().feedAt
+  // Stessa emissione già vista (poll senza novità): non toccare i bus, l'animazione in corso resta valida.
+  if (prev === feedAt) return useRealtime.setState({ syncAt: Date.now(), failed: false })
   useRealtime.setState({
     buses: parseBuses(json),
-    feedAt: header?.timestamp ? header.timestamp * 1000 : Date.now(),
+    feedAt,
+    // Dopo una pausa lunga (background, offline) niente animazione: i bus si riposizionano.
+    feedInterval: prev && feedAt - prev <= 60_000 ? feedAt - prev : 0,
     syncAt: Date.now(),
     failed: false,
   })
@@ -128,48 +138,87 @@ export function subscribeUpdates() {
   return () => void updateSubscribers--
 }
 
+const updatesStale = () => {
+  const { updatesAt } = useRealtime.getState()
+  return updateSubscribers > 0 && (!updatesAt || Date.now() - updatesAt > UPDATES_EVERY_MS)
+}
+
+/**
+ * WebSocket → a ogni tick "vehicle_positions" si scarica il feed. WebSocket giù → polling ogni 10 s.
+ * Pagina in background → tutto fermo (niente socket, niente timer); al ritorno si riparte con un fetch immediato.
+ */
 export function startRealtime() {
-  void fetchVehicles(true)
+  const bench = new URLSearchParams(location.search).get('bench')
+  if (bench) return startBench(Number(bench) || 100)
+
   let ws: WebSocket | null = null
   let retry = 1000
-  let stopped = false
   let retryTimer: ReturnType<typeof setTimeout> | undefined
+  let poll: ReturnType<typeof setInterval> | undefined
+  let paused = true
+
+  const startPolling = () => {
+    poll ??= setInterval(() => {
+      void fetchVehicles()
+      if (updatesStale()) void fetchUpdates()
+    }, 10_000)
+  }
+  const stopPolling = () => {
+    clearInterval(poll)
+    poll = undefined
+  }
   const connect = () => {
-    if (stopped) return
+    if (paused) return
     ws = new WebSocket(`${WORKER.replace(/^http/, 'ws')}/busone/ws`)
-    ws.onopen = () => (retry = 1000)
+    ws.onopen = () => {
+      retry = 1000
+      stopPolling()
+    }
     ws.onmessage = (ev) => {
       const { type } = JSON.parse(String(ev.data)) as { type: string }
       if (type === 'vehicle_positions') void fetchVehicles()
-      const { updatesAt } = useRealtime.getState()
-      if (type === 'trip_updates' && updateSubscribers > 0 && (!updatesAt || Date.now() - updatesAt > UPDATES_EVERY_MS))
-        void fetchUpdates()
+      if (type === 'trip_updates' && updatesStale()) void fetchUpdates()
     }
     ws.onclose = () => {
+      ws = null
+      if (paused) return
+      startPolling()
       retryTimer = setTimeout(connect, retry)
       retry = Math.min(retry * 2, 60_000)
     }
   }
-  connect()
-  // Rete di sicurezza se il WebSocket tace: le posizioni escono ogni 30 s.
-  const poll = setInterval(() => {
-    if (Date.now() - (useRealtime.getState().syncAt ?? 0) > 35_000) void fetchVehicles()
-  }, 10_000)
-  const setOnline = () => {
-    useRealtime.setState({ online: navigator.onLine })
-    if (navigator.onLine) void fetchVehicles(true)
-  }
-  window.addEventListener('online', setOnline)
-  window.addEventListener('offline', setOnline)
-  return () => {
-    stopped = true
+  const pause = () => {
+    paused = true
     clearTimeout(retryTimer)
-    clearInterval(poll)
-    window.removeEventListener('online', setOnline)
-    window.removeEventListener('offline', setOnline)
+    stopPolling()
     if (ws) {
       ws.onclose = null
       ws.close()
+      ws = null
     }
+  }
+  const resume = () => {
+    if (!paused) return
+    paused = false
+    retry = 1000
+    void fetchVehicles(true)
+    if (updatesStale()) void fetchUpdates(true)
+    startPolling() // finché il WebSocket non è aperto
+    connect()
+  }
+  const onVisibility = () => (document.hidden ? pause() : resume())
+  const setOnline = () => {
+    useRealtime.setState({ online: navigator.onLine })
+    if (navigator.onLine && !paused) void fetchVehicles(true)
+  }
+  document.addEventListener('visibilitychange', onVisibility)
+  window.addEventListener('online', setOnline)
+  window.addEventListener('offline', setOnline)
+  if (!document.hidden) resume()
+  return () => {
+    pause()
+    document.removeEventListener('visibilitychange', onVisibility)
+    window.removeEventListener('online', setOnline)
+    window.removeEventListener('offline', setOnline)
   }
 }

@@ -15,7 +15,10 @@ PWA personale per i trasporti di Parma (bus TEP in tempo reale, treni alla Stazi
 
 ## App
 - `app/src/data/`: dati statici (`static.ts`), realtime BusOne (`realtime.ts`), treni RFI (`trains.ts`). `lib/board.ts` unisce orari e stime (testato).
-- La mappa resta montata sotto le altre schermate (`.screen` ha z-index 4). Fermate e percorso sono layer GL creati su `style.load`; i bus sono marker DOM (opacità solo via `marker.setOpacity`).
+- La mappa resta montata sotto le altre schermate (`.screen` ha z-index 4). Fermate, percorso e bus sono layer GL creati su `style.load`; i dati arrivano con `setData`.
+- Bus (`map/busLayer.ts`, `map/motion.ts`): sorgente GeoJSON + layer cono/badge/numero, niente DOM per bus. Le posizioni sono interpolate tra due fix lungo la shape della corsa (`BusMotion`) e ripubblicate solo quando un bus si sposta di ½ px: non aumentare la frequenza di `setData`, è il costo principale. Le immagini dei coni nascono da `setMissingStyleImageResolver` (in MapLibre 6 l'evento `styleimagemissing` arriva tardi).
+- Realtime: tick del WebSocket → fetch posizioni; WebSocket giù → polling 10 s; pagina in background → tutto fermo.
+- Misure: `?fps` mostra fps e costo dei bus, `?bench=100` simula 100 bus. Metodo e risultati in `docs/perf.md`.
 - Il worker di MapLibre si passa con `setWorkerUrl` (import `?url`): senza, Vite non lo emette nel build.
 - Lo stesso `trip_id` vale in più giorni di servizio: una trip update si applica solo al giorno del suo `start_date`.
 

@@ -99,15 +99,6 @@ div.map { position: absolute; inset: 0; z-index: 0; background: var(--pl-map-bg)
   display: flex; gap: 14px; align-items: center; background: var(--pl-glass-strong);
 }
 
-/* BusMarker (DOM marker MapLibre) */
-.bus-marker { width: 0; height: 0; cursor: pointer; transition: opacity .3s ease; }
-.bus-marker .hit { position: absolute; left: -22px; top: -22px; width: 44px; height: 44px; border-radius: 50%; }
-.bus-marker svg { position: absolute; left: -40px; top: -40px; transition: transform .6s ease; pointer-events: none; }
-.bus-marker .badge {
-  position: absolute; box-sizing: border-box; border-radius: 50%; border: 2px solid var(--pl-marker-ring);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;
-  color: #fff; font-weight: 700; letter-spacing: -0.02em; pointer-events: none; transition: all .3s ease;
-}
 .user-dot { width: 0; height: 0; pointer-events: none; }
 .user-dot::before { content: ''; position: absolute; left: -24px; top: -24px; width: 48px; height: 48px; border-radius: 50%; background: var(--pl-accent-soft); }
 .user-dot::after {

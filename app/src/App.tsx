@@ -7,8 +7,11 @@ import { MapScreen } from './screens/MapScreen'
 import { FavoritesScreen, InfoScreen, SearchScreen } from './screens/OtherScreens'
 import { MapSheet } from './screens/Sheets'
 import { TrainsScreen } from './screens/TrainsScreen'
+import { FpsMeter } from './dev/FpsMeter'
 import { fmtTime, Toast } from './ui/bits'
 import { MapIcon, SearchIcon, StarIcon, TrainIcon } from './ui/icons'
+
+const SHOW_FPS = new URLSearchParams(location.search).has('fps')
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'map', label: 'Mappa', icon: <MapIcon /> },
@@ -43,6 +46,7 @@ export function App() {
         </div>
       )}
       <Toast />
+      {SHOW_FPS && <FpsMeter />}
       {!sheet && !info && (
         <nav data-component="TabBar" className="tab-bar glass">
           {TABS.map((t) => (
