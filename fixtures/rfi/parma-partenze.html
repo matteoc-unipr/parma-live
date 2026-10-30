@@ -1,0 +1,2447 @@
+<!DOCTYPE html>
+
+ 
+<html lang="it" >
+<head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport" content="width=device-width" />
+
+    <title>Stazione di PARMA</title>
+    <link rel="stylesheet" type="text/css" href="/ArriviPartenze/Content/themes/base/jquery-ui.min.css">
+    <!-- Mobile -->
+    <link rel="stylesheet" type="text/css" media="screen and (max-device-width: 601px)"   href="/ArriviPartenze/Content/Mobile/CommonStyle.css">
+    <link rel="stylesheet" type="text/css" media="screen and (max-device-height: 601px)" href="/ArriviPartenze/Content/Mobile/CommonStyle.css">
+
+    <!-- End Mobile -->
+    <!-- PC -->
+    <link rel="stylesheet" type="text/css" media="(min-device-width: 601px) and (min-device-height: 601px) " href="/ArriviPartenze/Content/CommonStyle.css">
+    <!-- PC -->
+    <!-- link rel="stylesheet" type="text/css" media="screen and (max-device-width: 480px)" href="~/Content/APStyle.mobile.css" />-->
+    
+
+        <link rel="stylesheet" type="text/css" media="(min-device-width: 801px) and (min-device-height: 601px) " href="/ArriviPartenze/Content/MonitorStyleBase.css" />
+        <link rel="stylesheet" type="text/css" media="screen and (max-device-width:801px) " href="/ArriviPartenze/Content/Mobile/MonitorStyleBase.css" />
+        <link rel="stylesheet" type="text/css" media="screen and (max-device-height:601px) " href="/ArriviPartenze/Content/Mobile/MonitorStyleBase.css" />
+    <link rel="stylesheet" type="text/css" media="(min-device-width: 801px) and (min-device-height: 601px) " href="/ArriviPartenze/Content/MonitorStyle.css" />
+
+    <link rel="stylesheet" type="text/css" media="screen and (max-device-width:801px) " href="/ArriviPartenze/Content/Mobile/MonitorStyle.css" />
+    <link rel="stylesheet" type="text/css" media="screen and (max-device-height:601px) " href="/ArriviPartenze/Content/Mobile/MonitorStyle.css" />
+
+
+    <script src="/ArriviPartenze/Scripts/jquery-3.3.1.min.js"></script>
+    
+
+    <script src="/ArriviPartenze/Scripts/jquery-ui-1.12.1.min.js"></script>
+    <script src="/ArriviPartenze/Scripts/APScript.js"></script>
+    <script src="/ArriviPartenze/Scripts/Monitor.js"></script>
+
+    <!--  <script src="~/Scripts/Monitor.js"></script>-->
+
+
+</head>
+<body>
+    <div class="barraLingua">
+
+
+            <a href="/ArriviPartenze/ArrivalsDepartures/Monitor?placeId=2035&amp;arrivals=False" aria-label="Sito in italiano">It</a>
+            <a href="/ArriviPartenze/en/ArrivalsDepartures/Monitor?placeId=2035&amp;arrivals=False" aria-label="English web site">En</a>
+            <a href="/ArriviPartenze/fr/ArrivalsDepartures/Monitor?placeId=2035&amp;arrivals=False" aria-label="Sito in italiano">Fr</a>
+            <a href="/ArriviPartenze/de/ArrivalsDepartures/Monitor?placeId=2035&amp;arrivals=False" aria-label="English web site">De</a>
+
+    </div> 
+    <div style="width:100%">
+
+    </div>
+
+
+
+
+
+
+<script>
+    window.rootDir = "/ArriviPartenze/";
+    window.config = {"PremiumTimeRefresh":0}
+    window.isInternetExplorer = isIE();
+
+</script>
+
+
+
+<!--<div><span id="logo RFI" class="rfi"></span></div>-->
+
+
+
+<div class="lastUpdate" id="lastUpdateId">
+    <span class="labellastupdate">
+        <label id="UltimoaggiData">
+            MONITOR ARRIVI &amp; PARTENZE <span class="italic"  > LIVE</span> <span class="acapo">
+                <span class="normal"> aggiornato il  </span> 30/10/2026 <span class="normal"> alle ore  </span> 19:42:37
+                <a class="focus aggiorna"
+                   tabindex="1"
+                   title="Aggiorna tabella"
+                   href="/ArriviPartenze/ArrivalsDepartures/Monitor?placeId=2035&amp;arrivals=False">
+                    <img class="aggiornaImg" src="/ArriviPartenze/Resources/Images/aggiorna.svg" alt="Aggiorna" />
+                </a>
+            </span>
+
+        </label>
+    </span>
+    <img class="logorfi" src="/ArriviPartenze/Resources/Images/logo rfi.png" alt="Logo RFI" />
+
+    
+</div>
+
+
+    <h1 class="nomestazione" id="nomeStazioneId">
+        PARMA
+    </h1>
+ 
+
+
+
+
+<div id="barrabottoniId" class="barrabottoni">
+
+
+            <a class="pulsanteTab pulsanteTabGrigio"
+               tabindex="1"
+               href="./Monitor?placeId=2035&amp;arrivals=True"
+               aria-label="Vai a tabella  Arrivi"
+               title="Vai a tabella  Arrivi">Arrivi</a>
+
+            <span class="pulsanteTab pulsanteTabGiallo"  role="heading"
+                  aria-label="Vai a tabella  Partenze" >Partenze</span>
+
+
+
+        <a href="#infoSuccessiveAnchor"
+           tabindex="3" aria-label="Vai alle informazioni supplementari della stazione selezionata" title="Visualizza le informazioni supplementari">
+            <img class="avvisiBianco"
+                 src="/ArriviPartenze/Resources/Images/AVVISI_giallo.png" alt="Vai a avvisi" />
+        </a>
+</div>
+
+<table class="monitors" id="monitor" aria-label="testo">
+    <caption aria-label="Elenco dei treni in partenza nella stazione di PARMA">
+
+
+    </caption>
+        <thead id="headerTabId">
+
+            <tr>
+                <th class="Vettore_classth Vettore_classth_Part" id="HVettore" scope="col">Vettore</th>
+                <th class="Categoria_classth Categoria_classth_Part" id="HCategoria" scope="col">Categoria</th>
+                <th class="Treno_classth Treno_classth_Part" id="HTreno" abbr="treno" scope="col">Treno</th>
+                <th class="Stazione_classth Stazione_classth_Part" id="HStazione" scope="col">Destinazione</th>
+                <th class="Orario_classth Orario_classth_Part" id="HOrario" scope="col">Orario</th>
+                <th class="Ritardo_classth Ritardo_classth_Part" id="HRitardo" scope="col">Ritardo</th>
+                <th class="Binario_classth Binario_classth_Part" id="HBinario" scope="col">Binario</th>
+                <th class="ExLampeggio_classth ExLampeggio_classth_Part" id="HInArrivo" scope="col">In partenza</th>
+                    <th aria-label="Informazioni" class="Dettagli_classth Dettagli_classth_Part" id="HDettagli" scope="col">
+                        <div class="widescreen">Informazioni</div>
+                        <div class="mobilescreen">Info</div>
+                    </th>
+            </tr>
+        </thead>
+            <tbody id="bodyTabId">
+
+
+
+                    <tr id="8825" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="FRECCIAROSSA" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria ALTA VELOCITA&#39;" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">8825 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                ANCONA
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">19:43</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030108825" tabindex="4" class="ApriFermateSuccessive focus yellowRow" onclick="apriFermateSuccessive(&#39;20261030108825&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 8825" src="/ArriviPartenze/Resources/Images/INFO NERO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030108825" title="Treno 8825">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 8825</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030108825&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: REGGIO EMIL. (19:58) - MODENA (20:14) - BOLOGNA C.LE (20:42) - FAENZA (21:06) - FORLI&#39;&#39;&#39;&#39; (21:15) - CESENA (21:27) - RIMINI (21:49) - PESARO (22:08) - ANCONA (22:42)
+                                                    </div>
+
+                                                    <div class="titoloInfoAggiuntive">Informazioni</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        EXECUTIVE E BUSINESS IN CODA
+                                                    </div>
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="19257" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">19257 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                LA SPEZIA CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">19:47</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                1
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030119257" tabindex="5" class="ApriFermateSuccessive focus greyRow" onclick="apriFermateSuccessive(&#39;20261030119257&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 19257" src="/ArriviPartenze/Resources/Images/INFO BIANCO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030119257" title="Treno 19257">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 19257</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030119257&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: VICOFERTILE (19:54) - COLLECCHIO (19:59) - OZZANO TARO (20:06) - FORNOVO (20:12) - SOLIGNANO (20:22) - BERCETO (20:30) - OSTIA PARM. (20:43) - BORGO VAL T. (20:50) - PONTREMOLI (21:08) - FILATTIERA (21:15) - VILLAFRANCA B. (21:20) - AULLA LUNIG. (21:29) - S.STEFANO M. (21:36) - VEZZANO LIG. (21:45) - LA SPEZIA M. (21:53) - LA SPEZIA C. (21:59)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="2477" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria RV" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">2477 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                RIMINI
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">19:52</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd"  headers="HRitardo" scope="row">
+
+                            15
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030102477" tabindex="6" class="ApriFermateSuccessive focus yellowRow" onclick="apriFermateSuccessive(&#39;20261030102477&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 2477" src="/ArriviPartenze/Resources/Images/INFO NERO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030102477" title="Treno 2477">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 2477</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030102477&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: S.ILARIO D&#39;&#39;&#39;&#39;E (19:58) - REGGIO EMIL. (20:08) - RUBIERA (20:17) - MODENA (20:25) - CASTELFR. E. (20:34) - SAMOGGIA (20:40) - ANZOLA EMIL. (20:45) - BOLOGNA C.LE (21:05) - IMOLA (21:28) - CASTELBOLOG. (21:34) - SOLAROLO (21:41) - LUGO (21:48) - BAGNACAVALLO (21:53) - RUSSI (21:59) - RAVENNA (22:17) - LIDO CLA. S. (22:28) - CERVIA M.M. (22:36) - CESENATICO (22:43) - GATTEO A M. (22:49) - BELLARIA (22:53) - IGEA MARINA (22:59) - T. PEDRERA (23:05) - RIMINI V.RBA (23:10) - RIMINI (23:18)
+                                                    </div>
+
+                                                    <div class="titoloInfoAggiuntive">Informazioni</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        VIA RAVENNA - (VIA RAVENNA)
+                                                    </div>
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="2484" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria RV" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">2484 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                MILANO CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">20:00</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                3
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030102484" tabindex="7" class="ApriFermateSuccessive focus greyRow" onclick="apriFermateSuccessive(&#39;20261030102484&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 2484" src="/ArriviPartenze/Resources/Images/INFO BIANCO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030102484" title="Treno 2484">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 2484</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030102484&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: FIDENZA (20:15) - FIORENZUOLA (20:27) - PIACENZA (20:48) - LODI (21:13) - MI ROGOREDO (21:31) - MILANO LAMB. (21:37) - MILANO C.LE (21:45)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="10842" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENORD" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">10842 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                BRESCIA
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">20:07</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                8
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030110842" tabindex="8" class="ApriFermateSuccessive focus yellowRow" onclick="apriFermateSuccessive(&#39;20261030110842&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 10842" src="/ArriviPartenze/Resources/Images/INFO NERO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030110842" title="Treno 10842">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 10842</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030110842&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: TORRILE-S.P. (20:16) - COLORNO (20:28) - MEZZANI RON. (20:33) - CASALMAGG. (20:38) - S.GIOVANNI C (20:47) - PIADENA (20:56) - CANNETO OGL. (21:01) - ASOLA (21:09) - REMEDELLO ST (21:14) - REMEDELLO SP (21:18) - VISANO (21:24) - CALVISANO (21:33) - VIADANA BRE. (21:37) - GHEDI (21:43) - MONTIRONE (21:50) - S.ZENO FOLZ. (21:58) - BRESCIA (22:07)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="612" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="INTERCITY" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria INTERCITY" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">612 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                MILANO CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">20:13</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                3
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030100612" tabindex="9" class="ApriFermateSuccessive focus greyRow" onclick="apriFermateSuccessive(&#39;20261030100612&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 612" src="/ArriviPartenze/Resources/Images/INFO BIANCO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030100612" title="Treno 612">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 612</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030100612&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: FIDENZA (20:23) - PIACENZA (20:44) - LODI (21:07) - MI ROGOREDO (21:24) - MILANO C.LE (21:40)
+                                                    </div>
+
+                                                    <div class="titoloInfoAggiuntive">Informazioni</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        PRIMA CLASSE IN TESTA
+                                                    </div>
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="90338" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">90338 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                SUZZARA
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">20:19</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                7
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030190338" tabindex="10" class="ApriFermateSuccessive focus yellowRow" onclick="apriFermateSuccessive(&#39;20261030190338&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 90338" src="/ArriviPartenze/Resources/Images/INFO NERO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030190338" title="Treno 90338">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 90338</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030190338&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: CHIOZZOLA (20:27) - SORBOLO (20:33) - LENTIGIO (20:43) - BRESCELLO V. (20:48) - BORETTO (20:54) - PIEVE SA (21:01) - GUALTIER (21:06) - GUASTALLA (21:12) - TAGLIATA (21:18) - LUZZARA (21:22) - CODISOTT (21:28) - SUZZARA (21:36)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="2091" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria RV" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">2091 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                RIMINI
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">20:27</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030102090" tabindex="11" class="ApriFermateSuccessive focus greyRow" onclick="apriFermateSuccessive(&#39;20261030102090&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 2091" src="/ArriviPartenze/Resources/Images/INFO BIANCO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030102090" title="Treno 2091">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 2091</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030102090&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: REGGIO EMIL. (20:42) - MODENA (20:56) - CASTELFR. E. (21:04) - BOLOGNA C.LE (21:25) - CASTEL S. P. (21:45) - IMOLA (21:54) - CASTELBOLOG. (22:01) - FAENZA (22:15) - FORLI&#39;&#39;&#39;&#39; (22:26) - FORLIMPOPOLI (22:34) - CESENA (22:43) - GAMBETTOLA (22:51) - SAV.SUL RUB. (23:00) - S.ARCANGELO (23:07) - RIMINI (23:22)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="3926" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria RV" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">3926 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                PIACENZA
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">20:33</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                3
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030103926" tabindex="12" class="ApriFermateSuccessive focus yellowRow" onclick="apriFermateSuccessive(&#39;20261030103926&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 3926" src="/ArriviPartenze/Resources/Images/INFO NERO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030103926" title="Treno 3926">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 3926</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030103926&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: FIDENZA (20:44) - FIORENZUOLA (20:54) - PIACENZA (21:15)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="8829" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="FRECCIAROSSA" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria ALTA VELOCITA&#39;" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">8829 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                ANCONA
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">20:43</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030108829" tabindex="13" class="ApriFermateSuccessive focus greyRow" onclick="apriFermateSuccessive(&#39;20261030108829&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 8829" src="/ArriviPartenze/Resources/Images/INFO BIANCO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030108829" title="Treno 8829">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 8829</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030108829&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: REGGIO EMIL. (20:58) - MODENA (21:14) - BOLOGNA C.LE (21:42) - FORLI&#39;&#39;&#39;&#39; (22:14) - RIMINI (22:41) - PESARO (23:00) - ANCONA (23:38)
+                                                    </div>
+
+                                                    <div class="titoloInfoAggiuntive">Informazioni</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        BUSINESS IN CODA
+                                                    </div>
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="19259" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">19259 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                LA SPEZIA CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">20:47</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                2
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030119259" tabindex="14" class="ApriFermateSuccessive focus yellowRow" onclick="apriFermateSuccessive(&#39;20261030119259&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 19259" src="/ArriviPartenze/Resources/Images/INFO NERO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030119259" title="Treno 19259">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 19259</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030119259&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: VICOFERTILE (20:54) - COLLECCHIO (20:59) - OZZANO TARO (21:06) - FORNOVO (21:12) - SOLIGNANO (21:22) - BERCETO (21:30) - OSTIA PARM. (21:43) - BORGO VAL T. (21:50) - PONTREMOLI (22:08) - FILATTIERA (22:15) - VILLAFRANCA B. (22:20) - AULLA LUNIG. (22:27) - S.STEFANO M. (22:33) - VEZZANO LIG. (22:42) - LA SPEZIA M. (22:48) - LA SPEZIA C. (22:54)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="2479" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria RV" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">2479 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                BOLOGNA CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">21:00</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030102479" tabindex="15" class="ApriFermateSuccessive focus greyRow" onclick="apriFermateSuccessive(&#39;20261030102479&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 2479" src="/ArriviPartenze/Resources/Images/INFO BIANCO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030102479" title="Treno 2479">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 2479</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030102479&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: S.ILARIO D&#39;&#39;&#39;&#39;E (21:07) - REGGIO EMIL. (21:16) - RUBIERA (21:26) - MODENA (21:36) - CASTELFR. E. (21:45) - SAMOGGIA (21:51) - ANZOLA EMIL. (21:56) - BOLOGNA C.LE (22:10)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="2486" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria RV" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">2486 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                MILANO CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">21:00</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                3
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030102486" tabindex="16" class="ApriFermateSuccessive focus yellowRow" onclick="apriFermateSuccessive(&#39;20261030102486&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 2486" src="/ArriviPartenze/Resources/Images/INFO NERO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030102486" title="Treno 2486">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 2486</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030102486&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: FIDENZA (21:15) - FIORENZUOLA (21:27) - CADEO (21:32) - PONTENURE (21:37) - PIACENZA (21:48) - CASALPUSTER. (22:02) - LODI (22:13) - MI ROGOREDO (22:31) - MILANO LAMB. (22:37) - MILANO C.LE (22:45)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="90340" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">90340 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                GUASTALLA
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">21:03</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                6
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030190340" tabindex="17" class="ApriFermateSuccessive focus greyRow" onclick="apriFermateSuccessive(&#39;20261030190340&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 90340" src="/ArriviPartenze/Resources/Images/INFO BIANCO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030190340" title="Treno 90340">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 90340</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030190340&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: CHIOZZOLA (21:11) - SORBOLO (21:17) - LENTIGIO (21:23) - BRESCELLO V. (21:28) - BORETTO (21:34) - PIEVE SA (21:41) - GUALTIER (21:47) - GUASTALLA (21:53)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="10844" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENORD" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">10844 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                PIADENA
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">21:07</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                8
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030110844" tabindex="18" class="ApriFermateSuccessive focus yellowRow" onclick="apriFermateSuccessive(&#39;20261030110844&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 10844" src="/ArriviPartenze/Resources/Images/INFO NERO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030110844" title="Treno 10844">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 10844</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030110844&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: TORRILE-S.P. (21:16) - COLORNO (21:28) - MEZZANI RON. (21:33) - CASALMAGG. (21:38) - S.GIOVANNI C (21:47) - PIADENA (21:56)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="3943" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">3943 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                BOLOGNA CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">21:27</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030103943" tabindex="19" class="ApriFermateSuccessive focus greyRow" onclick="apriFermateSuccessive(&#39;20261030103943&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 3943" src="/ArriviPartenze/Resources/Images/INFO BIANCO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030103943" title="Treno 3943">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 3943</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030103943&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: REGGIO EMIL. (21:41) - MODENA (21:56) - CASTELFR. E. (22:05) - BOLOGNA C.LE (22:27)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="3928" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria RV" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">3928 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                PIACENZA
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">21:33</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                3
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030103928" tabindex="20" class="ApriFermateSuccessive focus yellowRow" onclick="apriFermateSuccessive(&#39;20261030103928&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 3928" src="/ArriviPartenze/Resources/Images/INFO NERO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030103928" title="Treno 3928">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 3928</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030103928&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: FIDENZA (21:44) - FIORENZUOLA (21:54) - PIACENZA (22:13)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="596" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="INTERCITY" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria INTERCITY" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">596 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                MILANO CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">21:40</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                3
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030100596" tabindex="21" class="ApriFermateSuccessive focus greyRow" onclick="apriFermateSuccessive(&#39;20261030100596&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 596" src="/ArriviPartenze/Resources/Images/INFO BIANCO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030100596" title="Treno 596">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 596</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030100596&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: FIDENZA (21:52) - PIACENZA (22:17) - LODI (22:42) - MI ROGOREDO (23:00) - MILANO C.LE (23:17)
+                                                    </div>
+
+                                                    <div class="titoloInfoAggiuntive">Informazioni</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        PRIMA CLASSE IN TESTA
+                                                    </div>
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="17421" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">17421 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                BOLOGNA CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">21:45</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                5
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030117421" tabindex="22" class="ApriFermateSuccessive focus yellowRow" onclick="apriFermateSuccessive(&#39;20261030117421&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 17421" src="/ArriviPartenze/Resources/Images/INFO NERO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030117421" title="Treno 17421">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 17421</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030117421&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: S.ILARIO D&#39;&#39;&#39;&#39;E (21:51) - REGGIO EMIL. (22:03) - RUBIERA (22:12) - MODENA (22:22) - CASTELFR. E. (22:31) - SAMOGGIA (22:37) - ANZOLA EMIL. (22:42) - BOLOGNA C.LE (22:57)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="19261" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">19261 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                PONTREMOLI
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">21:47</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                1
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030119261" tabindex="23" class="ApriFermateSuccessive focus greyRow" onclick="apriFermateSuccessive(&#39;20261030119261&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 19261" src="/ArriviPartenze/Resources/Images/INFO BIANCO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030119261" title="Treno 19261">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 19261</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030119261&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: VICOFERTILE (21:54) - COLLECCHIO (21:59) - OZZANO TARO (22:06) - FORNOVO (22:12) - SOLIGNANO (22:22) - BERCETO (22:30) - OSTIA PARM. (22:43) - BORGO VAL T. (22:50) - PONTREMOLI (23:09)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="1963" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="INTERCITY NOTTE" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria INTERCITY NOTTE" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">1963 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                CATANIA CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">21:49</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030101963" tabindex="24" class="ApriFermateSuccessive focus yellowRow" onclick="apriFermateSuccessive(&#39;20261030101963&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 1963" src="/ArriviPartenze/Resources/Images/INFO NERO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030101963" title="Treno 1963">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 1963</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030101963&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: REGGIO EMIL. (22:09) - MODENA (22:31) - BOLOGNA C.LE (23:02) - PRATO C.LE (23:51) - FIRENZE C.M. (00:09) - SALERNO (06:13) - BATTIPAGLIA (06:28) - AGROPOLI-CA. (06:45) - VALLO LUCAN. (07:03) - ASCEA (07:12) - PISCIOTTA P. (07:20) - SAPRI (07:45) - MARATEA (07:59) - SCALEA (08:13) - PAOLA (08:43) - AMANTEA (09:01) - LAMEZIA T.C. (09:22) - VIBO PIZZO (09:42) - ROSARNO (10:01) - GIOIA TAURO (10:10) - VILLA S.G. (10:40) - MESSINA C.LE (12:45) - TAORMINA G. (14:03) - GIARRE RIP. (14:22) - ACIREALE (14:38) - CATANIA C.LE (15:00)
+                                                    </div>
+
+                                                    <div class="titoloInfoAggiuntive">Informazioni</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        PRIMA CLASSE AL CENTRO
+                                                    </div>
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="614" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="INTERCITY" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria INTERCITY" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">614 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                MILANO CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">22:10</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                3
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030100614" tabindex="25" class="ApriFermateSuccessive focus greyRow" onclick="apriFermateSuccessive(&#39;20261030100614&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 614" src="/ArriviPartenze/Resources/Images/INFO BIANCO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030100614" title="Treno 614">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 614</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030100614&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: FIDENZA (22:22) - PIACENZA (22:41) - LODI (23:09) - MI ROGOREDO (23:29) - MILANO C.LE (23:40)
+                                                    </div>
+
+                                                    <div class="titoloInfoAggiuntive">Informazioni</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        PRIMA CLASSE IN CODA
+                                                    </div>
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="19281" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">19281 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                PONTREMOLI
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">22:20</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                1
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030119281" tabindex="26" class="ApriFermateSuccessive focus yellowRow" onclick="apriFermateSuccessive(&#39;20261030119281&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 19281" src="/ArriviPartenze/Resources/Images/INFO NERO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030119281" title="Treno 19281">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 19281</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030119281&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: VICOFERTILE (22:27) - COLLECCHIO (22:31) - OZZANO TARO (22:36) - FORNOVO (22:43) - SOLIGNANO (22:56) - BERCETO (23:03) - OSTIA PARM. (23:13) - BORGO VAL T. (23:21) - PONTREMOLI (23:40)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="3951" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">3951 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                BOLOGNA CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">22:27</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030103951" tabindex="27" class="ApriFermateSuccessive focus greyRow" onclick="apriFermateSuccessive(&#39;20261030103951&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 3951" src="/ArriviPartenze/Resources/Images/INFO BIANCO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030103951" title="Treno 3951">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 3951</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030103951&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: REGGIO EMIL. (22:41) - MODENA (22:55) - CASTELFR. E. (23:04) - BOLOGNA C.LE (23:28)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="3930" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria RV" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">3930 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                PIACENZA
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">22:33</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                3
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030103930" tabindex="28" class="ApriFermateSuccessive focus yellowRow" onclick="apriFermateSuccessive(&#39;20261030103930&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 3930" src="/ArriviPartenze/Resources/Images/INFO NERO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030103930" title="Treno 3930">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 3930</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030103930&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: FIDENZA (22:44) - FIORENZUOLA (22:54) - PIACENZA (23:15)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="765" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="INTERCITY NOTTE" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria INTERCITY NOTTE" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">765 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                LECCE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">22:33</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030100765" tabindex="29" class="ApriFermateSuccessive focus greyRow" onclick="apriFermateSuccessive(&#39;20261030100765&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 765" src="/ArriviPartenze/Resources/Images/INFO BIANCO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030100765" title="Treno 765">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 765</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030100765&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: REGGIO EMIL. (22:49) - MODENA (23:06) - BOLOGNA C.LE (23:35) - FAENZA (00:06) - FORLI&#39;&#39;&#39;&#39; (00:17) - CESENA (00:29) - RIMINI (00:52) - PESARO (01:48) - ANCONA (02:42) - PESCARA C.LE (04:04) - FOGGIA (05:42) - BARLETTA (06:14) - TRANI (06:24) - BISCEGLIE (06:31) - MOLFETTA (06:38) - BARI C.LE (07:00) - GIOIA DEL C. (07:44) - TARANTO (08:20) - FRANCAVIL.F. (08:48) - BRINDISI (09:19) - LECCE (10:02)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="755" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="INTERCITY NOTTE" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria INTERCITY NOTTE" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">755 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                LECCE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">23:07</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030100755" tabindex="30" class="ApriFermateSuccessive focus yellowRow" onclick="apriFermateSuccessive(&#39;20261030100755&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 755" src="/ArriviPartenze/Resources/Images/INFO NERO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030100755" title="Treno 755">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 755</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030100755&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: REGGIO EMIL. (23:23) - MODENA (23:39) - BOLOGNA C.LE (00:06) - FAENZA (00:38) - FORLI&#39;&#39;&#39;&#39; (00:56) - CESENA (01:10) - RIMINI (01:40) - ANCONA (02:47) - PESCARA C.LE (04:11) - TERMOLI (05:11) - S.SEVERO (05:48) - FOGGIA (06:06) - BARLETTA (06:49) - TRANI (06:58) - BISCEGLIE (07:05) - MOLFETTA (07:13) - BARI C.LE (07:40) - MONOPOLI (08:17) - FASANO (08:26) - OSTUNI (08:39) - BRINDISI (09:05) - LECCE (09:30)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="9330" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="FRECCIAROSSA" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria ALTA VELOCITA&#39;" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">9330 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                MILANO CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">23:22</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                3
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030189932" tabindex="31" class="ApriFermateSuccessive focus greyRow" onclick="apriFermateSuccessive(&#39;20261030189932&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 9330" src="/ArriviPartenze/Resources/Images/INFO BIANCO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030189932" title="Treno 9330">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 9330</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030189932&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: PIACENZA (23:50) - MILANO C.LE (00:25)
+                                                    </div>
+
+                                                    <div class="titoloInfoAggiuntive">Informazioni</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FRECCIAROSSA 1000 - EXECUTIVE E BUSINESS IN CODA
+                                                    </div>
+                                            </div>
+
+                            </td>
+                    </tr>
+                    <tr id="2485" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria RV" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">2485 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Destinazione">
+                            <div>
+                                BOLOGNA CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">23:34</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli"  headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+<button id="btn_20261030102485" tabindex="32" class="ApriFermateSuccessive focus yellowRow" onclick="apriFermateSuccessive(&#39;20261030102485&#39;)">
+                                                <img class="infologo" alt="Maggiori informazioni treno 2485" src="/ArriviPartenze/Resources/Images/INFO NERO.png" />
+                                            </button>
+                                            <div class="FermateSuccessivePopupStyle" draggable="true" id="FermateSuccessive_20261030102485" title="Treno 2485">
+                                                <div class="FermateSuccessiveHeader">
+                                                    <span class="FermateSuccessiveTitolo">Treno 2485</span>
+                                                    <button class="FermateSuccessiveBottoneChiudi" onclick="chiudiInfo(&#39;20261030102485&#39;)">
+                                                        <img id="Chiudi" class="FermateSuccessiveImgChiudi" alt="{chiudi}" src="/ArriviPartenze/Resources/Images/x-chiudi.png" />
+                                                    </button>
+                                                </div>
+                                                    <div class="titoloInfoAggiuntive">Fermate successive</div>
+                                                    <div class="testoinfoaggiuntive">
+                                                        FERMA A: REGGIO EMIL. (23:47) - MODENA (00:03) - BOLOGNA C.LE (00:33)
+                                                    </div>
+
+                                            </div>
+
+                            </td>
+                    </tr>
+
+            </tbody>
+</table>
+
+    <a aria-label="Informazioni supplementari" name="infoSuccessiveAnchor"></a>
+        <div class="barrainfostazione" id="barraInformazioneId">
+
+            <div class="footerHeaderbarrabianca"></div>
+            <div id="barraInfoStazioneId" class="footerHeader">
+
+                <h2>
+                    <img class="avvisiNero"
+                         src="/ArriviPartenze/Resources/Images/avvisi nero.png"
+                         alt="Avvisi" />
+                </h2>
+                <div aria-label="Informazioni supplementari"
+                     title="Informazioni supplementari"
+                     id="Informazioni di stazione"
+                     class="footer">
+                    <div class="marqueeinfosupp">
+                        <div>
+                             L&#39;ASCENSORE AI BINARI 2 E 3 E&#39;&#39; FUORI SERVIZIO
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+</body>
+</html>

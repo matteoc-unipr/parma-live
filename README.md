@@ -12,7 +12,8 @@ Node 22+.
 npm install
 echo "BUSONE_CONTACT=tua@email" > worker/.dev.vars
 BUSONE_CONTACT=tua@email node scripts/build-gtfs.ts   # dati statici in app/public/data/
-npm run dev          # app su http://localhost:5173
+npm run dev          # app su http://localhost:5173 (usa il Worker in app/.env)
+VITE_WORKER_URL=http://localhost:8787 npm run dev   # app contro il Worker locale
 npm run dev:worker   # worker su http://localhost:8787
 npm run check        # lint + typecheck + test
 ```

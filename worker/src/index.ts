@@ -1,9 +1,11 @@
+import { parseMonitor } from './rfi'
+
 interface Env {
   BUSONE_CONTACT: string
 }
 
 const BUSONE = 'https://proxy.busone.app/tep/'
-const VIAGGIATRENO = 'http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/'
+const RFI_MONITOR = 'https://iechub.rfi.it/ArriviPartenze/ArrivalsDepartures/Monitor'
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Expose-Headers': 'Last-Modified' }
 
 const withCors = (res: Response) => {
@@ -32,9 +34,14 @@ export default {
       return withCors(await fetch(upstream, { headers }))
     }
 
-    // shortcut: passthrough senza cache né parsing, serve a verificare che Akamai non blocchi i Worker; il proxy treni vero arriva con la UI treni.
-    if (path.startsWith('/vt/')) {
-      return withCors(await fetch(VIAGGIATRENO + path.slice('/vt/'.length) + url.search))
+    // Tabellone RFI della stazione (default Parma = 2035): /rfi/partenze, /rfi/arrivi.
+    const board = path.match(/^\/rfi\/(partenze|arrivi)$/)
+    if (board) {
+      const placeId = url.searchParams.get('placeId') ?? '2035'
+      if (!/^\d+$/.test(placeId)) return new Response('placeId non valido', { status: 400 })
+      const res = await fetch(`${RFI_MONITOR}?placeId=${placeId}&arrivals=${board[1] === 'arrivi' ? 'True' : 'False'}`)
+      if (!res.ok) return withCors(new Response(`RFI: HTTP ${res.status}`, { status: 502 }))
+      return withCors(Response.json({ fetchedAt: new Date().toISOString(), trains: parseMonitor(await res.text()) }))
     }
 
     return new Response('Not found', { status: 404 })

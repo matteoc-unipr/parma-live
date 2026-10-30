@@ -13,6 +13,12 @@ PWA personale per i trasporti di Parma (bus TEP in tempo reale, treni alla Stazi
 - `npm run check`: lint + typecheck + test (Vitest). Va eseguito prima di ogni commit.
 - `npm run dev` (app), `npm run dev:worker`.
 
+## App
+- `app/src/data/`: dati statici (`static.ts`), realtime BusOne (`realtime.ts`), treni RFI (`trains.ts`). `lib/board.ts` unisce orari e stime (testato).
+- La mappa resta montata sotto le altre schermate (`.screen` ha z-index 4). Fermate e percorso sono layer GL creati su `style.load`; i bus sono marker DOM (opacità solo via `marker.setOpacity`).
+- Il worker di MapLibre si passa con `setWorkerUrl` (import `?url`): senza, Vite non lo emette nel build.
+- Lo stesso `trip_id` vale in più giorni di servizio: una trip update si applica solo al giorno del suo `start_date`.
+
 ## Design
 - Rispettare fedelmente `design/README.md`: token, componenti (`data-component`), layout chiaro/scuro, stati speciali, motion.
 - Colori e misure vengono solo da `app/src/tokens.css` (copia di `design/tokens.css`). Niente valori hardcoded. `tokens.test.ts` verifica che i token restino allineati.
@@ -26,6 +32,6 @@ PWA personale per i trasporti di Parma (bus TEP in tempo reale, treni alla Stazi
 - Il GTFS statico non si carica a runtime: `scripts/build-gtfs.ts` lo trasforma in `app/public/data/` (formato in `docs/data.md`). I file generati non vanno in git.
 - Uso **solo personale**. Attribuzione obbligatoria e visibile: "BusOne (https://busone.app) e TEP".
 - **Fallback** solo se BusOne non risponde: feed ufficiale TEP `https://temporeale.cl.tep.pr.it/temporeale/{vehicle_positions,trip_updates}.pb`. Non ha `trip_id`: match su `route_id + direction_id + start_date + start_time`. Non ha CORS, quindi passa dal Worker.
-- **Treni**: API non ufficiali ViaggiaTreno `http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/` (`autocompletaStazione`, `partenze/{id}/{data}`, `arrivi/{id}/{data}`, `andamentoTreno/{origine}/{numero}/{mezzanotte_ms}`). Sono HTTP e senza CORS: si passa **sempre** dal Worker.
-- Altre attribuzioni nella schermata Info: "Treni: ViaggiaTreno", "© OpenStreetMap contributors", OpenFreeMap.
+- **Treni**: monitor RFI arrivi/partenze (Parma `placeId=2035`), convertito in JSON dal Worker su `/rfi/partenze` e `/rfi/arrivi`. ViaggiaTreno risponde 403 (Akamai) anche dai Worker: non usarlo.
+- Altre attribuzioni nella schermata Info: "Treni: RFI", "© OpenStreetMap contributors", OpenFreeMap.
 - Non aggirare i blocchi anti-bot (User-Agent finti e simili).

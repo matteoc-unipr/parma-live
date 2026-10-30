@@ -100,6 +100,16 @@ Stessi header e stessi termini di `/tep/`. Statico da 24,5 MB zip (shapes 81 MB 
 - **Copertura parziale**: venerdì 30/10 risultano **57 corse** a Parma (IC 16, FR 12, REG 11, ICN 8, RV 8, EC 2), soprattutto lunga percorrenza e regionali verso La Spezia. **Mancano i regionali Trenitalia Tper** (Milano–Bologna, Brescia, Suzzara, Fidenza…), che sono la maggior parte del traffico. Il feed ha una sola agency, `TRENITALIA`.
 - TripUpdates: 823 corse in tutta Italia, 12 delle quali passano da Parma. `arrival/departure.delay` presenti. `CANCELED` mai visto. Il JSON usa camelCase (`tripUpdate`, `stopTimeUpdate`), diverso da `/tep/`, che usa snake_case.
 
+## Monitor RFI arrivi/partenze (fonte treni scelta)
+`https://iechub.rfi.it/ArriviPartenze/ArrivalsDepartures/Monitor?placeId=2035&arrivals=False|True`
+- È il tabellone ufficiale delle stazioni RFI, in HTML. Risponde 200 a una richiesta normale, senza header particolari. **Nessun header CORS**: il Worker lo converte in JSON su `/rfi/partenze` e `/rfi/arrivi`.
+- `placeId` di Parma = **2035**. La lista completa sta nella `<select>` di `/ArriviPartenze/ArrivalsDepartures/Home`.
+- Copre **tutti gli operatori**: Trenitalia Tper, Trenitalia, Trenord, Frecciarossa, Intercity, Intercity Notte. Finestra di ~4 ore, circa 30 righe.
+- Campi per riga: vettore, categoria (REG, RV, INTERCITY, ALTA VELOCITA'…), numero, destinazione o provenienza, orario programmato, ritardo in minuti (vuoto se in orario), **binario**, "lampeggio" (treno in arrivo o in stazione), e solo nelle partenze le fermate successive con orario e una riga "Informazioni".
+- Non ci sono: posizione del treno, ultimo rilevamento, fermate già percorse. Il "dettaglio treno" del design va ridotto alle fermate successive.
+- Le soppressioni non erano presenti nel campione: dovrebbero comparire come testo nella colonna ritardo (`note`), da verificare.
+- Fixture: `fixtures/rfi/parma-{partenze,arrivi}.html`, con le immagini base64 tolte.
+
 ## Dati statici generati (`app/public/data/`)
 Prodotti da `scripts/build-gtfs.ts` a partire dal `gtfs.zip` di BusOne. Le misure sotto sono del build del 30/10/2026.
 

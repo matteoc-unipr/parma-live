@@ -1,0 +1,226 @@
+/* Stili dei componenti: misure dal design (design/README.md), colori solo da tokens.css. */
+:root {
+  --safe-top: max(env(safe-area-inset-top), 12px);
+  --safe-bottom: env(safe-area-inset-bottom);
+}
+
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; height: 100%; overflow: hidden; }
+body {
+  background: var(--pl-bg);
+  color: var(--pl-text);
+  font-family: var(--pl-font);
+  font-feature-settings: var(--pl-font-features);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+input { font: inherit; color: inherit; background: none; border: none; outline: none; padding: 0; margin: 0; width: 100%; }
+
+@keyframes plRoll { 0% { transform: translateY(-55%) scale(.8); opacity: 0 } 60% { opacity: 1 } 100% { transform: none; opacity: 1 } }
+@keyframes plSkel { 0%, 100% { opacity: 1 } 50% { opacity: .45 } }
+@keyframes plPulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--pl-ok) 55%, transparent) } 100% { box-shadow: 0 0 0 9px transparent } }
+@keyframes plPop { 50% { transform: scale(1.25) } }
+
+.glass {
+  background: var(--pl-glass);
+  backdrop-filter: var(--pl-blur-glass);
+  -webkit-backdrop-filter: var(--pl-blur-glass);
+  border: 1px solid var(--pl-glass-border);
+  box-shadow: var(--pl-shadow-float);
+}
+.glass.strong { background: var(--pl-glass-strong); }
+.card { background: var(--pl-surface); border-radius: var(--pl-radius-lg); box-shadow: var(--pl-shadow-card); }
+
+/* Schermate a scorrimento (Cerca, Treni, Preferiti, Info) */
+.screen {
+  position: absolute; inset: 0;
+  padding: calc(var(--safe-top) + 4px) 16px 120px;
+  overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
+  background: var(--pl-bg); z-index: 4; /* copre la mappa, che resta montata sotto */
+}
+.large-title { font: var(--pl-type-large-title); letter-spacing: -0.025em; padding: 0 4px; }
+.section-header { padding: 6px 4px 0; font: var(--pl-type-footnote); letter-spacing: 0.04em; color: var(--pl-text-2); }
+.subtle { color: var(--pl-text-2); }
+
+/* LineBadge */
+.line-badge {
+  flex: none; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden;
+}
+
+/* Countdown */
+.countdown { display: inline-flex; align-items: baseline; gap: 3px; white-space: nowrap; animation: plRoll var(--pl-dur-countdown) var(--pl-ease-pop) both; }
+.countdown b { font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+.countdown span { font-weight: 600; }
+
+/* Bottoni */
+.icon-btn { width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; flex: none; }
+.icon-btn.fill { background: var(--pl-fill); color: var(--pl-text-2); }
+.back-btn {
+  height: 44px; padding: 0 14px 0 8px; border-radius: 22px; background: var(--pl-surface); box-shadow: var(--pl-shadow-card);
+  display: inline-flex; align-items: center; gap: 2px; font-size: 16px; font-weight: 600; align-self: flex-start; flex: none;
+}
+.star-btn.pop svg { animation: plPop 250ms cubic-bezier(.3,1.8,.5,1); }
+
+/* Mappa */
+/* div.map batte .maplibregl-map { position: relative } del CSS di MapLibre, caricato dopo. */
+div.map { position: absolute; inset: 0; z-index: 0; background: var(--pl-map-bg); } /* z-index: i marker restano sotto gli overlay */
+.map-top { position: absolute; left: 0; right: 0; top: var(--safe-top); display: flex; flex-direction: column; gap: 10px; z-index: 3; pointer-events: none; }
+.chips { display: flex; gap: 8px; padding: 4px 16px; overflow-x: auto; pointer-events: auto; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; }
+.chip.all { padding: 0 18px; font-size: 15px; font-weight: 600; }
+.chip.all.on { background: var(--pl-text); color: var(--pl-bg); }
+.chip.line { width: 44px; }
+.live-indicator {
+  align-self: flex-start; margin-left: 16px; height: 32px; padding: 0 12px; border-radius: 16px;
+  display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; pointer-events: auto;
+}
+.live-indicator .dot { flex: none; width: 8px; height: 8px; border-radius: 4px; }
+.live-indicator .dot.pulse { animation: plPulse 1.6s ease-out infinite; }
+.live-indicator .tag { font-weight: 700; letter-spacing: 0.04em; white-space: nowrap; }
+.live-indicator .label { color: var(--pl-text-2); white-space: nowrap; }
+.map-info { position: absolute; right: 16px; top: calc(var(--safe-top) + 58px); z-index: 3; color: var(--pl-text); }
+.map-attribution {
+  position: absolute; left: 16px; bottom: 98px; z-index: 3; padding: 3px 8px; border-radius: 8px;
+  background: var(--pl-glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  font-size: 10px; font-weight: 500; color: var(--pl-text-2);
+}
+.locate-btn {
+  position: absolute; right: 16px; bottom: 112px; width: 52px; height: 52px; border-radius: 26px; z-index: 3;
+  display: flex; align-items: center; justify-content: center; color: var(--pl-accent); background: var(--pl-glass-strong);
+}
+.locate-btn.denied { color: var(--pl-text-3); }
+.night-card {
+  position: absolute; left: 16px; right: 16px; bottom: 120px; z-index: 3; border-radius: 28px; padding: 16px;
+  display: flex; gap: 14px; align-items: center; background: var(--pl-glass-strong);
+}
+
+/* BusMarker (DOM marker MapLibre) */
+.bus-marker { width: 0; height: 0; cursor: pointer; transition: opacity .3s ease; }
+.bus-marker .hit { position: absolute; left: -22px; top: -22px; width: 44px; height: 44px; border-radius: 50%; }
+.bus-marker svg { position: absolute; left: -40px; top: -40px; transition: transform .6s ease; pointer-events: none; }
+.bus-marker .badge {
+  position: absolute; box-sizing: border-box; border-radius: 50%; border: 2px solid var(--pl-marker-ring);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 700; letter-spacing: -0.02em; pointer-events: none; transition: all .3s ease;
+}
+.user-dot { width: 0; height: 0; pointer-events: none; }
+.user-dot::before { content: ''; position: absolute; left: -24px; top: -24px; width: 48px; height: 48px; border-radius: 50%; background: var(--pl-accent-soft); }
+.user-dot::after {
+  content: ''; position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--pl-accent); border: 3px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+}
+
+/* BottomSheet */
+.sheet {
+  position: absolute; left: var(--pl-sheet-inset); right: var(--pl-sheet-inset); top: 0; z-index: 5;
+  border-radius: var(--pl-radius-sheet); background: var(--pl-sheet);
+  backdrop-filter: var(--pl-blur-sheet); -webkit-backdrop-filter: var(--pl-blur-sheet);
+  border: 1px solid var(--pl-glass-border); box-shadow: var(--pl-shadow-sheet);
+  display: flex; flex-direction: column; touch-action: none; overflow: hidden;
+}
+.sheet.animate { transition: transform var(--pl-dur-sheet) var(--pl-ease-spring); }
+.sheet-handle { flex: none; padding: 8px 0 10px; cursor: grab; }
+.sheet-handle div { width: 36px; height: 5px; border-radius: 3px; background: var(--pl-text-3); opacity: 0.6; margin: 0 auto; }
+.sheet-head { flex: none; padding: 4px 20px 0; }
+.sheet-list { flex: 1; min-height: 0; padding: 0 20px 40px; }
+.sheet-title { font: var(--pl-type-title); letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pill-chip { height: 30px; padding: 0 12px; border-radius: 15px; display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; background: var(--pl-fill); color: var(--pl-text-2); }
+
+/* DepartureRow */
+.departure-row {
+  display: grid; grid-template-columns: 40px minmax(0,1fr) auto; align-items: center; gap: 12px;
+  height: 62px; border-top: 1px solid var(--pl-hair); width: 100%; text-align: left;
+}
+.departure-row .dest { font: var(--pl-type-headline); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.departure-row .sub { font-size: 13px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--pl-text-2); }
+.departure-row .sub.late { color: var(--pl-late); }
+.departure-row .right { display: flex; align-items: flex-start; gap: 3px; height: 28px; overflow: hidden; }
+.late { color: var(--pl-late); }
+.ok { color: var(--pl-ok); }
+.cancel { color: var(--pl-cancel); }
+.strike { text-decoration: line-through; }
+
+/* NextStopRow */
+.next-stop { display: grid; grid-template-columns: 24px minmax(0,1fr) auto; gap: 12px; align-items: center; height: 50px; width: 100%; text-align: left; }
+.next-stop .rail { position: relative; height: 50px; }
+.next-stop .rail i { position: absolute; left: 10px; width: 4px; top: 0; }
+.next-stop .rail b { position: absolute; left: 4px; top: 17px; width: 16px; height: 16px; border-radius: 50%; border: 4px solid; }
+.next-stop .name { font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.next-stop .times { display: flex; align-items: baseline; gap: 10px; }
+.next-stop .eta { font-size: 17px; font-weight: 700; min-width: 44px; text-align: right; }
+
+/* Skeleton */
+.skeleton { display: flex; flex-direction: column; animation: plSkel 1.3s ease-in-out infinite; }
+.skeleton .row { display: grid; grid-template-columns: 40px minmax(0,1fr) 48px; gap: 12px; align-items: center; height: 62px; }
+.skeleton .row + .row { border-top: 1px solid var(--pl-hair); }
+.skeleton .bar { background: var(--pl-fill); border-radius: 999px; }
+
+/* SegmentedControl */
+.segmented { display: grid; grid-template-columns: 1fr 1fr; height: 44px; padding: 3px; border-radius: 22px; background: var(--pl-fill); position: relative; flex: none; }
+.segmented .thumb {
+  position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px); border-radius: 19px; background: var(--pl-seg-on);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12); transition: transform .45s cubic-bezier(.3,1.35,.5,1);
+}
+.segmented button { position: relative; font-size: 15px; font-weight: 600; color: var(--pl-text-2); }
+.segmented button.on { color: var(--pl-text); }
+
+/* TrainRow */
+.train-row { display: grid; grid-template-columns: 54px minmax(0,1fr) 44px; gap: 12px; align-items: center; height: 64px; width: 100%; text-align: left; }
+.train-row + .train-row { border-top: 1px solid var(--pl-hair); }
+.train-row .time { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.train-row .dest { font: var(--pl-type-headline); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.train-row .meta { font-size: 13px; margin-top: 2px; display: flex; gap: 5px; white-space: nowrap; }
+.bin { width: 44px; height: 44px; border-radius: var(--pl-radius-sm); background: var(--pl-text); color: var(--pl-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
+.bin small { font-size: 9px; font-weight: 700; letter-spacing: 0.06em; opacity: 0.75; }
+.bin b { font-size: 19px; font-weight: 700; margin-top: 2px; }
+.bin.none { background: var(--pl-fill); color: var(--pl-text-2); }
+
+/* Dettaglio treno */
+.cat-pill { height: 26px; padding: 0 8px; border-radius: var(--pl-radius-xs); background: var(--pl-text); color: var(--pl-bg); display: flex; align-items: center; font-size: 13px; font-weight: 800; }
+.status-card { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+.status-card .big { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; }
+.status-card .foot { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; padding-top: 12px; border-top: 1px solid var(--pl-hair); font-size: 15px; }
+.timeline-row { display: grid; grid-template-columns: 48px 22px minmax(0,1fr) auto; gap: 10px; align-items: center; height: 52px; }
+.timeline-row .plan { font-size: 15px; font-weight: 600; text-align: right; }
+.timeline-row .rail { position: relative; height: 52px; }
+.timeline-row .rail i { position: absolute; left: 9px; width: 4px; }
+.timeline-row .rail b { position: absolute; border-radius: 50%; border: 3px solid; }
+.timeline-row .name { font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.timeline-row .est { font-size: 15px; font-weight: 700; }
+
+/* Banner, toast, empty state */
+.status-pill {
+  position: absolute; left: 50%; bottom: 102px; transform: translateX(-50%); z-index: 7; height: 36px; padding: 0 14px;
+  border-radius: 18px; display: flex; align-items: center; gap: 8px; white-space: nowrap; background: var(--pl-glass-strong);
+  font-size: 13px; font-weight: 600;
+}
+.status-pill i { width: 8px; height: 8px; border-radius: 4px; background: currentColor; }
+.toast {
+  position: absolute; left: 16px; right: 16px; bottom: 112px; z-index: 8; border-radius: 26px; padding: 12px 6px 12px 14px;
+  display: flex; align-items: center; gap: 12px; background: var(--pl-glass-strong);
+}
+.empty-state { display: flex; gap: 12px; align-items: center; padding: 14px 0; border-top: 1px solid var(--pl-hair); }
+.empty-icon { flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--pl-fill); display: flex; align-items: center; justify-content: center; }
+
+/* TabBar */
+.tab-bar {
+  position: absolute; left: 20px; right: 20px; bottom: 26px; height: 64px; border-radius: var(--pl-radius-xl); padding: 4px; z-index: 6;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px;
+}
+.tab-bar button { border-radius: 28px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--pl-text); transition: background .3s ease; }
+.tab-bar button.on { background: var(--pl-accent-soft); color: var(--pl-accent); }
+.tab-bar span { font: var(--pl-type-caption); }
+
+/* Cerca, Preferiti, Info */
+.search-field { display: flex; align-items: center; gap: 14px; height: 62px; padding: 0 16px; }
+.place-row { display: flex; align-items: center; gap: 12px; height: 60px; width: 100%; text-align: left; }
+.place-row + .place-row { border-top: 1px solid var(--pl-hair); }
+.place-icon { flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--pl-fill); display: flex; align-items: center; justify-content: center; }
+.fav-row { display: grid; grid-template-columns: 30px minmax(0,1fr) auto; gap: 12px; align-items: center; height: 46px; border-top: 1px solid var(--pl-hair); padding-right: 8px; }
+.attribution-row { padding: 12px 0; }
+.attribution-row + .attribution-row { border-top: 1px solid var(--pl-hair); }

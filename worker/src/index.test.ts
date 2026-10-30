@@ -33,9 +33,18 @@ test('BusOne WebSocket: upgrade inoltrato con gli header', async () => {
   })
 })
 
-test('ViaggiaTreno: passthrough con query', async () => {
-  await get('/vt/autocompletaStazione/PARMA?x=1')
+test('RFI: partenze/arrivi di Parma in JSON, placeId validato', async () => {
+  upstream.mockResolvedValueOnce(new Response('<table></table>'))
+  const res = await get('/rfi/arrivi')
   expect(upstream).toHaveBeenCalledWith(
-    'http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/autocompletaStazione/PARMA?x=1',
+    'https://iechub.rfi.it/ArriviPartenze/ArrivalsDepartures/Monitor?placeId=2035&arrivals=True',
   )
+  expect(await res.json()).toMatchObject({ trains: [] })
+  expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*')
+  expect((await get('/rfi/partenze?placeId=1;x')).status).toBe(400)
+})
+
+test('RFI non raggiungibile: 502', async () => {
+  upstream.mockResolvedValueOnce(new Response('no', { status: 403 }))
+  expect((await get('/rfi/partenze')).status).toBe(502)
 })

@@ -1,0 +1,2014 @@
+<!DOCTYPE html>
+
+ 
+<html lang="it" >
+<head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport" content="width=device-width" />
+
+    <title>Stazione di PARMA</title>
+    <link rel="stylesheet" type="text/css" href="/ArriviPartenze/Content/themes/base/jquery-ui.min.css">
+    <!-- Mobile -->
+    <link rel="stylesheet" type="text/css" media="screen and (max-device-width: 601px)"   href="/ArriviPartenze/Content/Mobile/CommonStyle.css">
+    <link rel="stylesheet" type="text/css" media="screen and (max-device-height: 601px)" href="/ArriviPartenze/Content/Mobile/CommonStyle.css">
+
+    <!-- End Mobile -->
+    <!-- PC -->
+    <link rel="stylesheet" type="text/css" media="(min-device-width: 601px) and (min-device-height: 601px) " href="/ArriviPartenze/Content/CommonStyle.css">
+    <!-- PC -->
+    <!-- link rel="stylesheet" type="text/css" media="screen and (max-device-width: 480px)" href="~/Content/APStyle.mobile.css" />-->
+    
+
+        <link rel="stylesheet" type="text/css" media="(min-device-width: 801px) and (min-device-height: 601px) " href="/ArriviPartenze/Content/MonitorStyleBase.css" />
+        <link rel="stylesheet" type="text/css" media="screen and (max-device-width:801px) " href="/ArriviPartenze/Content/Mobile/MonitorStyleBase.css" />
+        <link rel="stylesheet" type="text/css" media="screen and (max-device-height:601px) " href="/ArriviPartenze/Content/Mobile/MonitorStyleBase.css" />
+    <link rel="stylesheet" type="text/css" media="(min-device-width: 801px) and (min-device-height: 601px) " href="/ArriviPartenze/Content/MonitorStyle.css" />
+
+    <link rel="stylesheet" type="text/css" media="screen and (max-device-width:801px) " href="/ArriviPartenze/Content/Mobile/MonitorStyle.css" />
+    <link rel="stylesheet" type="text/css" media="screen and (max-device-height:601px) " href="/ArriviPartenze/Content/Mobile/MonitorStyle.css" />
+
+
+    <script src="/ArriviPartenze/Scripts/jquery-3.3.1.min.js"></script>
+    
+
+    <script src="/ArriviPartenze/Scripts/jquery-ui-1.12.1.min.js"></script>
+    <script src="/ArriviPartenze/Scripts/APScript.js"></script>
+    <script src="/ArriviPartenze/Scripts/Monitor.js"></script>
+
+    <!--  <script src="~/Scripts/Monitor.js"></script>-->
+
+
+</head>
+<body>
+    <div class="barraLingua">
+
+
+            <a href="/ArriviPartenze/ArrivalsDepartures/Monitor?placeId=2035&amp;arrivals=True" aria-label="Sito in italiano">It</a>
+            <a href="/ArriviPartenze/en/ArrivalsDepartures/Monitor?placeId=2035&amp;arrivals=True" aria-label="English web site">En</a>
+            <a href="/ArriviPartenze/fr/ArrivalsDepartures/Monitor?placeId=2035&amp;arrivals=True" aria-label="Sito in italiano">Fr</a>
+            <a href="/ArriviPartenze/de/ArrivalsDepartures/Monitor?placeId=2035&amp;arrivals=True" aria-label="English web site">De</a>
+
+    </div> 
+    <div style="width:100%">
+
+    </div>
+
+
+
+
+
+
+<script>
+    window.rootDir = "/ArriviPartenze/";
+    window.config = {"PremiumTimeRefresh":0}
+    window.isInternetExplorer = isIE();
+
+</script>
+
+
+
+<!--<div><span id="logo RFI" class="rfi"></span></div>-->
+
+
+
+<div class="lastUpdate" id="lastUpdateId">
+    <span class="labellastupdate">
+        <label id="UltimoaggiData">
+            MONITOR ARRIVI &amp; PARTENZE <span class="italic"  > LIVE</span> <span class="acapo">
+                <span class="normal"> aggiornato il  </span> 30/10/2026 <span class="normal"> alle ore  </span> 19:42:39
+                <a class="focus aggiorna"
+                   tabindex="1"
+                   title="Aggiorna tabella"
+                   href="/ArriviPartenze/ArrivalsDepartures/Monitor?placeId=2035&amp;arrivals=True">
+                    <img class="aggiornaImg" src="/ArriviPartenze/Resources/Images/aggiorna.svg" alt="Aggiorna" />
+                </a>
+            </span>
+
+        </label>
+    </span>
+    <img class="logorfi" src="/ArriviPartenze/Resources/Images/logo rfi.png" alt="Logo RFI" />
+
+    
+</div>
+
+
+    <h1 class="nomestazione" id="nomeStazioneId">
+        PARMA
+    </h1>
+ 
+
+
+
+
+<div id="barrabottoniId" class="barrabottoni">
+
+
+            <span class="pulsanteTab pulsanteTabGiallo" role="heading"
+                   aria-label="Tabella selezionata Arrivi">Arrivi</span>
+
+            <a class="pulsanteTab pulsanteTabGrigio" 
+               tabindex="1"
+               href="./Monitor?placeId=2035&amp;arrivals=False"
+                aria-label="Vai a tabella  Partenze"
+               title="Vai a tabella  Partenze"
+               >Partenze</a>
+
+
+
+        <a href="#infoSuccessiveAnchor"
+           tabindex="3" aria-label="Vai alle informazioni supplementari della stazione selezionata" title="Visualizza le informazioni supplementari">
+            <img class="avvisiBianco"
+                 src="/ArriviPartenze/Resources/Images/AVVISI_giallo.png" alt="Vai a avvisi" />
+        </a>
+</div>
+
+<table class="monitors" id="monitor" aria-label="testo">
+    <caption aria-label="Elenco dei treni in arrivo nella stazione di PARMA">
+
+
+    </caption>
+        <thead id="headerTabId">
+
+            <tr>
+                <th class="Vettore_classth Vettore_classth_Part" id="HVettore" scope="col">Vettore</th>
+                <th class="Categoria_classth Categoria_classth_Part" id="HCategoria" scope="col">Categoria</th>
+                <th class="Treno_classth Treno_classth_Part" id="HTreno" abbr="treno" scope="col">Treno</th>
+                <th class="Stazione_classth Stazione_classth_Part" id="HStazione" scope="col">Provenienza</th>
+                <th class="Orario_classth Orario_classth_Part" id="HOrario" scope="col">Orario</th>
+                <th class="Ritardo_classth Ritardo_classth_Part" id="HRitardo" scope="col">Ritardo</th>
+                <th class="Binario_classth Binario_classth_Part" id="HBinario" scope="col">Binario</th>
+                <th class="ExLampeggio_classth ExLampeggio_classth_Part" id="HInArrivo" scope="col">In Arrivo</th>
+                    <th aria-label="Informazioni" class="Dettagli_classth Dettagli_classth_Part" id="HDettagli" scope="col">
+                        <div class="widescreen">Informazioni</div>
+                        <div class="mobilescreen">Info</div>
+                    </th>
+            </tr>
+        </thead>
+            <tbody id="bodyTabId">
+
+
+
+                    <tr id="8825" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="FRECCIAROSSA" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria ALTA VELOCITA&#39;" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">8825 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                MILANO CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">19:41</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd"  headers="HInArrivo" scope="row">
+                                <img class="exlampeggio" alt="Si" src="/ArriviPartenze/Resources/Images/LampeggioGold.png" />
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="19280" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">19280 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                BORGO VAL DI TARO
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">19:44</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                1
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="2477" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria RV" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">2477 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                MILANO CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">19:50</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd"  headers="HRitardo" scope="row">
+
+                            15
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="10837" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENORD" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">10837 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                BRESCIA
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">19:54</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                8
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="2484" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria RV" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">2484 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                BOLOGNA CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">19:58</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                3
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="90337" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">90337 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                SUZZARA
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">20:03</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                7
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="612" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="INTERCITY" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria INTERCITY" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">612 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                LECCE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">20:11</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                3
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="19258" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">19258 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                LA SPEZIA CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">20:14</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                1
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="2091" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria RV" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">2091 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                GENOVA BRIGNOLE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">20:25</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="3926" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria RV" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">3926 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                ANCONA
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">20:31</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                3
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="8829" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="FRECCIAROSSA" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria ALTA VELOCITA&#39;" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">8829 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                MILANO CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">20:41</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="90339" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">90339 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                SUZZARA
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">20:53</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                7
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="10839" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENORD" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">10839 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                BRESCIA
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">20:54</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                8
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="2479" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria RV" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">2479 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                MILANO CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">20:58</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="2486" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria RV" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">2486 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                BOLOGNA CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">20:58</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                3
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="19260" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">19260 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                LA SPEZIA CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">21:14</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                1
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="3943" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">3943 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                PIACENZA
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">21:25</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="3928" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria RV" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">3928 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                PESARO
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">21:31</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                3
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="596" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="INTERCITY" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria INTERCITY" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">596 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                NAPOLI CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">21:38</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                3
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="1963" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="INTERCITY NOTTE" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria INTERCITY NOTTE" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">1963 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                MILANO CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">21:47</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="10841" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENORD" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">10841 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                BRESCIA
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">21:54</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                8
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="17422" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">17422 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                BOLOGNA CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">22:01</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                2
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="614" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="INTERCITY" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria INTERCITY" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">614 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                LECCE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">22:08</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                3
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="19262" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">19262 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                LA SPEZIA CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">22:14</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                2
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="3951" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria REG" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">3951 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                PIACENZA
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">22:25</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="3930" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria RV" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">3930 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                ANCONA
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">22:31</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                3
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="765" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="INTERCITY NOTTE" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria INTERCITY NOTTE" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">765 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                MILANO CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">22:31</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="2483" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA TPER" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria RV" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">2483 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                MILANO CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">23:00</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                2
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="755" name="treno" class="row yellowRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="INTERCITY NOTTE" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria INTERCITY NOTTE" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">755 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                MILANO CENTRALE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">23:05</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                4
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+                    <tr id="3283" name="treno" class="row greyRow">
+                        <td id="RVettore" headers="HVettore" scope="row" class="Vettore_classtd">
+
+
+ 
+
+
+
+
+
+
+
+        <img alt="TRENITALIA" class="logoCliente" src="" />
+
+
+
+
+
+                        </td>
+                        <td id="RCategoria" headers="HCategoria" scope="row" class="Categoria_classtd">
+
+
+
+
+
+
+            <img alt="Categoria RV" class="logoCategoria"
+                 src="" />
+
+
+
+
+                        </td>
+                        <td id="RTreno" headers="HTreno" scope="row" class="Categoria_classtd">3283 </td>
+
+                        <td id="RStazione" class="Stazione_classtd marquee" headers="HStazione" scope="row" name="Provenienza">
+                            <div>
+                                GENOVA BRIGNOLE
+                            </div>
+                        </td>
+                        <td id="ROrario" class="Orario_classtd" headers="HOrario" scope="row">23:14</td>
+
+                        <td id="RRitardo" class="Ritardo_classtd" aria-label=&quot;Nessuno&quot; headers="HRitardo" scope="row">
+
+                            
+                        </td>
+
+
+                        <td id="RBinario" class="marquee Binario_classtd"  headers="HBinario" scope="row">
+                            <div>
+
+                                1
+                            </div>
+                        </td>
+                        <td id="RExLampeggio" class="ExLampeggio_classtd" aria-label=&quot;No&quot; headers="HInArrivo" scope="row">
+                        </td>
+
+                            <td id="RDettagli" aria-label=&quot;Nessuna&quot; headers="HDettagli" scope="row" class="Dettagli_classtd marquee">
+
+                            </td>
+                    </tr>
+
+            </tbody>
+</table>
+
+    <a aria-label="Informazioni supplementari" name="infoSuccessiveAnchor"></a>
+        <div class="barrainfostazione" id="barraInformazioneId">
+
+            <div class="footerHeaderbarrabianca"></div>
+            <div id="barraInfoStazioneId" class="footerHeader">
+
+                <h2>
+                    <img class="avvisiNero"
+                         src="/ArriviPartenze/Resources/Images/avvisi nero.png"
+                         alt="Avvisi" />
+                </h2>
+                <div aria-label="Informazioni supplementari"
+                     title="Informazioni supplementari"
+                     id="Informazioni di stazione"
+                     class="footer">
+                    <div class="marqueeinfosupp">
+                        <div>
+                             L&#39;ASCENSORE AI BINARI 2 E 3 E&#39;&#39; FUORI SERVIZIO
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+</body>
+</html>
