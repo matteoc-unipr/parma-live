@@ -1,4 +1,4 @@
-/* Stili dei componenti: misure dal design (design/README.md), colori solo da tokens.css. */
+/* Stili dei componenti: regole in DESIGN.md, colori e misure solo da tokens.css. */
 :root {
   /* +10 px: chip, indicatori e titoli non incollati alla status bar dell'app installata */
   --safe-top: calc(max(env(safe-area-inset-top), 12px) + 10px);
@@ -15,7 +15,7 @@ html { height: calc(100% + env(safe-area-inset-top)); }
 #root { position: relative; }
 /* Niente rimbalzo della pagina (iOS): scorrono solo le liste, e senza trascinare la pagina con sé. */
 html, body { overscroll-behavior: none; }
-.screen, .sheet-list, .chips { overscroll-behavior: contain; }
+.screen, .sheet-list, .lines-panel { overscroll-behavior: contain; }
 body {
   touch-action: manipulation; /* niente zoom col doppio tocco sui pulsanti; il pinch resta */
   -webkit-text-size-adjust: 100%;
@@ -29,12 +29,36 @@ body {
   -webkit-user-select: none;
 }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+/* DESIGN.md §5: ogni elemento toccabile reagisce alla pressione (100 ms). */
+button, .pressable { transition: opacity 100ms ease-out; }
+button:not(:disabled):active, .pressable:active { opacity: 0.6; }
+.pressable { cursor: pointer; }
+/* Scheda toccabile: un solo pulsante allargato a tutta la scheda; gli altri controlli stanno sopra (z-index). */
+.tap-card { position: relative; }
+.card-link { text-align: left; }
+.card-link::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.tap-card button:not(.card-link) { position: relative; z-index: 1; }
+.tap-card:has(.card-link:active) { opacity: 0.6; }
+.tap-card .card-link:active { opacity: 1; }
+/* Landmark per i lettori di schermo, senza effetti sul layout (tutto è posizionato su #root). */
+main { display: contents; }
+:focus-visible { outline: 2px solid var(--pl-accent); outline-offset: 2px; }
+input:focus-visible { outline: none; } /* l'anello è sul campo (.search-field:focus-within) */
+.search-field:focus-within { outline: 2px solid var(--pl-accent); outline-offset: -2px; }
 input { font: inherit; color: inherit; background: none; border: none; outline: none; padding: 0; margin: 0; width: 100%; }
 
 @keyframes plRoll { 0% { transform: translateY(-55%) scale(.8); opacity: 0 } 60% { opacity: 1 } 100% { transform: none; opacity: 1 } }
 @keyframes plSkel { 0%, 100% { opacity: 1 } 50% { opacity: .45 } }
 @keyframes plPulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--pl-ok) 55%, transparent) } 100% { box-shadow: 0 0 0 9px transparent } }
 @keyframes plPop { 50% { transform: scale(1.25) } }
+
+/* Movimento ridotto (DESIGN.md §5): niente rimbalzi né scorrimenti, solo dissolvenze brevi. */
+@media (prefers-reduced-motion: reduce) {
+  .countdown, .star-btn.pop svg, .live-indicator .dot.pulse { animation: none !important; }
+  .sheet, .sheet.animate, .sheet.leave, .sheet.push { transition: opacity 150ms linear !important; }
+  .sheet.enter, .sheet.leave { opacity: 0; }
+  .segmented .thumb, .switch, .switch::after, .tab-bar button { transition: none !important; }
+}
 
 .glass {
   background: var(--pl-glass);
@@ -53,6 +77,8 @@ input { font: inherit; color: inherit; background: none; border: none; outline: 
   overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
   background: var(--pl-bg); z-index: 4; /* copre la mappa, che resta montata sotto */
 }
+/* Schermata della tab sotto uno sheet: resta montata (scroll e stato), la mappa si vede. */
+.screen.under { visibility: hidden; }
 .large-title { font: var(--pl-type-large-title); letter-spacing: -0.025em; padding: 0 4px; }
 .section-header { padding: 6px 4px 0; font: var(--pl-type-footnote); letter-spacing: 0.04em; color: var(--pl-text-2); }
 .subtle { color: var(--pl-text-2); }
@@ -75,31 +101,46 @@ input { font: inherit; color: inherit; background: none; border: none; outline: 
   height: 44px; padding: 0 14px 0 8px; border-radius: 22px; background: var(--pl-surface); box-shadow: var(--pl-shadow-card);
   display: inline-flex; align-items: center; gap: 2px; font-size: 16px; font-weight: 600; align-self: flex-start; flex: none;
 }
-.star-btn.pop svg { animation: plPop 250ms cubic-bezier(.3,1.8,.5,1); }
+.star-btn.pop svg { animation: plPop 200ms var(--pl-ease-spring); }
+/* Un'azione primaria per schermata: l'unico fucsia pieno (DESIGN.md §6). */
+.btn-primary {
+  height: 50px; border-radius: var(--pl-radius-pill); padding: 0 24px; background: var(--pl-accent); color: var(--pl-on-accent);
+  font: var(--pl-type-headline); display: inline-flex; align-items: center; justify-content: center; align-self: flex-start;
+}
+.text-btn { min-height: 44px; padding: 0 12px; font: var(--pl-type-headline); color: var(--pl-accent); flex: none; }
 
 /* Mappa */
 /* div.map batte .maplibregl-map { position: relative } del CSS di MapLibre, caricato dopo. */
 div.map { position: absolute; inset: 0; z-index: 0; background: var(--pl-map-bg); } /* z-index: i marker restano sotto gli overlay */
-.map-top { position: absolute; left: 0; right: 0; top: var(--safe-top); display: flex; flex-direction: column; gap: 10px; z-index: 3; pointer-events: none; }
-.chips { display: flex; gap: 8px; padding: 4px 16px; overflow-x: auto; pointer-events: auto; scrollbar-width: none; }
-.chips::-webkit-scrollbar { display: none; }
-.chip { flex: none; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; }
-.chip.all { padding: 0 18px; font-size: 15px; font-weight: 600; }
-.chip.all.on { background: var(--pl-text); color: var(--pl-bg); }
-.chip.line { width: 44px; }
+.map-top { position: absolute; left: 16px; right: 16px; top: var(--safe-top); display: flex; flex-direction: column; gap: 10px; z-index: 3; pointer-events: none; }
+.map-top > * { pointer-events: auto; }
+.search-bar {
+  height: 52px; border-radius: var(--pl-radius-pill); padding: 0 18px; display: flex; align-items: center; gap: 10px; width: 100%;
+  font: var(--pl-type-body); color: var(--pl-text-2); text-align: left; background: var(--pl-glass-strong);
+}
+.map-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; pointer-events: none; }
+.map-row > * { pointer-events: auto; }
+.lines-btn { height: 44px; padding: 0 16px; border-radius: 22px; font-size: 15px; font-weight: 600; flex: none; }
+.lines-btn.on { background: var(--pl-text); color: var(--pl-bg); }
+.lines-panel { border-radius: var(--pl-radius-lg); padding: 12px; background: var(--pl-glass-strong); max-height: 50vh; overflow-y: auto; }
+.lines-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 8px; margin-top: 8px; }
+.lines-grid button { height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 22px; }
+.lines-grid button[aria-pressed="true"] { background: var(--pl-accent-soft); }
+.zoom-hint {
+  position: absolute; left: 50%; bottom: 172px; transform: translateX(-50%); z-index: 3; height: 36px; padding: 0 14px; border-radius: 18px;
+  display: flex; align-items: center; font-size: 13px; font-weight: 600; white-space: nowrap; background: var(--pl-glass-strong); color: var(--pl-text-2);
+}
 .live-indicator {
-  align-self: flex-start; margin-left: 16px; height: 32px; padding: 0 12px; border-radius: 16px;
+  flex: 0 1 auto; min-width: 0; overflow: hidden; height: 32px; padding: 0 12px; border-radius: 16px;
   display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; pointer-events: auto;
 }
 .live-indicator .dot { flex: none; width: 8px; height: 8px; border-radius: 4px; }
 .live-indicator .dot.pulse { animation: plPulse 1.6s ease-out infinite; }
 .live-indicator .tag { font-weight: 700; letter-spacing: 0.04em; white-space: nowrap; }
-.live-indicator .label { color: var(--pl-text-2); white-space: nowrap; }
-.map-info { position: absolute; right: 16px; top: calc(var(--safe-top) + 58px); z-index: 3; color: var(--pl-text); }
+.live-indicator .label { color: var(--pl-text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .map-attribution {
-  position: absolute; left: 16px; bottom: 98px; z-index: 3; padding: 3px 8px; border-radius: 8px;
-  background: var(--pl-glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  font-size: 10px; font-weight: 500; color: var(--pl-text-2);
+  position: absolute; left: 16px; right: 84px; bottom: 98px; z-index: 3; width: fit-content; min-height: 44px; padding: 3px 10px; border-radius: 12px;
+  background: var(--pl-glass-strong); font-size: 11px; line-height: 14px; font-weight: 500; color: var(--pl-text-2); text-align: left;
 }
 .locate-btn {
   position: absolute; right: 16px; bottom: 112px; width: 52px; height: 52px; border-radius: 26px; z-index: 3;
@@ -121,12 +162,14 @@ div.map { position: absolute; inset: 0; z-index: 0; background: var(--pl-map-bg)
 /* BottomSheet */
 .sheet {
   position: absolute; left: var(--pl-sheet-inset); right: var(--pl-sheet-inset); top: 0; z-index: 5;
-  border-radius: var(--pl-radius-sheet); background: var(--pl-sheet);
-  backdrop-filter: var(--pl-blur-sheet); -webkit-backdrop-filter: var(--pl-blur-sheet);
-  border: 1px solid var(--pl-glass-border); box-shadow: var(--pl-shadow-sheet);
+  border-radius: var(--pl-radius-sheet); background: var(--pl-sheet); /* opaco: il vetro resta ai controlli sulla mappa */
+  border: 1px solid var(--pl-hair); box-shadow: var(--pl-shadow-sheet);
   display: flex; flex-direction: column; touch-action: none; overflow: hidden;
 }
 .sheet.animate { transition: transform var(--pl-dur-sheet) var(--pl-ease-spring); }
+.sheet.leave { transition: transform 250ms ease-in; }
+.sheet.push { transition: transform 300ms ease-out; }
+.sheet-nav { display: flex; gap: 8px; flex: none; }
 .sheet-handle { flex: none; padding: 8px 0 10px; cursor: grab; }
 .sheet-handle div { width: 36px; height: 5px; border-radius: 3px; background: var(--pl-text-3); opacity: 0.6; margin: 0 auto; }
 .sheet-head { flex: none; padding: 4px 20px 0; }
@@ -144,7 +187,7 @@ div.map { position: absolute; inset: 0; z-index: 0; background: var(--pl-map-bg)
 .departure-row .sub.late { color: var(--pl-late); }
 .departure-row .sub.cancel { color: var(--pl-cancel); }
 .departure-row .time { font-weight: 700; letter-spacing: -0.01em; line-height: 1.1; }
-.departure-row:disabled { cursor: default; opacity: 1; color: inherit; }
+div.departure-row { cursor: inherit; }
 .departure-row.compact { grid-template-columns: 30px minmax(0,1fr) auto; height: 46px; padding-right: 8px; }
 .departure-row.compact .right { height: 24px; }
 .departure-row .right { display: flex; align-items: flex-start; gap: 3px; height: 28px; overflow: hidden; }
@@ -172,7 +215,7 @@ div.map { position: absolute; inset: 0; z-index: 0; background: var(--pl-map-bg)
 .segmented { display: grid; grid-template-columns: 1fr 1fr; height: 44px; padding: 3px; border-radius: 22px; background: var(--pl-fill); position: relative; flex: none; }
 .segmented .thumb {
   position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px); border-radius: 19px; background: var(--pl-seg-on);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12); transition: transform .45s cubic-bezier(.3,1.35,.5,1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12); transition: transform 200ms var(--pl-ease-spring);
 }
 .segmented button { position: relative; font-size: 15px; font-weight: 600; color: var(--pl-text-2); }
 .segmented button.on { color: var(--pl-text); }
@@ -184,7 +227,7 @@ div.map { position: absolute; inset: 0; z-index: 0; background: var(--pl-map-bg)
 .train-row .dest { font: var(--pl-type-headline); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .train-row .meta { font-size: 13px; margin-top: 2px; display: flex; gap: 5px; white-space: nowrap; }
 .bin { width: 44px; height: 44px; border-radius: var(--pl-radius-sm); background: var(--pl-text); color: var(--pl-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
-.bin small { font-size: 9px; font-weight: 700; letter-spacing: 0.06em; opacity: 0.75; }
+.bin small { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; opacity: 0.75; }
 .bin b { font-size: 19px; font-weight: 700; margin-top: 2px; }
 .bin.none { background: var(--pl-fill); color: var(--pl-text-2); }
 
@@ -213,18 +256,25 @@ div.map { position: absolute; inset: 0; z-index: 0; background: var(--pl-map-bg)
   display: flex; align-items: center; gap: 12px; background: var(--pl-glass-strong);
 }
 .empty-state { display: flex; gap: 12px; align-items: center; padding: 14px 0; border-top: 1px solid var(--pl-hair); }
+.error-state { display: flex; flex-direction: column; gap: 14px; padding: 14px 0; }
 .empty-icon { flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--pl-fill); display: flex; align-items: center; justify-content: center; }
 
 /* TabBar */
 .tab-bar {
   position: absolute; left: 20px; right: 20px; bottom: 26px; height: 64px; border-radius: var(--pl-radius-xl); padding: 4px; z-index: 6;
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
 }
-.tab-bar button { border-radius: 28px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--pl-text); transition: background .3s ease; }
+.tab-bar button { border-radius: 28px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--pl-text); transition: background 200ms ease, opacity 100ms ease-out; }
 .tab-bar button.on { background: var(--pl-accent-soft); color: var(--pl-accent); }
 .tab-bar span { font: var(--pl-type-caption); }
+.tab-bar button.on span { color: var(--pl-text); } /* fucsia su fucsia tenue scuro: 4.1:1; l'icona (3:1) resta fucsia */
 
-/* Cerca, Preferiti, Info */
+/* Risultati A→B: opzioni come righe dello sheet (niente card dentro lo sheet) */
+.route-option { width: 100%; padding: 12px; border-radius: var(--pl-radius-md); display: flex; flex-direction: column; gap: 6px; text-align: left; }
+.route-option[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--pl-accent); } /* anello, non tinta: i colori di stato restano leggibili */
+.route-option + .route-option, .route-option + .boarding { border-top: 1px solid var(--pl-hair); }
+
+/* Ricerca, Preferiti, Info */
 .search-field { display: flex; align-items: center; gap: 14px; height: 62px; padding: 0 16px; }
 .place-row { display: flex; align-items: center; gap: 12px; height: 60px; width: 100%; text-align: left; }
 .place-row + .place-row { border-top: 1px solid var(--pl-hair); }
@@ -234,10 +284,10 @@ div.map { position: absolute; inset: 0; z-index: 0; background: var(--pl-map-bg)
 .attribution-row + .attribution-row { border-top: 1px solid var(--pl-hair); }
 
 /* Switch iOS 51×31 */
-.switch { flex: none; position: relative; width: 51px; height: 31px; border-radius: 16px; background: var(--pl-fill); transition: background .25s ease; }
+.switch { flex: none; position: relative; width: 51px; height: 31px; border-radius: 16px; background: var(--pl-fill); transition: background 200ms ease; }
 .switch::after {
   content: ''; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.15), 0 1px 1px rgba(0,0,0,0.16); transition: transform .3s var(--pl-ease-spring);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15), 0 1px 1px rgba(0,0,0,0.16); transition: transform 200ms var(--pl-ease-spring);
 }
 .switch.on { background: var(--pl-ok); }
 .switch.on::after { transform: translateX(20px); }

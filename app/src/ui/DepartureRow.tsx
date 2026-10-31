@@ -30,13 +30,15 @@ export function DepartureRow({ row, route, destination, via, now, compact, onCli
   const label = `${route?.short ?? ''} ${destination}, ${
     live ? `tra ${Math.max(0, Math.floor((row.eta! - now) / 60_000))} minuti, tempo reale` : `${sub ?? 'programmato'} alle ${fmtTime(row.scheduled)}`
   }`
+  // Senza azione è un div: un <button disabled> inghiottirebbe il tocco destinato alla scheda che lo contiene.
+  const Row = onClick ? 'button' : 'div'
   return (
-    <button
+    <Row
       data-component="DepartureRow"
       className={`departure-row ${compact ? 'compact' : ''}`}
       onClick={onClick}
       aria-label={label}
-      disabled={!onClick}
+      role={onClick ? undefined : 'group'}
     >
       <LineBadge route={route} size={compact ? 30 : 40} />
       <div style={{ minWidth: 0 }}>
@@ -62,6 +64,6 @@ export function DepartureRow({ row, route, destination, via, now, compact, onCli
           </>
         )}
       </div>
-    </button>
+    </Row>
   )
 }

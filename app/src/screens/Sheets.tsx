@@ -1,24 +1,37 @@
-// Contenuto degli sheet sulla mappa: dettaglio bus e tabellone fermata.
+// Sheet sulla mappa, in pila sopra la tab corrente: tabellone fermata, dettaglio bus, risultati A→B.
 import { useEffect, useState } from 'react'
 import { subscribeUpdates, useRealtime } from '../data/realtime'
-import { lineColor, loadStopTimes, useStatic } from '../data/static'
-import { buildBoard, type StopTimes } from '../lib/board'
+import { lineColor, useStatic, useStopTimes } from '../data/static'
+import { buildBoard } from '../lib/board'
 import { useNow } from '../lib/hooks'
 import { useUi } from '../store'
 import { BottomSheet } from '../ui/BottomSheet'
-import { CloseButton, fmtTime, LineBadge, Skeleton, StarButton } from '../ui/bits'
+import { BackButton, CloseButton, ErrorState, fmtTime, LineBadge, Skeleton, StarButton } from '../ui/bits'
 import { DepartureRow } from '../ui/DepartureRow'
-import { ClockIcon, LiveIcon, MoonIcon } from '../ui/icons'
+import { ClockIcon, MoonIcon, PinIcon } from '../ui/icons'
+import { PlanSheet } from './Search'
 
 export function MapSheet() {
   const sheet = useUi((s) => s.sheet)
+  const depth = useUi((s) => s.stack.length)
   useEffect(() => (sheet ? subscribeUpdates() : undefined), [sheet])
   if (!sheet) return null
-  // key: cambiando bus o fermata lo sheet riparte da fuori schermo.
-  return sheet.kind === 'bus' ? <BusSheet key={sheet.id} id={sheet.id} /> : <StopSheet key={sheet.id} id={sheet.id} />
+  // key: ogni sheet della pila è un componente nuovo, con la sua animazione d'ingresso.
+  if (sheet.kind === 'plan') return <PlanSheet key={`plan-${depth}`} />
+  return sheet.kind === 'bus' ? <BusSheet key={`${depth}-${sheet.id}`} id={sheet.id} /> : <StopSheet key={`${depth}-${sheet.id}`} id={sheet.id} />
 }
 
-const close = () => useUi.getState().openSheet(null)
+/** ← se sotto c'è un altro sheet; ✕ chiude tutta la pila (UX-AUDIT.md §4). */
+export function SheetNav({ extra }: { extra?: React.ReactNode }) {
+  const deep = useUi((s) => s.stack.length > 1)
+  return (
+    <div className="sheet-nav">
+      {extra}
+      {deep && <BackButton onClick={() => useUi.getState().back()} />}
+      <CloseButton onClick={() => useUi.getState().openSheet(null)} label={deep ? 'Chiudi tutto' : 'Chiudi'} />
+    </div>
+  )
+}
 
 /* ---------- Dettaglio bus ---------- */
 function BusSheet({ id }: { id: string }) {
@@ -33,7 +46,7 @@ function BusSheet({ id }: { id: string }) {
   if (!bus) {
     return (
       <BottomSheet header={<SheetTitleRow title="Bus non più nel feed" />}>
-        <p className="subtle">La corsa è terminata o il segnale si è perso.</p>
+        <p className="subtle">La corsa è terminata o il bus non trasmette più la posizione.</p>
       </BottomSheet>
     )
   }
@@ -52,10 +65,10 @@ function BusSheet({ id }: { id: string }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
         <LineBadge route={route} size={54} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--pl-text-2)' }}>Direzione</div>
+          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--pl-text-2)' }}>Linea {route?.short ?? '?'} · direzione</div>
           <div className="sheet-title">{pattern?.headsign ?? '—'}</div>
         </div>
-        <CloseButton onClick={close} />
+        <SheetNav />
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
         {delay !== null && (
@@ -73,16 +86,24 @@ function BusSheet({ id }: { id: string }) {
 
   return (
     <BottomSheet header={header}>
+      {!stops.length && <p className="subtle">Il percorso di questa corsa non è negli orari scaricati.</p>}
       {stops.map((s, i) => {
         const last = i === stops.length - 1
         const terminus = last && s.id === pattern?.stops.at(-1)
+        const name = data?.stops.get(s.id)?.name ?? s.id
         return (
-          <button key={`${s.id}-${i}`} data-component="NextStopRow" className="next-stop" onClick={() => useUi.getState().openSheet({ kind: 'stop', id: s.id })}>
+          <button
+            key={`${s.id}-${i}`}
+            data-component="NextStopRow"
+            className="next-stop"
+            aria-label={`${name}${s.eta ? `, alle ${fmtTime(s.eta)}` : ''}. Apri il tabellone`}
+            onClick={() => useUi.getState().pushSheet({ kind: 'stop', id: s.id })}
+          >
             <div className="rail">
               <i style={{ background: color, bottom: last ? 25 : 0 }} />
               <b style={{ borderColor: color, background: terminus ? color : 'var(--pl-surface)' }} />
             </div>
-            <div className="name" style={{ fontWeight: terminus ? 700 : 400 }}>{data?.stops.get(s.id)?.name ?? s.id}</div>
+            <div className="name" style={{ fontWeight: terminus ? 700 : 400 }}>{name}</div>
             <div className="times">
               {late && s.plan && <span className="strike" style={{ fontSize: 13, color: 'var(--pl-text-3)' }}>{fmtTime(s.plan)}</span>}
               <span className={`eta ${late ? 'late' : ''}`}>{s.eta ? fmtTime(s.eta) : ''}</span>
@@ -97,9 +118,11 @@ function BusSheet({ id }: { id: string }) {
 const SheetTitleRow = ({ title }: { title: string }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
     <div className="sheet-title" style={{ flex: 1 }}>{title}</div>
-    <CloseButton onClick={close} />
+    <SheetNav />
   </div>
 )
+
+const RT_WAIT_MS = 10_000 // senza stime dopo 10 s: tabellone con i soli orari programmati
 
 /* ---------- Tabellone fermata ---------- */
 function StopSheet({ id }: { id: string }) {
@@ -110,15 +133,22 @@ function StopSheet({ id }: { id: string }) {
   const buses = useRealtime((s) => s.buses)
   const offline = useRealtime((s) => !s.online || s.failed)
   const fav = useUi((s) => s.favorites.stops.includes(id))
-  const [times, setTimes] = useState<StopTimes | null>(null)
-  useEffect(() => void loadStopTimes(id).then(setTimes), [id])
+  const { times, retry } = useStopTimes(id)
+  const [waited, setWaited] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(() => setWaited(true), RT_WAIT_MS)
+    return () => clearTimeout(t)
+  }, [])
 
   const stop = data?.stops.get(id)
-  // Offline: niente stime, solo orari programmati (design: countdown "stimato" con orologio).
-  const board = times && (updatesAt || offline) ? buildBoard(id, times, offline ? new Map() : updates, now) : null
-  const lines = [...new Set(Object.values(times ?? {}).flat().map(([, , p]) => data?.patterns.get(p)?.route ?? ''))]
+  const ready = times && times !== 'error'
+  // Offline o stime in ritardo: solo orari programmati (countdown "stimato" con orologio).
+  const scheduledOnly = offline || (!updatesAt && waited)
+  const board = ready && (updatesAt || scheduledOnly) ? buildBoard(id, times, scheduledOnly ? new Map() : updates, now) : null
+  const lines = [...new Set(Object.values(ready ? times : {}).flat().map(([, , p]) => data?.patterns.get(p)?.route ?? ''))]
     .filter(Boolean)
     .sort((a, b) => (parseInt(data?.routes.get(a)?.short ?? '') || 999) - (parseInt(data?.routes.get(b)?.short ?? '') || 999))
+  const takeMeThere = () => stop && useUi.getState().startPlan(null, { kind: 'stop', name: stop.name, lat: stop.lat, lon: stop.lon }, true)
 
   const header = (
     <>
@@ -130,24 +160,29 @@ function StopSheet({ id }: { id: string }) {
           </div>
           <div style={{ marginTop: 6, fontSize: 13, color: 'var(--pl-text-2)' }}>Fermata {id}</div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <StarButton active={fav} onToggle={() => useUi.getState().toggleFavStop(id)} />
-          <CloseButton onClick={close} />
-        </div>
+        <SheetNav extra={<StarButton active={fav} onToggle={() => useUi.getState().toggleFavStop(id)} />} />
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, paddingBottom: 8, fontSize: 13, color: 'var(--pl-text-2)' }}>
-        <span style={{ fontWeight: 600, letterSpacing: '0.04em' }}>ARRIVI</span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span className="ok" style={{ display: 'flex', alignItems: 'center', gap: 4 }}><LiveIcon size={12} />tempo reale</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><ClockIcon size={13} />programmato</span>
-        </span>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, paddingBottom: 4 }}>
+        <span className="section-header" style={{ padding: 0 }}>PROSSIMI PASSAGGI</span>
+        {stop && (
+          <button className="text-btn" style={{ display: 'flex', alignItems: 'center', gap: 6, paddingRight: 0 }} onClick={takeMeThere}>
+            <PinIcon />
+            Portami qui
+          </button>
+        )}
       </div>
+      {ready && scheduledOnly && !offline && (
+        <div className="subtle" style={{ fontSize: 13, paddingBottom: 6 }}>Stime in tempo reale non ancora arrivate: orari programmati.</div>
+      )}
     </>
   )
 
   return (
     <BottomSheet header={header}>
-      {!board && <Skeleton rows={6} />}
+      {times === 'error' && (
+        <ErrorState title="Orari della fermata non scaricati" body="Sei offline e questa fermata non è ancora stata aperta su questo telefono." onRetry={retry} />
+      )}
+      {times !== 'error' && !board && <Skeleton rows={6} label="Carico i passaggi della fermata" slow="Gli orari della fermata non arrivano: la connessione è lenta o assente." />}
       {board?.night && (
         <div data-component="EmptyState" className="empty-state">
           <div className="empty-icon"><MoonIcon /></div>
@@ -155,6 +190,12 @@ function StopSheet({ id }: { id: string }) {
             <div style={{ fontSize: 17, fontWeight: 600 }}>Nessun bus in servizio</div>
             <div style={{ fontSize: 13, color: 'var(--pl-text-2)' }}>Primi passaggi del mattino, orario programmato</div>
           </div>
+        </div>
+      )}
+      {board && !board.rows.length && (
+        <div data-component="EmptyState" className="empty-state">
+          <div className="empty-icon"><ClockIcon size={18} /></div>
+          <div style={{ fontSize: 15, color: 'var(--pl-text-2)' }}>Nessun passaggio da questa fermata nelle prossime ore.</div>
         </div>
       )}
       {board?.rows.map((row) => {
@@ -169,8 +210,8 @@ function StopSheet({ id }: { id: string }) {
             destination={pattern?.headsign ?? '—'}
             via={next ? `via ${data?.stops.get(next)?.name ?? next}` : undefined}
             now={now}
-            // Tocco su un arrivo live: dettaglio di quel bus.
-            onClick={bus ? () => useUi.getState().openSheet({ kind: 'bus', id: bus.id }) : undefined}
+            // Tocco su un arrivo live: dettaglio di quel bus, sopra il tabellone (← ci torna).
+            onClick={bus ? () => useUi.getState().pushSheet({ kind: 'bus', id: bus.id }) : undefined}
           />
         )
       })}

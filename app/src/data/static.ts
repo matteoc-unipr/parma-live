@@ -1,4 +1,5 @@
 // Dati statici generati da scripts/build-gtfs.ts in /data (formato in docs/data.md).
+import { useEffect, useState } from 'react'
 import { create } from 'zustand'
 import tokens from '../../../design/tokens.json'
 import type { StopTimes } from '../lib/board'
@@ -77,9 +78,33 @@ export function shapeOf(data: StaticData, shapeId: string): [number, number][] |
 }
 
 const stopTimesCache = new Map<string, Promise<StopTimes>>()
+/** Orari di una fermata. Un errore (offline e mai aperta) non resta in cache: "Riprova" scarica di nuovo. */
 export const loadStopTimes = (stopId: string) => {
-  if (!stopTimesCache.has(stopId)) stopTimesCache.set(stopId, get<StopTimes>(`stop-times/${stopId}.json`).catch(() => ({})))
+  if (!stopTimesCache.has(stopId))
+    stopTimesCache.set(stopId, get<StopTimes>(`stop-times/${stopId}.json`).catch((e: unknown) => {
+      stopTimesCache.delete(stopId)
+      throw e
+    }))
   return stopTimesCache.get(stopId)!
+}
+
+/** Orari di una fermata per un componente: null finché arrivano, 'error' se non si possono scaricare. */
+export function useStopTimes(stopId: string) {
+  const [state, setState] = useState<{ id: string; times: StopTimes | null | 'error' }>({ id: stopId, times: null })
+  const [attempt, setAttempt] = useState(0)
+  useEffect(() => {
+    let alive = true
+    loadStopTimes(stopId).then(
+      (times) => alive && setState({ id: stopId, times }),
+      () => alive && setState({ id: stopId, times: 'error' }),
+    )
+    return () => void (alive = false)
+  }, [stopId, attempt])
+  const retry = () => {
+    setState({ id: stopId, times: null })
+    setAttempt((n) => n + 1)
+  }
+  return { times: state.id === stopId ? state.times : null, retry }
 }
 
 // Colori: ufficiali dal GTFS; poi i segnaposto del design; poi uno "casuale" stabile per linea.
@@ -100,12 +125,26 @@ const luminance = (rgb: readonly number[]) => {
 }
 /** Contrasto WCAG del bianco su questo colore. */
 export const contrastWithWhite = (rgb: readonly number[]) => 1.05 / (luminance(rgb) + 0.05)
+const rgbOf = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+const ratio = (a: readonly number[], b: readonly number[]) => {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x)
+  return (hi! + 0.05) / (lo! + 0.05)
+}
+const INK = '#0B0B0F' // --pl-text chiaro
+
+/** Colore del numero sul badge: quello ufficiale se leggibile (≥ 4.5:1), altrimenti bianco o nero, il più leggibile. */
+export function lineTextColor(route: Route | undefined) {
+  const bg = rgbOf(lineColor(route))
+  if (route?.text && /^#[0-9A-Fa-f]{6}$/.test(route.text) && ratio(rgbOf(route.text), bg) >= 4.5) return route.text
+  return contrastWithWhite(bg) >= ratio(rgbOf(INK), bg) ? '#FFFFFF' : INK
+}
 
 /** Colore stabile ricavato dal nome della linea (stessa linea, stesso colore), scurito finché il numero bianco resta leggibile (≥ 3:1). */
 export function fallbackColor(key: string) {
   let h = 0x811c9dc5
   for (const c of key) h = Math.imul(h ^ c.charCodeAt(0), 0x01000193)
-  const hue = ((h >>> 0) % 360 + 360) % 360
+  let hue = ((h >>> 0) % 360 + 360) % 360
+  if (hue >= 300 && hue <= 345) hue = (hue + 60) % 360 // il fucsia è il colore dell'app (DESIGN.md): una linea non deve sembrare un pulsante
   let l = 0.46
   let rgb = hsl(hue, 0.68, l)
   while (contrastWithWhite(rgb) < 3 && l > 0.2) rgb = hsl(hue, 0.68, (l -= 0.02))

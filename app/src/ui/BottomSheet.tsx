@@ -14,13 +14,19 @@ const safeTop = () => {
 const FULL = Math.max(56, safeTop() + 6)
 // Altezza dell'html (allungata in styles.css), non innerHeight: nell'app installata iOS è più corta dello schermo.
 const screenH = () => document.documentElement.getBoundingClientRect().height
-const detentY = (d: Detent, h: number) => (d === 'full' ? FULL : d === 'half' ? Math.round((h * 400) / 844) : h - 156)
+// La tab bar resta visibile sotto half e peek (UX-AUDIT.md §4): peek mostra 156 px sopra di lei (bottom 26 + 64 + 8).
+const TAB_BAR_SPACE = 98
+const detentY = (d: Detent, h: number) => (d === 'full' ? FULL : d === 'half' ? Math.round((h * 400) / 844) : h - 156 - TAB_BAR_SPACE)
 
 export function BottomSheet({ header, children, closable = true }: { header: ReactNode; children: ReactNode; closable?: boolean }) {
   const detent = useUi((s) => s.detent)
+  const leaving = useUi((s) => s.leaving)
+  // Come è entrato questo sheet: letto una volta, al montaggio.
+  const [enter] = useState(() => useUi.getState().enter)
   const [h, setH] = useState(screenH)
   const [dragY, setDragY] = useState<number | null>(null)
-  const [entered, setEntered] = useState(false)
+  const [entered, setEntered] = useState(enter === 'none')
+  const [pushing, setPushing] = useState(enter === 'right')
   const drag = useRef<{ startY: number; y0: number; active: boolean; samples: [number, number][] } | null>(null)
   const justDragged = useRef(false)
 
@@ -28,14 +34,18 @@ export function BottomSheet({ header, children, closable = true }: { header: Rea
     const onResize = () => setH(screenH())
     window.addEventListener('resize', onResize)
     const raf = requestAnimationFrame(() => setEntered(true)) // parte da fuori schermo e sale a half
+    const push = setTimeout(() => setPushing(false), 300)
     return () => {
+      clearTimeout(push)
       window.removeEventListener('resize', onResize)
       cancelAnimationFrame(raf)
     }
   }, [])
 
-  const restY = entered ? detentY(detent, h) : h
-  const y = dragY ?? restY
+  const restY = entered || enter === 'right' ? detentY(detent, h) : h
+  const y = leaving === 'down' ? h : (dragY ?? restY)
+  // Push: entra da destra; ←: esce verso destra (DESIGN.md §5).
+  const x = leaving === 'right' || (enter === 'right' && !entered) ? '100%' : '0px'
 
   const onPointerDown = (e: React.PointerEvent) => {
     // A full la lista scrolla da sola: si trascina lo sheet solo dall'intestazione.
@@ -81,8 +91,8 @@ export function BottomSheet({ header, children, closable = true }: { header: Rea
   return (
     <div
       data-component="BottomSheet"
-      className={`sheet ${dragY === null ? 'animate' : ''}`}
-      style={{ height: h - FULL - 8, transform: `translateY(${y}px)` }}
+      className={`sheet ${leaving ? 'leave' : dragY === null ? 'animate' : ''} ${!entered && enter !== 'none' ? 'enter' : ''} ${pushing || leaving === 'right' ? 'push' : ''}`}
+      style={{ height: h - FULL - 8, transform: `translate(${x}, ${y}px)` }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}

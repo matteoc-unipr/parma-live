@@ -5,9 +5,8 @@ import { titleCase, useTrainDetail, useTrains, type Loaded, type Train, type Tra
 import { useNow } from '../lib/hooks'
 import { planTrip } from '../planner/client'
 import type { Journey } from '../planner/plan'
-import { runPlan } from '../planner/state'
-import { useUi, type Place } from '../store'
-import { Countdown, fmtTime, LineBadge, Skeleton } from '../ui/bits'
+import { hereOf, useUi, type Place } from '../store'
+import { Countdown, ErrorState, fmtTime, LineBadge, Skeleton } from '../ui/bits'
 import { BackIcon, CancelIcon, ChevronIcon, LiveIcon } from '../ui/icons'
 import { rides } from './Search'
 
@@ -21,7 +20,7 @@ const plus = (time: string, min: number) => {
   return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`
 }
 
-export function TrainsScreen() {
+export function TrainsScreen({ className = '' }: { className?: string }) {
   const [mode, setMode] = useState<TrainMode>('departures')
   const [detail, setDetail] = useState<Train | null>(null)
   const board = useTrains(mode)
@@ -29,18 +28,17 @@ export function TrainsScreen() {
     // Alternativa a un treno cancellato: il prossimo non cancellato verso la stessa destinazione.
     const list = board.data?.trains ?? []
     const alt = list.slice(list.indexOf(detail) + 1).find((t) => !t.cancelled && t.station === detail.station) ?? null
-    return <TrainDetailView train={detail} mode={mode} alternative={alt} onBack={() => setDetail(null)} onPick={setDetail} />
+    return <TrainDetailView className={className} train={detail} mode={mode} alternative={alt} onBack={() => setDetail(null)} onPick={setDetail} />
   }
   const trains = board.data?.trains
   return (
-    <div className="screen">
+    <div className={`screen ${className}`}>
       <div style={{ padding: '0 4px' }}>
-        <div className="large-title" style={{ padding: 0 }}>Parma</div>
+        <h1 className="large-title" style={{ padding: 0, margin: 0 }}>Treni da Parma</h1>
         <div style={{ fontSize: 15, color: 'var(--pl-text-2)' }}>
-          Stazione FS · {board.data ? `aggiornato alle ${fmtTime(new Date(board.data.fetchedAt).getTime())}` : 'caricamento…'}
+          Stazione FS · {board.data ? `aggiornato alle ${fmtTime(new Date(board.data.fetchedAt).getTime())}` : board.error ? 'tabellone non disponibile' : 'scarico il tabellone…'}
         </div>
       </div>
-      <BusToStationCard />
       <div data-component="SegmentedControl" className="segmented" role="tablist">
         <div className="thumb" style={{ transform: mode === 'arrivals' ? 'translateX(100%)' : 'none' }} />
         <button role="tab" aria-selected={mode === 'departures'} className={mode === 'departures' ? 'on' : ''} onClick={() => setMode('departures')}>Partenze</button>
@@ -48,8 +46,14 @@ export function TrainsScreen() {
       </div>
       <SourceBanner state={board} />
       <div className="card" style={{ padding: '0 16px' }}>
-        {!trains && !board.error && <Skeleton rows={7} height={64} avatar={44} />}
-        {trains?.length === 0 && <div style={{ padding: '20px 0', color: 'var(--pl-text-2)' }}>Nessun treno nelle prossime ore.</div>}
+        {!trains && !board.error && <Skeleton rows={7} height={64} avatar={44} label={mode === 'departures' ? 'Carico le partenze' : 'Carico gli arrivi'} slow="Il tabellone non arriva: ViaggiaTreno e RFI sono lenti o la connessione è assente." />}
+        {!trains && board.error && (
+          <ErrorState
+            title="Treni non disponibili"
+            body={`${board.error}. Riprovo da solo ogni 30 secondi; intanto gli orari sono su trenitalia.com.`}
+          />
+        )}
+        {trains?.length === 0 && <div style={{ padding: '20px 0', color: 'var(--pl-text-2)' }}>{mode === 'departures' ? 'Nessuna partenza' : 'Nessun arrivo'} nelle prossime ore.</div>}
         {trains?.map((t) => <TrainRow key={`${t.number}-${t.time}`} train={t} onClick={() => setDetail(t)} />)}
       </div>
       {board.data && (
@@ -57,6 +61,13 @@ export function TrainsScreen() {
           Fonte: {board.data.source === 'rfi' ? 'RFI · monitor arrivi e partenze' : 'ViaggiaTreno'}
         </div>
       )}
+      {!trains && board.error && (
+        <a className="text-btn" href="https://www.trenitalia.com" target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none', alignSelf: 'flex-start' }}>
+          Apri trenitalia.com
+        </a>
+      )}
+      {/* Secondario rispetto al tabellone (UX-AUDIT.md §5): in fondo. */}
+      <BusToStationCard />
     </div>
   )
 }
@@ -67,10 +78,8 @@ function SourceBanner({ state }: { state: Loaded<unknown> }) {
   const at = data ? fmtTime(new Date(data.fetchedAt).getTime()) : null
   let tone: 'late' | 'cancel' = 'late'
   let text: string | null = null
-  if (error && !data) {
-    tone = 'cancel'
-    text = `${error}. Riprovo tra 30 secondi.`
-  } else if (error || fromDevice || data?.stale) {
+  if (error && !data) return null // lo dice l'ErrorState al posto della lista
+  else if (error || fromDevice || data?.stale) {
     tone = 'cancel'
     text = `${error ?? 'ViaggiaTreno e RFI non rispondono'}. Mostro i dati delle ${at}.`
   } else if (data?.notice) text = `${data.notice}.`
@@ -89,7 +98,7 @@ function PlatformBox({ platform, cancelled }: { platform: Train['platform']; can
   return (
     <div
       className={`bin ${cancelled || !shown ? 'none' : ''}`}
-      style={changed && !cancelled ? { background: 'var(--pl-late)', color: '#fff' } : undefined}
+      style={changed && !cancelled ? { background: 'var(--pl-late)', color: 'var(--pl-surface)' } : undefined}
       aria-label={cancelled ? 'Binario: nessuno, treno cancellato' : changed ? `Binario cambiato: ${shown}, previsto ${platform.planned}` : `Binario ${shown ?? 'non indicato'}`}
     >
       <small>BIN</small>
@@ -117,7 +126,7 @@ function TrainRow({ train: t, onClick }: { train: Train; onClick: () => void }) 
   )
 }
 
-function TrainDetailView({ train, mode, alternative, onBack, onPick }: { train: Train; mode: TrainMode; alternative: Train | null; onBack: () => void; onPick: (t: Train) => void }) {
+function TrainDetailView({ className, train, mode, alternative, onBack, onPick }: { className: string; train: Train; mode: TrainMode; alternative: Train | null; onBack: () => void; onPick: (t: Train) => void }) {
   const { data, error, fromDevice } = useTrainDetail(train.number)
   const d: TrainDetail | null = data?.train ?? null
   const st = status(d ?? train)
@@ -127,7 +136,7 @@ function TrainDetailView({ train, mode, alternative, onBack, onPick }: { train: 
   const platform = parma?.platform ?? train.platform
   const nextIdx = d ? d.stops.findIndex((s) => !s.passed) : -1
   return (
-    <div className="screen">
+    <div className={`screen ${className}`}>
       <button data-component="BackButton" className="back-btn" onClick={onBack}>
         <BackIcon />
         {mode === 'departures' ? 'Partenze' : 'Arrivi'}
@@ -146,7 +155,8 @@ function TrainDetailView({ train, mode, alternative, onBack, onPick }: { train: 
           <div className="cancel" style={{ display: 'flex', alignItems: 'center', gap: 10 }}><CancelIcon /><span style={{ fontSize: 17, fontWeight: 700 }}>Treno cancellato</span></div>
           <div style={{ fontSize: 15, lineHeight: '20px' }}>Il treno {train.label} delle {train.time} non circola.</div>
           {alternative && (
-            <button onClick={() => onPick(alternative)} style={{ minHeight: 52, borderRadius: 16, background: 'var(--pl-surface)', display: 'flex', alignItems: 'center', gap: 12, padding: '0 14px', textAlign: 'left' }}>
+            // Riga del banner, non una card dentro il banner (DESIGN.md §6).
+            <button onClick={() => onPick(alternative)} style={{ minHeight: 48, borderTop: '1px solid var(--pl-hair)', display: 'flex', alignItems: 'center', gap: 12, paddingTop: 10, textAlign: 'left' }}>
               <span style={{ fontSize: 13, color: 'var(--pl-text-2)' }}>Alternativa</span>
               <span style={{ flex: 1, fontSize: 15, fontWeight: 600 }}>{alternative.label} delle {alternative.time}</span>
               <span style={{ color: 'var(--pl-text-3)' }}><ChevronIcon /></span>
@@ -175,7 +185,8 @@ function TrainDetailView({ train, mode, alternative, onBack, onPick }: { train: 
         </div>
       </div>
       <SourceBanner state={{ data, error, fromDevice }} />
-      {!d && !error && <div className="card" style={{ padding: '0 16px' }}><Skeleton rows={6} height={52} avatar={22} /></div>}
+      {!d && !error && <div className="card" style={{ padding: '0 16px' }}><Skeleton rows={6} height={52} avatar={22} label="Carico le fermate del treno" slow="Il dettaglio del treno non arriva: ViaggiaTreno e RFI sono lenti o la connessione è assente." /></div>}
+      {!d && error && <div className="card" style={{ padding: '0 16px' }}><ErrorState title="Fermate del treno non disponibili" body={`${error}. Riprovo da solo tra 30 secondi.`} /></div>}
       {d && (
         <div className="card" style={{ padding: '6px 16px' }}>
           {d.partial && <div style={{ fontSize: 13, color: 'var(--pl-text-2)', padding: '8px 0' }}>Dettaglio parziale: solo Parma e le fermate successive.</div>}
@@ -200,7 +211,7 @@ function TrainDetailView({ train, mode, alternative, onBack, onPick }: { train: 
                   />
                   {/* Treno tra l'ultima fermata rilevata e la successiva. */}
                   {i === nextIdx && i > 0 && !cancelled && !d.partial && (
-                    <div aria-label="Posizione del treno" style={{ position: 'absolute', left: -4, top: -15, width: 30, height: 30, borderRadius: '50%', background: 'var(--pl-accent)', border: '3px solid var(--pl-surface)', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                    <div aria-label="Posizione del treno" style={{ position: 'absolute', left: -4, top: -15, width: 30, height: 30, borderRadius: '50%', background: 'var(--pl-accent)', border: '3px solid var(--pl-surface)', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--pl-on-accent)' }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="3" width="14" height="14" rx="4" /><path d="M5 11h14M8.5 21l2-4M15.5 21l-2-4" /></svg>
                     </div>
                   )}
@@ -226,7 +237,7 @@ function BusToStationCard() {
   const data = useStatic((s) => s.data)
   const now = useNow(15_000)
   const [journeys, setJourneys] = useState<Journey[] | null>(null)
-  const here: Place | null = geo.status === 'ok' ? { kind: 'here', name: 'Posizione attuale', lat: geo.lat!, lon: geo.lon! } : null
+  const here = hereOf(geo)
   const hereKey = here ? `${here.lat.toFixed(3)},${here.lon.toFixed(3)}` : null // si ricalcola spostandosi di ~100 m
   useEffect(() => {
     if (!here) return
@@ -239,20 +250,28 @@ function BusToStationCard() {
   }, [hereKey, now])
   const kx = 111_320 * Math.cos((STATION.lat * Math.PI) / 180)
   const nearStation = here && Math.hypot((here.lon - STATION.lon) * kx, (here.lat - STATION.lat) * 110_540) < 400
-  const open = () => {
-    if (!here) return
-    useUi.setState((s) => ({ search: { ...s.search, from: here, to: STATION, view: 'results', selected: 0 }, detent: 'half', tab: 'search' }))
-    void runPlan(here, STATION)
-  }
+  // Risultati sopra i Treni: ← torna qui (UX-AUDIT.md §4).
+  const canOpen = !!here && !nearStation
+  const open = () => here && useUi.getState().startPlan(here, STATION)
   return (
-    <div data-component="BusToStationCard" className="card" style={{ padding: '12px 8px 12px 16px', cursor: here ? 'pointer' : 'default' }} onClick={open}>
+    <div
+      data-component="BusToStationCard"
+      className={`card ${canOpen ? 'pressable' : ''}`}
+      style={{ padding: '12px 8px 12px 16px' }}
+      {...(canOpen && {
+        role: 'button',
+        tabIndex: 0,
+        onClick: open,
+        onKeyDown: (e: React.KeyboardEvent) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), open()),
+      })}
+    >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ fontSize: 17, fontWeight: 600 }}>Bus per la Stazione FS</div>
-        {here && <span style={{ color: 'var(--pl-text-3)', paddingRight: 8 }}><ChevronIcon /></span>}
+        {canOpen && <span style={{ color: 'var(--pl-text-3)', paddingRight: 8 }}><ChevronIcon /></span>}
       </div>
       {!here && <div className="subtle" style={{ fontSize: 14, marginTop: 4 }}>Attiva la posizione per vedere i bus da dove sei.</div>}
       {nearStation && <div className="subtle" style={{ fontSize: 14, marginTop: 4 }}>Sei già vicino alla stazione.</div>}
-      {here && !nearStation && !journeys && <Skeleton rows={1} height={46} avatar={30} />}
+      {here && !nearStation && !journeys && <Skeleton rows={1} height={46} avatar={30} label="Calcolo i bus per la stazione" slow="Il calcolo non arriva: gli orari dei bus non sono ancora scaricati." />}
       {here && !nearStation && journeys?.length === 0 && <div className="subtle" style={{ fontSize: 14, marginTop: 4 }}>Nessun bus utile nelle prossime ore: meglio a piedi.</div>}
       {!nearStation &&
         journeys?.map((j) => {

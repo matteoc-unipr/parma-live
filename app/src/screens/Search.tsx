@@ -1,19 +1,19 @@
-// Tab Cerca: modulo Da/A con autocompletamento (fermate locali, poi indirizzi Photon) e risultati A→B.
+// Ricerca (overlay dalla barra della mappa, o per scegliere Da / A) e sheet dei risultati A→B.
 import { useEffect, useMemo, useState } from 'react'
 import { searchAddresses } from '../data/photon'
 import { subscribeUpdates, useRealtime } from '../data/realtime'
-import { loadStopTimes, useStatic } from '../data/static'
-import { buildBoard, type StopTimes } from '../lib/board'
+import { useStatic, useStopTimes } from '../data/static'
+import { buildBoard } from '../lib/board'
 import { fuzzySearch } from '../lib/fuzzy'
 import { useNow } from '../lib/hooks'
 import { warmPlanner } from '../planner/client'
 import type { Journey, RideLeg } from '../planner/plan'
 import { runPlan, usePlan } from '../planner/state'
-import { sameTrip, useUi, type FavPlace, type Place } from '../store'
+import { hereOf, sameTrip, useUi, type FavPlace, type Place } from '../store'
 import { BottomSheet } from '../ui/BottomSheet'
-import { Countdown, fmtTime, LineBadge, Skeleton } from '../ui/bits'
+import { Countdown, ErrorState, fmtTime, LineBadge, Skeleton } from '../ui/bits'
 import { DepartureRow } from '../ui/DepartureRow'
-import { BackIcon, ChevronIcon, ClockIcon, LiveIcon, LocateIcon, PinIcon } from '../ui/icons'
+import { BackIcon, ChevronIcon, ClockIcon, LiveIcon, LocateIcon, PinIcon, SearchIcon } from '../ui/icons'
 
 type Data = NonNullable<ReturnType<typeof useStatic.getState>['data']>
 
@@ -30,142 +30,185 @@ export const resolvePlace = (data: Data | null, p: FavPlace) => (typeof p === 's
 
 export const rides = (j: Journey) => j.legs.filter((l): l is RideLeg => l.kind === 'ride')
 
-const useHere = (): Place | null => {
-  const geo = useUi((s) => s.geo)
-  return geo.status === 'ok' ? { kind: 'here', name: 'Posizione attuale', lat: geo.lat!, lon: geo.lon! } : null
+const short = (data: Data, routeId: string) => data.routes.get(routeId)?.short ?? routeId
+const byNumber = (data: Data) => (a: string, b: string) => (parseInt(short(data, a)) || 999) - (parseInt(short(data, b)) || 999)
+
+/** Una fermata (una direzione) nei risultati della barra: linee e capolinea, per distinguere i due lati della strada. */
+function stopDetail(data: Data, stopId: string) {
+  const routes = new Set<string>()
+  const heads = new Set<string>()
+  for (const p of data.patterns.values())
+    if (p.stops.includes(stopId) && p.stops.at(-1) !== stopId) {
+      routes.add(p.route)
+      heads.add(p.headsign)
+    }
+  if (!routes.size) return 'Capolinea'
+  const lines = [...routes].sort(byNumber(data)).map((r) => short(data, r))
+  return `verso ${[...heads].slice(0, 2).join(', ')} · ${lines.length > 1 ? 'linee' : 'linea'} ${lines.join(', ')}`
 }
 
-function goResults(from: Place, to: Place) {
-  useUi.setState((s) => ({ search: { ...s.search, from, to, view: 'results', selected: 0 }, detent: 'half' }))
-  void runPlan(from, to)
-}
+/* ---------- Overlay di ricerca ---------- */
+type Hit = { key: string; title: string; detail?: string; icon: React.ReactNode; pick: () => void; accent?: boolean }
 
-/* ---------- Modulo ---------- */
-export function SearchScreen() {
+export function SearchOverlay() {
+  const target = useUi((s) => s.searching)!
   const data = useStatic((s) => s.data)
   const geo = useUi((s) => s.geo)
   const search = useUi((s) => s.search)
-  const here = useHere()
-  const from = search.from ?? here // design: Da = "Posizione attuale" di default
-  const [focus, setFocus] = useState<'from' | 'to' | null>(search.to ? null : 'to')
+  const buses = useRealtime((s) => s.buses)
+  const here = hereOf(geo)
   const [q, setQ] = useState('')
-  const [addresses, setAddresses] = useState<{ q: string; list: Place[] }>({ q: '', list: [] })
+  const [addresses, setAddresses] = useState<{ q: string; list: Place[]; failed: boolean }>({ q: '', list: [], failed: false })
   useEffect(() => warmPlanner(), []) // carica orari e indice mentre si scrive
+  const query = q.trim()
 
-  const stops = useMemo(
-    () => (data && q.trim().length >= 2 ? fuzzySearch([...data.places.keys()], (n) => n, q, 6).map((n) => stopPlace(data, n)!) : []),
-    [q, data],
-  )
-  // Indirizzi: dopo 250 ms senza battiture; la richiesta precedente si annulla.
+  // Indirizzi: dopo 250 ms senza battiture; la richiesta precedente si annulla. Offline lo si dice (UX-AUDIT.md §5).
   useEffect(() => {
-    const query = q.trim()
     if (query.length < 3) return
     const ctrl = new AbortController()
     const timer = setTimeout(() => {
+      if (!navigator.onLine) return setAddresses({ q: query, list: [], failed: true })
       searchAddresses(query, ctrl.signal)
-        .then((list) => setAddresses({ q: query, list }))
-        .catch(() => {}) // offline o annullata: restano solo le fermate
+        .then((list) => setAddresses({ q: query, list, failed: false }))
+        .catch(() => !ctrl.signal.aborted && setAddresses({ q: query, list: [], failed: true }))
     }, 250)
     return () => {
       clearTimeout(timer)
       ctrl.abort()
     }
-  }, [q])
-  const shownAddresses = addresses.q === q.trim() && q.trim().length >= 3 ? addresses.list : []
+  }, [query])
+  const addr = addresses.q === query && query.length >= 3 ? addresses : null
 
-  const pick = (place: Place) => {
-    const next = { from, to: search.to, [focus!]: place }
-    useUi.getState().setSearch({ [focus!]: place })
+  const close = () => useUi.setState({ searching: null })
+  const ui = useUi.getState
+  // Scelta di un luogo come partenza o arrivo; con entrambi, risultati.
+  const place = (p: Place) => {
     setQ('')
-    if (next.from && next.to) {
-      setFocus(null)
-      goResults(next.from, next.to)
-    } else setFocus(next.from ? 'to' : 'from')
+    // Dalla barra della mappa: sempre da dove sei (UX-AUDIT.md §5), non dall'ultimo tragitto.
+    const from = target === 'from' ? p : target === 'map' ? here : (search.from ?? here)
+    const to = target === 'to' || target === 'map' ? p : search.to
+    if (target === 'from') ui().setSearch({ from: p })
+    if (to && from) return ui().startPlan(from, to)
+    if (to) return ui().startPlan(null, to) // senza partenza: chiede Da
+    ui().setSearch({ from: p })
+    useUi.setState({ searching: 'to' })
   }
 
-  const field = (which: 'from' | 'to', label: string, placeholder: string) => {
-    const value = which === 'from' ? from : search.to
-    return (
-      <div className="search-field" onClick={() => setFocus(which)} style={{ cursor: 'text', padding: 0 }}>
-        <div className="place-icon" style={{ width: 32, height: 32, ...(which === 'from' ? { background: 'var(--pl-accent-soft)', color: 'var(--pl-accent)' } : {}) }}>
-          {which === 'from' ? <LocateIcon size={15} /> : <PinIcon />}
-        </div>
-        <div style={{ flex: 1, minWidth: 0, paddingRight: 52 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--pl-text-2)' }}>{label}</div>
-          {focus === which ? (
-            <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cerca una fermata o un indirizzo" aria-label={label} style={{ fontSize: 17, fontWeight: 600, height: 22 }} autoComplete="off" enterKeyHint="search" />
-          ) : (
-            <div style={{ fontSize: 17, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: value ? (value.kind === 'here' ? 'var(--pl-accent)' : undefined) : 'var(--pl-text-3)' }}>
-              {value?.name ?? placeholder}
-            </div>
-          )}
-        </div>
-      </div>
-    )
-  }
+  const hits = useMemo((): { title: string; rows: Hit[] }[] => {
+    if (!data) return []
+    const sections: { title: string; rows: Hit[] }[] = []
+    if (target === 'map' && query) {
+      const lines = [...data.routes.values()].filter((r) => r.short.toLowerCase().startsWith(query.toLowerCase())).sort((a, b) => byNumber(data)(a.id, b.id)).slice(0, 4)
+      if (lines.length)
+        sections.push({
+          title: 'LINEE',
+          rows: lines.map((r) => ({
+            key: `line-${r.id}`,
+            title: `Linea ${r.short}`,
+            detail: buses.some((b) => b.routeId === r.id) ? 'Mostra solo questa linea sulla mappa' : 'Nessun bus di questa linea in servizio ora',
+            icon: <LineBadge route={r} size={32} />,
+            pick: () => {
+              useUi.setState({ filter: [r.id], searching: null })
+            },
+          })),
+        })
+    }
+    if (query.length >= 2) {
+      const names = fuzzySearch([...data.places.keys()], (n) => n, query, 6)
+      const rows: Hit[] =
+        target === 'map'
+          ? names.flatMap((n) =>
+              (data.places.get(n) ?? []).map((id) => ({
+                key: `stop-${id}`,
+                title: n,
+                detail: stopDetail(data, id),
+                icon: <StopDot />,
+                pick: () => {
+                  close()
+                  ui().openSheet({ kind: 'stop', id })
+                },
+              })),
+            )
+          : names.map((n) => {
+              const p = stopPlace(data, n)!
+              return { key: `place-${n}`, title: n, icon: <StopDot />, pick: () => place(p) }
+            })
+      if (rows.length) sections.push({ title: 'FERMATE', rows: rows.slice(0, 8) })
+    }
+    if (addr?.list.length)
+      sections.push({ title: 'INDIRIZZI', rows: addr.list.map((p) => ({ key: `addr-${p.name}-${p.detail}`, title: p.name, detail: p.detail, icon: <PinIcon />, pick: () => place(p) })) })
+    return sections
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- place dipende da target/search/here
+  }, [data, query, addr, target, buses, search, here?.lat, here?.lon])
 
-  const row = (p: Place, icon: React.ReactNode) => (
-    <button key={`${p.kind}-${p.name}-${p.detail ?? ''}`} data-component="PlaceRow" className="place-row" onClick={() => pick(p)}>
-      <div className="place-icon">{icon}</div>
+  const nothing = query.length >= 3 && addr && !addr.failed && !hits.length
+  const title = target === 'map' ? 'Cerca' : target === 'from' ? 'Da dove parti?' : 'Dove vuoi andare?'
+  const placeholder = target === 'map' ? 'Fermata, linea o indirizzo' : 'Fermata o indirizzo'
+  const row = (h: Hit) => (
+    <button key={h.key} data-component="PlaceRow" className="place-row" onClick={h.pick}>
+      <div className="place-icon">{h.icon}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 17, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: p.kind === 'here' ? 'var(--pl-accent)' : undefined }}>{p.name}</div>
-        {p.detail && <div style={{ fontSize: 13, color: 'var(--pl-text-2)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.detail}</div>}
+        <div style={{ fontSize: 17, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: h.accent ? 'var(--pl-accent)' : undefined }}>{h.title}</div>
+        {h.detail && <div style={{ fontSize: 13, color: 'var(--pl-text-2)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{h.detail}</div>}
       </div>
       <span style={{ color: 'var(--pl-text-3)' }}><ChevronIcon /></span>
     </button>
   )
-
+  const other = target === 'from' ? search.to : target === 'to' ? (search.from ?? here) : null
   return (
-    <div className="screen">
+    <div data-component="SearchOverlay" className="screen" style={{ zIndex: 8, paddingBottom: 48 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 44 }}>
-        <div className="large-title">Cerca</div>
-        {focus && (from || search.to) && (
-          <button style={{ fontSize: 17, color: 'var(--pl-accent)', height: 44, padding: '0 4px' }} onClick={() => { setFocus(null); setQ('') }}>
-            Annulla
-          </button>
-        )}
-      </div>
-      <div data-component="SearchFieldGroup" className="card" style={{ position: 'relative', padding: '0 16px' }}>
-        {field('from', 'Da', 'Scegli partenza')}
-        <div style={{ height: 1, background: 'var(--pl-hair)', marginLeft: 46, marginRight: 56 }} />
-        {field('to', 'A', 'Dove vuoi andare?')}
-        <button
-          className="icon-btn"
-          aria-label="Inverti partenza e arrivo"
-          style={{ position: 'absolute', right: 12, top: 40, background: 'var(--pl-fill)' }}
-          onClick={() => useUi.getState().setSearch({ from: search.to, to: from })}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 4v16M4 8l4-4 4 4M16 20V4M12 16l4 4 4-4" /></svg>
+        <h1 className="large-title" style={{ margin: 0, fontSize: target === 'map' ? undefined : 28 }}>{title}</h1>
+        <button className="text-btn" onClick={close}>
+          Annulla
         </button>
       </div>
-      {geo.status === 'denied' && !search.from && (
-        <div data-component="StatusBanner" style={{ display: 'flex', gap: 10, padding: '12px 14px', borderRadius: 18, background: 'var(--pl-late-soft)', fontSize: 14, lineHeight: '19px' }}>
-          <span className="late"><LocateIcon size={18} denied cutColor="var(--pl-late-soft)" /></span>
-          <span>Accesso alla posizione negato. Scegli una partenza, oppure attiva la posizione in Impostazioni › Privacy › Localizzazione.</span>
+      {other && (
+        <div className="subtle" style={{ fontSize: 15, padding: '0 4px' }}>
+          {target === 'from' ? 'Verso' : 'Da'} <b style={{ color: 'var(--pl-text)' }}>{other.name}</b>
         </div>
       )}
-      {focus && (
-        <>
-          {here && !q && <div className="card" style={{ padding: '0 16px' }}>{row(here, <LocateIcon size={16} />)}</div>}
-          {stops.length > 0 && (
-            <>
-              <div className="section-header">FERMATE</div>
-              <div className="card" style={{ padding: '0 16px' }}>{stops.map((p) => row(p, <StopDot />))}</div>
-            </>
-          )}
-          {shownAddresses.length > 0 && (
-            <>
-              <div className="section-header">INDIRIZZI</div>
-              <div className="card" style={{ padding: '0 16px' }}>{shownAddresses.map((p) => row(p, <PinIcon />))}</div>
-            </>
-          )}
-          {q.trim().length >= 3 && !stops.length && !shownAddresses.length && <div className="subtle" style={{ padding: '0 4px' }}>Nessun risultato.</div>}
-        </>
+      <label data-component="SearchField" className="search-field card" style={{ cursor: 'text' }}>
+        <span className="subtle"><SearchIcon size={20} /></span>
+        <input
+          autoFocus
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder={placeholder}
+          aria-label={placeholder}
+          style={{ font: 'var(--pl-type-body)' }}
+          autoComplete="off"
+          autoCorrect="off"
+          enterKeyHint="search"
+        />
+      </label>
+      {target === 'from' && geo.status === 'denied' && (
+        <div data-component="StatusBanner" style={{ display: 'flex', gap: 10, padding: '12px 14px', borderRadius: 18, background: 'var(--pl-late-soft)', fontSize: 14, lineHeight: '19px' }}>
+          <span className="late"><LocateIcon size={18} denied cutColor="var(--pl-late-soft)" /></span>
+          <span>Posizione non disponibile: scegli da dove parti, oppure attiva la posizione in Impostazioni › Privacy › Localizzazione.</span>
+        </div>
       )}
-      {!focus && from && search.to && (
-        <button className="card" style={{ height: 52, fontSize: 17, fontWeight: 600, color: 'var(--pl-accent)' }} onClick={() => goResults(from, search.to!)}>
-          Cerca soluzioni
-        </button>
+      {target !== 'map' && here && !query && (
+        <div className="card" style={{ padding: '0 16px' }}>
+          {row({ key: 'here', title: 'Posizione attuale', icon: <LocateIcon size={16} />, accent: true, pick: () => place(here) })}
+        </div>
+      )}
+      {!query && target === 'map' && (
+        <div className="subtle" style={{ fontSize: 15, lineHeight: '20px', padding: '0 4px' }}>
+          Una fermata apre il suo tabellone, una linea filtra la mappa, un indirizzo ti mostra come arrivarci da dove sei.
+        </div>
+      )}
+      {hits.map((s) => (
+        <div key={s.title} style={{ display: 'contents' }}>
+          <div className="section-header">{s.title}</div>
+          <div className="card" style={{ padding: '0 16px' }}>{s.rows.map(row)}</div>
+        </div>
+      ))}
+      {addr?.failed && <div role="status" className="subtle" style={{ padding: '0 4px', fontSize: 15 }}>Indirizzi non disponibili offline: cerca una fermata.</div>}
+      {nothing && (
+        <div role="status" className="subtle" style={{ padding: '0 4px', fontSize: 15 }}>
+          Nessuna {target === 'map' ? 'fermata, linea' : 'fermata'} o indirizzo per «{query}» in provincia di Parma.
+        </div>
       )}
     </div>
   )
@@ -174,8 +217,8 @@ export function SearchScreen() {
 /** Icona fermata: come il marker sulla mappa. */
 const StopDot = () => <span style={{ width: 14, height: 14, borderRadius: 7, border: '3px solid #8E8E96', background: '#fff' }} />
 
-/* ---------- Risultati ---------- */
-export function ResultsView() {
+/* ---------- Risultati A→B ---------- */
+export function PlanSheet() {
   const { from, to, selected } = useUi((s) => s.search)
   const plan = usePlan()
   const now = useNow(15_000)
@@ -195,24 +238,23 @@ export function ResultsView() {
   }, [key])
   if (!from || !to) return null
   const journeys = plan.result?.journeys ?? []
-  const back = () => useUi.getState().setSearch({ view: 'form' })
-
+  const edit = (which: 'from' | 'to') => useUi.setState({ searching: which })
   // Suggerimento a piedi (design): linea d'aria × 1,25, alla stessa velocità del planner (80 m/min).
   const kx = 111_320 * Math.cos((from.lat * Math.PI) / 180)
   const walkM = Math.hypot((to.lon - from.lon) * kx, (to.lat - from.lat) * 110_540) * 1.25
   const walkMin = Math.round(walkM / 80)
-
   const header = (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 0 10px' }}>
       <div>
         <div style={{ font: 'var(--pl-type-title-3)' }}>
-          {plan.status === 'loading' ? 'Cerco…' : journeys.length ? `${journeys.length} ${journeys.length === 1 ? 'soluzione' : 'soluzioni'}` : 'Nessuna soluzione'}
+          {plan.status === 'loading' ? 'Cerco soluzioni…' : plan.status === 'error' ? 'Percorso non calcolato' : journeys.length ? `${journeys.length} ${journeys.length === 1 ? 'soluzione' : 'soluzioni'}` : 'Nessuna soluzione'}
         </div>
         <div style={{ fontSize: 13, color: 'var(--pl-text-2)' }}>Partenza ora · {fmtTime(now)}</div>
       </div>
       <button
         data-component="StarButton"
         aria-pressed={saved}
+        aria-label={saved ? 'Tragitto salvato nei preferiti: rimuovi' : 'Salva il tragitto nei preferiti'}
         onClick={() => useUi.getState().toggleFavTrip(from, to)}
         style={{ height: 44, padding: '0 14px 0 12px', borderRadius: 22, background: 'var(--pl-fill)', display: 'flex', alignItems: 'center', gap: 6, fontSize: 15, fontWeight: 600, color: saved ? 'var(--pl-star)' : 'var(--pl-text)' }}
       >
@@ -221,55 +263,56 @@ export function ResultsView() {
       </button>
     </div>
   )
-
+  const swap = (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 4v16M4 8l4-4 4 4M16 20V4M12 16l4 4 4-4" /></svg>
+  )
   return (
     <>
-      <div data-component="RouteSummaryBar" className="glass" style={{ position: 'absolute', left: 16, right: 16, top: 'calc(var(--safe-top) + 2px)', height: 60, borderRadius: 30, display: 'flex', alignItems: 'center', gap: 4, padding: '0 8px', zIndex: 3, background: 'var(--pl-glass-strong)' }}>
-        <button data-component="BackButton" className="icon-btn" aria-label="Indietro" onClick={back}><BackIcon /></button>
-        <button onClick={back} style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', color: from.kind === 'here' ? 'var(--pl-accent)' : undefined }}>
-            <span style={{ flex: 'none', width: 8, height: 8, borderRadius: '50%', background: 'var(--pl-accent)' }} />{from.name}
-          </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden' }}>
-            <span style={{ flex: 'none', width: 8, height: 8, borderRadius: 2, background: 'var(--pl-text)' }} />{to.name}
-          </span>
-        </button>
-        <button className="icon-btn" aria-label="Inverti partenza e arrivo" onClick={() => goResults(to, from)}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 4v16M4 8l4-4 4 4M16 20V4M12 16l4 4 4-4" /></svg>
-        </button>
-      </div>
-      <BottomSheet header={header} closable={false}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {plan.status === 'loading' && <div className="card" style={{ padding: '0 16px', background: 'var(--pl-card)' }}><Skeleton rows={3} height={62} avatar={32} /></div>}
-          {plan.status === 'error' && <div className="subtle">Ricerca non riuscita: {plan.error}</div>}
-          {journeys.map((j, i) => (
-            <div key={j.signature}>
-              <RouteResultCard journey={j} now={now} selected={i === selected} onClick={() => useUi.getState().setSearch({ selected: i })} />
-              {i === selected && data && <BoardingBoard journey={j} journeys={journeys} now={now} />}
-            </div>
-          ))}
-          {plan.status === 'done' && !journeys.length && (
-            <>
-              <div data-component="EmptyState" style={{ padding: '4px 8px 6px' }}>
-                <div style={{ fontSize: 17, fontWeight: 600 }}>Nessuna soluzione nelle prossime 3 ore</div>
-                <div style={{ fontSize: 15, lineHeight: '20px', color: 'var(--pl-text-2)', marginTop: 2 }}>Nessuna linea entro 600 m, diretta o con un cambio.</div>
-              </div>
-              <div data-component="WalkSuggestionCard" className="card" style={{ background: 'var(--pl-card)', padding: '14px 14px 14px 16px', display: 'flex', alignItems: 'center', gap: 14, boxShadow: '0 0 0 2px var(--pl-accent)' }}>
-                <div className="empty-icon" style={{ width: 44, height: 44, background: 'var(--pl-accent-soft)', color: 'var(--pl-accent)' }}><WalkIcon /></div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, color: 'var(--pl-text-2)' }}>Suggerimento</div>
-                  <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.01em' }}>A piedi · {walkMin} min</div>
-                  <div style={{ fontSize: 13, color: 'var(--pl-text-2)' }}>{(walkM / 1000).toFixed(1).replace('.', ',')} km · arrivo alle {fmtTime(now + walkMin * 60_000)}</div>
-                </div>
-              </div>
-            </>
-          )}
-          {import.meta.env.DEV && plan.result && (
-            <div style={{ fontSize: 11, color: 'var(--pl-text-3)' }}>
-              calcolo {plan.result.computeMs.toFixed(1)} ms · andata/ritorno worker {plan.result.roundTripMs.toFixed(1)} ms
-            </div>
-          )}
+      <div data-component="RouteSummaryBar" className="glass" style={{ position: 'absolute', left: 16, right: 16, top: 'calc(var(--safe-top) + 2px)', minHeight: 60, borderRadius: 30, display: 'flex', alignItems: 'center', gap: 4, padding: '2px 6px', zIndex: 4 }}>
+        <button data-component="BackButton" className="icon-btn" aria-label="Indietro" onClick={() => useUi.getState().back()}><BackIcon /></button>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+          <button aria-label={`Partenza: ${from.name}. Cambia`} onClick={() => edit('from')} style={{ display: 'flex', alignItems: 'center', gap: 8, minHeight: 44, fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textAlign: 'left', color: from.kind === 'here' ? 'var(--pl-accent)' : undefined }}>
+            <span style={{ flex: 'none', width: 8, height: 8, borderRadius: '50%', background: 'var(--pl-accent)' }} />
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{from.name}</span>
+          </button>
+          <button aria-label={`Arrivo: ${to.name}. Cambia`} onClick={() => edit('to')} style={{ display: 'flex', alignItems: 'center', gap: 8, minHeight: 44, fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textAlign: 'left' }}>
+            <span style={{ flex: 'none', width: 8, height: 8, borderRadius: 2, background: 'var(--pl-text)' }} />
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{to.name}</span>
+          </button>
         </div>
+        <button className="icon-btn" aria-label="Inverti partenza e arrivo" onClick={() => useUi.getState().startPlan(to, from)}>{swap}</button>
+      </div>
+      <BottomSheet header={header}>
+        {plan.status === 'loading' && <Skeleton rows={3} height={62} avatar={32} label="Cerco soluzioni" slow="Il calcolo sta impiegando più del solito: gli orari dei bus si stanno ancora scaricando." />}
+        {plan.status === 'error' && (
+          <ErrorState title="Percorso non calcolato" body="Gli orari dei bus non sono stati scaricati. Controlla la connessione e riprova." onRetry={() => void runPlan(from, to)} />
+        )}
+        {journeys.map((j, i) => (
+          <div key={j.signature} style={{ display: 'contents' }}>
+            <RouteOption journey={j} now={now} selected={i === selected} onClick={() => useUi.getState().setSearch({ selected: i })} />
+            {i === selected && data && <BoardingBoard journey={j} journeys={journeys} now={now} />}
+          </div>
+        ))}
+        {plan.status === 'done' && !journeys.length && (
+          <>
+            <div data-component="EmptyState" style={{ padding: '4px 0 12px' }}>
+              <div style={{ fontSize: 17, fontWeight: 600 }}>Nessun bus nelle prossime 3 ore</div>
+              <div style={{ fontSize: 15, lineHeight: '20px', color: 'var(--pl-text-2)', marginTop: 2 }}>Nessuna linea passa entro 600 m da partenza e arrivo, diretta o con un cambio.</div>
+            </div>
+            <div data-component="WalkSuggestion" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderTop: '1px solid var(--pl-hair)' }}>
+              <div className="empty-icon" style={{ width: 44, height: 44, background: 'var(--pl-accent-soft)', color: 'var(--pl-accent)' }}><WalkIcon /></div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.01em' }}>A piedi · {walkMin} min</div>
+                <div style={{ fontSize: 13, color: 'var(--pl-text-2)' }}>{(walkM / 1000).toFixed(1).replace('.', ',')} km · arrivo alle {fmtTime(now + walkMin * 60_000)}</div>
+              </div>
+            </div>
+          </>
+        )}
+        {import.meta.env.DEV && plan.result && (
+          <div style={{ fontSize: 11, color: 'var(--pl-text-3)' }}>
+            calcolo {plan.result.computeMs.toFixed(1)} ms · andata/ritorno worker {plan.result.roundTripMs.toFixed(1)} ms
+          </div>
+        )}
       </BottomSheet>
     </>
   )
@@ -280,7 +323,7 @@ const WalkIcon = ({ size = 22 }: { size?: number }) => (
 )
 
 /** Passi della soluzione: a piedi N › linea › (a piedi N ›) linea › a piedi N. */
-export function JourneySteps({ journey }: { journey: Journey }) {
+function JourneySteps({ journey }: { journey: Journey }) {
   const data = useStatic((s) => s.data)
   const steps = journey.legs.filter((l) => l.kind === 'ride' || l.seconds >= 30)
   return (
@@ -304,21 +347,18 @@ export function JourneySteps({ journey }: { journey: Journey }) {
   )
 }
 
-function RouteResultCard({ journey: j, now, selected, onClick }: { journey: Journey; now: number; selected: boolean; onClick: () => void }) {
+/** Una soluzione: riga dello sheet, evidenziata se scelta (DESIGN.md §6: niente card dentro lo sheet). */
+function RouteOption({ journey: j, now, selected, onClick }: { journey: Journey; now: number; selected: boolean; onClick: () => void }) {
   const data = useStatic((s) => s.data)
   const [first, second] = rides(j)
   const late = (first!.delaySec ?? 0) >= 60
   const stopName = (id: string) => data?.stops.get(id)?.name ?? id
+  const minutes = Math.round((j.arrive - j.leave) / 60_000)
   return (
-    <button
-      data-component="RouteResultCard"
-      onClick={onClick}
-      aria-pressed={selected}
-      style={{ width: '100%', background: 'var(--pl-card)', borderRadius: 24, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8, textAlign: 'left', boxShadow: selected ? '0 0 0 2px var(--pl-accent)' : 'none', transition: 'box-shadow .3s ease' }}
-    >
+    <button data-component="RouteOption" className="route-option" onClick={onClick} aria-pressed={selected} aria-label={`${minutes} minuti, arrivo ${fmtTime(j.arrive)}, ${second ? `cambio a ${stopName(second.fromStop)}` : 'diretto'}, da ${stopName(first!.fromStop)}`}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%' }}>
         <div style={{ flex: 1, minWidth: 0 }}><JourneySteps journey={j} /></div>
-        <span style={{ fontSize: 26, fontWeight: 700, letterSpacing: '-0.02em' }}>{Math.round((j.arrive - j.leave) / 60_000)}</span>
+        <span style={{ fontSize: 26, fontWeight: 700, letterSpacing: '-0.02em' }}>{minutes}</span>
         <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--pl-text-2)' }}>min</span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 15, color: 'var(--pl-text-2)', whiteSpace: 'nowrap', overflow: 'hidden', height: 24, width: '100%' }}>
@@ -330,27 +370,30 @@ function RouteResultCard({ journey: j, now, selected, onClick }: { journey: Jour
       </div>
       <div style={{ fontSize: 13, color: 'var(--pl-text-2)', display: 'flex', alignItems: 'center', gap: 4 }}>
         {first!.live ? <LiveIcon size={10} /> : <ClockIcon size={12} />}
-        arrivo {fmtTime(j.arrive)} · {second ? `cambio a ${stopName(second.fromStop)}` : 'diretto'}
+        {first!.live ? 'tempo reale' : 'programmato'} · arrivo {fmtTime(j.arrive)} · {second ? `cambio a ${stopName(second.fromStop)}` : 'diretto'}
         {late ? ` · +${Math.round(first!.delaySec! / 60)} min` : ''}
       </div>
     </button>
   )
 }
 
-/** Tabellone della fermata di salita, solo con le linee trovate dalla ricerca. */
+/** Tabellone della fermata di salita, solo con le linee trovate dalla ricerca: sezione dello sheet. */
 function BoardingBoard({ journey, journeys, now }: { journey: Journey; journeys: Journey[]; now: number }) {
   const data = useStatic((s) => s.data)!
   const updates = useRealtime((s) => s.updates)
   const stopId = rides(journey)[0]!.fromStop
-  const [times, setTimes] = useState<StopTimes | null>(null)
-  useEffect(() => void loadStopTimes(stopId).then(setTimes), [stopId])
+  const { times, retry } = useStopTimes(stopId)
   const lines = new Set(journeys.map((j) => rides(j)[0]!.routeId))
-  const rows = times ? buildBoard(stopId, times, updates, now, 40).rows.filter((r) => lines.has(data.patterns.get(r.patternId)?.route ?? '')).slice(0, 4) : null
+  const rows =
+    times && times !== 'error'
+      ? buildBoard(stopId, times, updates, now, 40).rows.filter((r) => lines.has(data.patterns.get(r.patternId)?.route ?? '')).slice(0, 4)
+      : null
   return (
-    <div style={{ padding: '6px 4px 4px' }}>
-      <div className="section-header" style={{ padding: '4px 4px 2px' }}>DA {data.stops.get(stopId)?.name.toUpperCase()}</div>
-      {!rows && <Skeleton rows={2} height={46} avatar={30} />}
-      {rows?.length === 0 && <div className="subtle" style={{ fontSize: 14, padding: '6px 4px' }}>Nessun altro passaggio di queste linee a breve.</div>}
+    <div className="boarding" style={{ padding: '6px 12px 10px' }}>
+      <div className="section-header" style={{ padding: '4px 0 2px' }}>PROSSIMI PASSAGGI DA {data.stops.get(stopId)?.name.toUpperCase()}</div>
+      {times === 'error' && <ErrorState title="Orari della fermata non scaricati" body="Sei offline e questa fermata non è ancora stata aperta." onRetry={retry} />}
+      {times === null && <Skeleton rows={2} height={46} avatar={30} label="Carico i passaggi della fermata di salita" slow="Gli orari della fermata non arrivano: la connessione è lenta o assente." />}
+      {rows?.length === 0 && <div className="subtle" style={{ fontSize: 14, padding: '6px 0' }}>Nessun altro passaggio di queste linee a breve.</div>}
       {rows?.map((row) => {
         const pattern = data.patterns.get(row.patternId)
         return <DepartureRow key={`${row.tripId}-${row.scheduled}`} compact row={row} route={data.routes.get(pattern?.route ?? '')} destination={pattern?.headsign ?? '—'} now={now} />

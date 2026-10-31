@@ -1,7 +1,7 @@
-import { useState, type CSSProperties } from 'react'
-import { lineColor, lineLabel, type Route } from '../data/static'
+import { useEffect, useState, type CSSProperties } from 'react'
+import { lineColor, lineLabel, lineTextColor, type Route } from '../data/static'
 import { useUi } from '../store'
-import { CloseIcon, LocateIcon, StarIcon } from './icons'
+import { AlertIcon, BackIcon, CloseIcon, LocateIcon, StarIcon } from './icons'
 
 // LineBadge: taglie 26/30/32/40/54 → font 12/13/13/16/24.
 const FONT: Record<number, number> = { 26: 12, 28: 13, 30: 13, 32: 13, 36: 15, 40: 16, 54: 24 }
@@ -12,7 +12,7 @@ export function LineBadge({ route, size, style }: { route: Route | undefined; si
     <div
       data-component="LineBadge"
       className="line-badge"
-      style={{ width: size, height: size, background: lineColor(route), color: route?.text ?? '#fff', fontSize: fs, fontWeight: size >= 54 ? 800 : 700, ...style }}
+      style={{ width: size, height: size, background: lineColor(route), color: lineTextColor(route), fontSize: fs, fontWeight: size >= 54 ? 800 : 700, ...style }}
     >
       {label}
     </div>
@@ -33,9 +33,23 @@ export function Countdown({ seconds, size = 24, color, live = true }: { seconds:
   )
 }
 
-export function Skeleton({ rows, height = 62, avatar = 40 }: { rows: number; height?: number; avatar?: number }) {
+const SLOW_MS = 10_000 // DESIGN.md §5: dopo 10 s senza dati lo skeleton lascia il posto a un messaggio
+
+/** Righe segnaposto. `label`: cosa si sta caricando (lettori di schermo); `slow`: cosa dire se dopo 10 s non è arrivato. */
+export function Skeleton({ rows, height = 62, avatar = 40, label, slow }: { rows: number; height?: number; avatar?: number; label: string; slow: string }) {
+  const [late, setLate] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(() => setLate(true), SLOW_MS)
+    return () => clearTimeout(t)
+  }, [])
+  if (late)
+    return (
+      <div data-component="SlowState" role="status" className="subtle" style={{ fontSize: 15, lineHeight: '20px', padding: '12px 0' }}>
+        {slow}
+      </div>
+    )
   return (
-    <div data-component="Skeleton" className="skeleton" aria-busy="true" aria-label="Caricamento">
+    <div data-component="Skeleton" className="skeleton" role="status" aria-busy="true" aria-label={label}>
       {Array.from({ length: rows }, (_, i) => (
         <div key={i} className="row" style={{ height, gridTemplateColumns: `${avatar}px minmax(0,1fr) 48px` }}>
           <div className="bar" style={{ width: avatar, height: avatar, borderRadius: avatar > 30 ? '50%' : 10 }} />
@@ -71,24 +85,63 @@ export function StarButton({ active, onToggle, fill = true }: { active: boolean;
   )
 }
 
-export const CloseButton = ({ onClick }: { onClick: () => void }) => (
-  <button data-component="CloseButton" className="icon-btn fill" aria-label="Chiudi" onClick={onClick}>
+export const CloseButton = ({ onClick, label = 'Chiudi' }: { onClick: () => void; label?: string }) => (
+  <button data-component="CloseButton" className="icon-btn fill" aria-label={label} onClick={onClick}>
     <CloseIcon />
   </button>
 )
+
+export const BackButton = ({ onClick }: { onClick: () => void }) => (
+  <button data-component="BackButton" className="icon-btn fill" aria-label="Indietro" onClick={onClick}>
+    <BackIcon />
+  </button>
+)
+
+/** Errore con cosa è successo, cosa fare e (se serve) l'azione primaria "Riprova". */
+export function ErrorState({ title, body, onRetry }: { title: string; body: string; onRetry?: () => void }) {
+  return (
+    <div data-component="ErrorState" role="alert" className="error-state">
+      <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+        <span className="cancel" style={{ flex: 'none', marginTop: 1 }}><AlertIcon /></span>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ font: 'var(--pl-type-headline)' }}>{title}</div>
+          <div className="subtle" style={{ fontSize: 15, lineHeight: '20px', marginTop: 2 }}>{body}</div>
+        </div>
+      </div>
+      {onRetry && (
+        <button className="btn-primary" onClick={onRetry}>
+          Riprova
+        </button>
+      )}
+    </div>
+  )
+}
 
 export function Toast() {
   const toast = useUi((s) => s.toast)
   if (!toast) return null
   return (
     <div data-component="Toast" className="toast glass" role="status">
-      <div className="empty-icon" style={{ background: 'var(--pl-late-soft)', color: 'var(--pl-late)' }}>
-        <LocateIcon size={18} denied cutColor="var(--pl-late-soft)" />
-      </div>
+      {toast.icon === 'location' && (
+        <div className="empty-icon" style={{ background: 'var(--pl-late-soft)', color: 'var(--pl-late)' }}>
+          <LocateIcon size={18} denied cutColor="var(--pl-late-soft)" />
+        </div>
+      )}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 15, fontWeight: 700 }}>{toast.title}</div>
         <div style={{ fontSize: 13, lineHeight: '18px', color: 'var(--pl-text-2)' }}>{toast.body}</div>
       </div>
+      {toast.action && (
+        <button
+          className="text-btn"
+          onClick={() => {
+            toast.action!.run()
+            useUi.setState({ toast: null })
+          }}
+        >
+          {toast.action.label}
+        </button>
+      )}
       <button className="icon-btn" aria-label="Chiudi" style={{ color: 'var(--pl-text-2)' }} onClick={() => useUi.setState({ toast: null })}>
         <CloseIcon size={14} />
       </button>

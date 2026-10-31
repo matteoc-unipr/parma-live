@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#1F5BE0"/>
+  <rect width="512" height="512" fill="#B0006E"/>
   <!-- Simbolo mappa del design (viewBox 24, stroke 2), centrato al 56% -->
   <g transform="translate(112 112) scale(12)" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round">
     <path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6 9 4ZM9 4v14M15 6v14"/>

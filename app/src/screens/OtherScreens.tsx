@@ -1,37 +1,54 @@
 // Preferiti e Info.
 import { useEffect, useState } from 'react'
 import { subscribeUpdates, useRealtime } from '../data/realtime'
-import { loadStopTimes, useStatic } from '../data/static'
-import { buildBoard, type StopTimes } from '../lib/board'
+import { useStatic, useStopTimes } from '../data/static'
+import { buildBoard } from '../lib/board'
 import { useNow } from '../lib/hooks'
 import { planTrip } from '../planner/client'
-import { runPlan } from '../planner/state'
 import type { Journey } from '../planner/plan'
 import { useUi, type FavPlace } from '../store'
 import { Countdown, fmtTime, LineBadge, Skeleton, StarButton } from '../ui/bits'
 import { DepartureRow } from '../ui/DepartureRow'
-import { BackIcon, ClockIcon, InfoIcon, LiveIcon } from '../ui/icons'
+import { BackIcon, ClockIcon, GearIcon, LiveIcon, StarIcon } from '../ui/icons'
 import { resolvePlace, rides } from './Search'
 
 const TICK = 15_000 // countdown a passi di 15 s
 
+/** Rimozione con "Annulla" (UX-AUDIT.md §5): la stella sulle schede è vicina all'area che le apre. */
+function removeWithUndo(title: string, name: string, remove: () => void) {
+  const { favorites, setFavorites, showToast } = useUi.getState()
+  remove()
+  showToast(title, name, { action: { label: 'Annulla', run: () => setFavorites(favorites) } })
+}
+
 /* ---------- Preferiti ---------- */
-export function FavoritesScreen() {
+export function FavoritesScreen({ className = '' }: { className?: string }) {
   const { stops, trips } = useUi((s) => s.favorites)
   const any = stops.length + trips.length > 0
   useEffect(() => (any ? subscribeUpdates() : undefined), [any])
   const now = useNow(TICK)
   return (
-    <div className="screen" style={{ gap: 10 }}>
+    <div className={`screen ${className}`} style={{ gap: 10 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div className="large-title">Preferiti</div>
-        <button data-component="IconButton" className="icon-btn card" aria-label="Info" onClick={() => useUi.setState({ info: true })}>
-          <InfoIcon />
+        <h1 className="large-title" style={{ margin: 0 }}>Preferiti</h1>
+        <button data-component="IconButton" className="icon-btn" aria-label="Impostazioni e fonti dei dati" onClick={() => useUi.setState({ info: true })}>
+          <GearIcon />
         </button>
       </div>
       {!any && (
-        <div className="card" style={{ padding: '24px 20px', fontSize: 15, color: 'var(--pl-text-2)' }}>
-          Nessun preferito. Tocca la stella su una fermata o su un tragitto per salvarlo qui.
+        <div data-component="EmptyState" className="card" style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+            <div className="empty-icon" style={{ color: 'var(--pl-star)' }}><StarIcon size={20} /></div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ font: 'var(--pl-type-headline)' }}>Nessuna fermata salvata</div>
+              <div className="subtle" style={{ fontSize: 15, lineHeight: '20px', marginTop: 2 }}>
+                Apri una fermata e tocca la stella: qui vedrai i prossimi passaggi appena apri l'app. Anche i tragitti si salvano dai risultati.
+              </div>
+            </div>
+          </div>
+          <button className="btn-primary" onClick={() => useUi.setState({ tab: 'map', searching: 'map', stack: [], sheet: null })}>
+            Cerca una fermata
+          </button>
         </div>
       )}
       {trips.length > 0 && <div className="section-header">TRAGITTI</div>}
@@ -62,21 +79,20 @@ function FavoriteTripCard({ from, to, now }: { from: FavPlace; to: FavPlace; now
   }, [JSON.stringify(A), JSON.stringify(B), now, updatesAt])
   const [first, second] = journeys ?? []
   const firstRides = first ? rides(first) : []
-  const open = () => {
-    if (!A || !B) return
-    useUi.setState((s) => ({ search: { ...s.search, from: A, to: B, view: 'results', selected: 0 }, detent: 'half', tab: 'search' }))
-    void runPlan(A, B)
-  }
+  // Risultati sopra i Preferiti: ← torna qui (UX-AUDIT.md §4).
+  const open = () => A && B && useUi.getState().startPlan(A, B)
+  const name = `${A?.name ?? '?'} → ${B?.name ?? '?'}`
   return (
-    <div data-component="FavoriteTripCard" className="card" style={{ padding: '10px 8px 14px 16px', display: 'flex', flexDirection: 'column', gap: 6, cursor: 'pointer' }} onClick={open}>
+    <div data-component="FavoriteTripCard" className="card tap-card" style={{ padding: '10px 8px 14px 16px', display: 'flex', flexDirection: 'column', gap: 6 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <div style={{ flex: 1, minWidth: 0, fontSize: 17, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {A?.name ?? '?'} → {B?.name ?? '?'}
-        </div>
+        {/* Il pulsante copre tutta la scheda (.card-link::after); la stella sta sopra, non dentro. */}
+        <button className="card-link" onClick={open} aria-label={`Tragitto ${name}: apri le soluzioni`} style={{ flex: 1, minWidth: 0, fontSize: 17, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {name}
+        </button>
         {firstRides.map((r) => <LineBadge key={r.routeId} route={data?.routes.get(r.routeId)} size={26} />)}
-        <StarButton active fill={false} onToggle={() => useUi.getState().toggleFavTrip(from, to)} />
+        <StarButton active fill={false} onToggle={() => removeWithUndo('Tragitto rimosso dai preferiti', name, () => useUi.getState().toggleFavTrip(from, to))} />
       </div>
-      {!journeys && <Skeleton rows={1} height={44} avatar={40} />}
+      {!journeys && <Skeleton rows={1} height={44} avatar={40} label="Calcolo il prossimo bus del tragitto" slow="Il calcolo non arriva: gli orari dei bus non sono ancora scaricati." />}
       {journeys && !first && <div className="subtle" style={{ fontSize: 15 }}>Nessuna soluzione nelle prossime ore</div>}
       {first && (
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, paddingRight: 8 }}>
@@ -102,16 +118,37 @@ function FavoriteTripCard({ from, to, now }: { from: FavPlace; to: FavPlace; now
 function FavoriteStopCard({ id, now }: { id: string; now: number }) {
   const data = useStatic((s) => s.data)
   const updates = useRealtime((s) => s.updates)
-  const [times, setTimes] = useState<StopTimes | null>(null)
-  useEffect(() => void loadStopTimes(id).then(setTimes), [id])
-  const board = times ? buildBoard(id, times, updates, now, 3) : null
+  const { times, retry } = useStopTimes(id)
+  const board = times && times !== 'error' ? buildBoard(id, times, updates, now, 3) : null
+  const name = data?.stops.get(id)?.name ?? id
   return (
-    <div data-component="FavoriteStopCard" className="card" style={{ padding: '2px 8px 4px 16px', cursor: 'pointer' }} onClick={() => useUi.getState().openSheet({ kind: 'stop', id })}>
+    <div
+      data-component="FavoriteStopCard"
+      className="card tap-card"
+      style={{ padding: '2px 8px 4px 16px' }}
+    >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 44 }}>
-        <div style={{ fontSize: 17, fontWeight: 600 }}>{data?.stops.get(id)?.name ?? id}</div>
-        <StarButton active fill={false} onToggle={() => useUi.getState().toggleFavStop(id)} />
+        {/* Tabellone sopra i Preferiti: ✕ torna qui. */}
+        <button className="card-link" onClick={() => useUi.getState().openSheet({ kind: 'stop', id })} aria-label={`${name}: apri il tabellone`} style={{ fontSize: 17, fontWeight: 600, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {name}
+        </button>
+        <StarButton active fill={false} onToggle={() => removeWithUndo('Fermata rimossa dai preferiti', name, () => useUi.getState().toggleFavStop(id))} />
       </div>
-      {!board && <Skeleton rows={3} height={46} avatar={30} />}
+      {times === 'error' && (
+        <div className="fav-row" style={{ gridTemplateColumns: 'minmax(0,1fr) auto', color: 'var(--pl-text-2)', fontSize: 15 }}>
+          Orari non scaricati: sei offline.
+          <button
+            className="text-btn"
+            onClick={retry}
+          >
+            Riprova
+          </button>
+        </div>
+      )}
+      {times === null && <Skeleton rows={3} height={46} avatar={30} label={`Carico i passaggi di ${name}`} slow="Gli orari della fermata non arrivano: la connessione è lenta o assente." />}
+      {board && !board.night && !board.rows.length && (
+        <div className="fav-row" style={{ gridTemplateColumns: '1fr', color: 'var(--pl-text-2)', fontSize: 15 }}>Nessun passaggio nelle prossime ore</div>
+      )}
       {board?.night && board.rows[0] && (
         <div className="fav-row" style={{ gridTemplateColumns: '1fr', color: 'var(--pl-text-2)', fontSize: 15 }}>
           Nessun passaggio fino alle {fmtTime(board.rows[0].scheduled)}
@@ -165,9 +202,9 @@ export function InfoScreen() {
         <BackIcon />
         Indietro
       </button>
-      <div className="large-title">Info</div>
+      <h1 className="large-title" style={{ margin: 0 }}>Impostazioni e info</h1>
       <div className="card" style={{ padding: 16, display: 'flex', alignItems: 'center', gap: 14 }}>
-        <div style={{ flex: 'none', width: 56, height: 56, borderRadius: 16, background: 'var(--pl-accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ flex: 'none', width: 56, height: 56, borderRadius: 16, background: 'var(--pl-accent)', color: 'var(--pl-on-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"><path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6 9 4ZM9 4v14M15 6v14" /></svg>
         </div>
         <div>

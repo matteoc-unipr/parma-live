@@ -22,3 +22,20 @@ test('tema chiaro = tokens.json', () => {
 test.each(['[data-theme="dark"] {', ':root:not([data-theme="light"]) {'])('tema scuro %s = tokens.json', (sel) => {
   expect(block(sel)).toMatchObject(expected(tokens.color.dark))
 })
+
+// Contrasto WCAG 2.1 (DESIGN.md §2): ogni colore usato per testo ≥ 4.5:1 su sfondo e superficie.
+const luminance = (hex: string) => {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4))
+  return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!
+}
+const contrast = (a: string, b: string) => {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x)
+  return (hi! + 0.05) / (lo! + 0.05)
+}
+
+test.each(['light', 'dark'] as const)('contrasti del tema %s', (theme) => {
+  const c = tokens.color[theme]
+  for (const fg of ['text', 'text2', 'text3', 'accent', 'ok', 'late', 'cancel'] as const)
+    for (const bg of ['bg', 'surface'] as const) expect(contrast(c[fg], c[bg]), `${fg} su ${bg}`).toBeGreaterThanOrEqual(4.5)
+  expect(contrast(c.onAccent, c.accent), 'onAccent su accent').toBeGreaterThanOrEqual(4.5)
+})

@@ -49,7 +49,7 @@ Obiettivo: risposta in meno di 300 ms.
 | Dal tocco alle card, CPU 4× sul thread UI | 70 ms | — | 148 ms |
 
 - **Il rallentamento CPU via CDP non sembra valere per il Web Worker**: il p50 del calcolo è identico a 1× e a 4×. Anche con un telefono 10 volte più lento il p95 del calcolo resterebbe sotto i 100 ms.
-- **La tabella orari sta tutta in memoria** (`trips.json` + `offsets.json`, ~72 KB gzip): nessuna rete durante la ricerca. Il worker si scalda appena si apre la tab Cerca.
+- **La tabella orari sta tutta in memoria** (`trips.json` + `offsets.json`, ~72 KB gzip): nessuna rete durante la ricerca. Il worker si scalda appena si apre la ricerca.
 
 # Lighthouse (31/10/2026, build di produzione, profilo mobile)
 

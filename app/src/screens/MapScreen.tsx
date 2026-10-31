@@ -17,6 +17,7 @@ import { useUi } from '../store'
 // MapLibre 6 calcola il nome del worker a runtime: Vite non lo vedrebbe e non lo emetterebbe nel build.
 maplibregl.setWorkerUrl(workerUrl)
 
+const STOPS_MINZOOM = 13.6
 const DEFAULT_CAMERA = { center: [10.324, 44.7975] as [number, number], zoom: 14 }
 const STYLE = (dark: boolean) => `https://tiles.openfreemap.org/styles/${dark ? 'dark' : 'positron'}`
 const css = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim()
@@ -74,7 +75,7 @@ function addLayers(m: maplibregl.Map) {
   m.addLayer({ id: 'route-past', type: 'line', source: 'route', filter: ['==', ['get', 'part'], 'past'],
     layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: { 'line-color': css('--pl-route-past'), 'line-width': 5, 'line-dasharray': [0.2, 1.8] } })
-  // Risultati di Cerca: soluzioni alternative sottili, tratti a piedi a puntini.
+  // Risultati A→B: soluzioni alternative sottili, tratti a piedi a puntini.
   m.addLayer({ id: 'route-alt', type: 'line', source: 'route', filter: ['==', ['get', 'part'], 'alt'],
     layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: { 'line-color': ['get', 'color'], 'line-width': 3, 'line-opacity': 0.35 } })
@@ -88,14 +89,14 @@ function addLayers(m: maplibregl.Map) {
     layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: { 'line-color': ['get', 'color'], 'line-width': 6 } })
   // Fermate visibili da zoom 13.6: cerchio bianco 12, bordo 3 grigio; selezionata 24, bordo 5 accento.
-  m.addLayer({ id: 'stops', type: 'circle', source: 'stops', minzoom: 13.6,
+  m.addLayer({ id: 'stops', type: 'circle', source: 'stops', minzoom: STOPS_MINZOOM,
     paint: { 'circle-radius': 3, 'circle-color': '#fff', 'circle-stroke-width': 3, 'circle-stroke-color': '#8E8E96' } })
   m.addLayer({ id: 'stop-selected', type: 'circle', source: 'stops', filter: ['in', ['get', 'id'], ['literal', selectedStopIds()]],
     paint: { 'circle-radius': 7, 'circle-color': '#fff', 'circle-stroke-width': 5, 'circle-stroke-color': css('--pl-accent') } })
   addBusLayers(m)
 }
 
-/** Fermate evidenziate: quella del tabellone aperto, oppure salita/cambio/discesa della soluzione scelta in Cerca. */
+/** Fermate evidenziate: quella del tabellone aperto, oppure salita/cambio/discesa della soluzione scelta. */
 const selectedStopIds = (): string[] => {
   const { sheet } = useUi.getState()
   if (sheet?.kind === 'stop') return [sheet.id]
@@ -110,9 +111,17 @@ function setLayerData(m: maplibregl.Map, source: 'stops' | 'route', data: Featur
 
 function useStopsLayer(map: React.RefObject<maplibregl.Map | null>, data: ReturnType<typeof useStatic.getState>['data']) {
   const sheet = useUi((s) => s.sheet)
-  const tab = useUi((s) => s.tab)
   const search = useUi((s) => s.search)
   const plan = usePlan((s) => s.result)
+  useEffect(() => {
+    const m = map.current
+    if (!m) return
+    // Sotto zoom 13.6 le fermate non si vedono: la mappa lo suggerisce (MapOverlays).
+    const onZoom = () => useUi.setState({ zoomedOut: m.getZoom() < STOPS_MINZOOM })
+    onZoom()
+    m.on('zoomend', onZoom)
+    return () => void m.off('zoomend', onZoom)
+  }, [map])
   useEffect(() => {
     const m = map.current
     if (!m || !data) return
@@ -148,10 +157,10 @@ function useStopsLayer(map: React.RefObject<maplibregl.Map | null>, data: Return
   useEffect(() => {
     const m = map.current
     if (m?.getLayer('stop-selected')) m.setFilter('stop-selected', ['in', ['get', 'id'], ['literal', selectedStopIds()]])
-  }, [map, sheet, tab, search, plan, data])
+  }, [map, sheet, search, plan, data])
 }
 
-/* ---------- Percorso: bus selezionato, oppure soluzioni di Cerca ---------- */
+/* ---------- Percorso: bus selezionato, oppure soluzioni A→B ---------- */
 type Data = NonNullable<ReturnType<typeof useStatic.getState>['data']>
 
 /** Tratto della shape del pattern tra due fermate (linea retta se la shape non è utilizzabile). */
@@ -176,7 +185,6 @@ function journeyFeatures(data: Data, j: Journey, selected: boolean): Feature[] {
 
 function useSelectedRoute(map: React.RefObject<maplibregl.Map | null>) {
   const sheet = useUi((s) => s.sheet)
-  const tab = useUi((s) => s.tab)
   const search = useUi((s) => s.search)
   const plan = usePlan((s) => s.result)
   const busId = sheet?.kind === 'bus' ? sheet.id : null
@@ -214,7 +222,7 @@ function useSelectedRoute(map: React.RefObject<maplibregl.Map | null>) {
       }
     }
     setLayerData(m, 'route', { type: 'FeatureCollection', features })
-  }, [map, bus, data, tab, search.view, search.selected, plan])
+  }, [map, bus, data, sheet, search.selected, plan])
 }
 
 /* ---------- Posizione utente ---------- */
@@ -264,7 +272,7 @@ function useCameraRules(map: React.RefObject<maplibregl.Map | null>) {
 
   useEffect(() => {
     const m = map.current
-    if (!m || !sheet) return
+    if (!m || !sheet || sheet.kind === 'plan') return // il percorso si inquadra da solo (useSelectedRoute)
     const point = sheet.kind === 'bus' ? busMotion.poseAt(sheet.id, performance.now()) : data?.stops.get(sheet.id)
     if (!point) return
     m.easeTo({ center: [point.lon, point.lat], zoom: Math.max(m.getZoom(), 15), offset: [0, 220 - m.getContainer().clientHeight / 2], duration: 600 })
@@ -281,8 +289,8 @@ function useCameraRules(map: React.RefObject<maplibregl.Map | null>) {
       const bus = busAt(m, e.point.x, e.point.y)
       if (bus) return useUi.getState().openSheet({ kind: 'bus', id: bus })
       if (m.queryRenderedFeatures(e.point, { layers: m.getLayer('stops') ? ['stops'] : [] }).length) return
-      const { sheet, detent, tab, search } = useUi.getState()
-      if ((sheet || (tab === 'search' && search.view === 'results')) && detent !== 'peek') useUi.setState({ detent: 'peek' })
+      const { sheet, detent } = useUi.getState()
+      if (sheet && detent !== 'peek') useUi.setState({ detent: 'peek' })
     }
     m.on('click', onClick)
     return () => void m.off('click', onClick)

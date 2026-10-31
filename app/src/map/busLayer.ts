@@ -4,7 +4,7 @@ import type { Feature, FeatureCollection, Point } from 'geojson'
 import type { ExpressionSpecification, GeoJSONSource, Map as MlMap, PointLike } from 'maplibre-gl'
 import { useEffect, useRef } from 'react'
 import { feedStatus, useRealtime } from '../data/realtime'
-import { lineColor, lineLabel, shapeOf, useStatic } from '../data/static'
+import { lineColor, lineLabel, lineTextColor, shapeOf, useStatic } from '../data/static'
 import { useUi } from '../store'
 import { BusMotion, makePath, type Path } from './motion'
 import { usePlan } from '../planner/state'
@@ -133,7 +133,7 @@ export function useBusLayer(map: React.RefObject<MlMap | null>) {
       const { filter, sheet } = useUi.getState()
       const selected = sheet?.kind === 'bus' ? sheet.id : null
       const status = feedStatus(rt, Date.now())
-      // Risultati di Cerca: solo le linee coinvolte, nel verso giusto; il bus da prendere in grande.
+      // Risultati A→B: solo le linee coinvolte, nel verso giusto; il bus da prendere in grande.
       const focus = planFocus(data.patterns)
       const base = status === 'offline' ? 0.5 : status === 'stale' ? 0.75 : 1
       const features: Feature[] = []
@@ -157,7 +157,7 @@ export function useBusLayer(map: React.RefObject<MlMap | null>) {
           properties: {
             id: bus.id,
             color: lineColor(route),
-            text: route?.text ?? '#FFFFFF',
+            text: lineTextColor(route),
             label: lineLabel(route),
             ...(pose.bearing === null ? {} : { bearing: pose.bearing }),
             sel: isSel ? 1 : 0,
@@ -185,7 +185,8 @@ export function useBusLayer(map: React.RefObject<MlMap | null>) {
       busMotion.update(
         s.buses.map((b) => ({ id: b.id, tripId: b.tripId, lon: b.lon, lat: b.lat, bearing: b.bearing })),
         performance.now(),
-        feedStatus(s, Date.now()) === 'offline' ? 0 : s.feedInterval, // offline: marker fermi
+        // offline: marker fermi; movimento ridotto: il bus salta alla nuova posizione (DESIGN.md §5)
+        feedStatus(s, Date.now()) === 'offline' || matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : s.feedInterval,
         pathOf,
       )
       kick()
@@ -196,7 +197,7 @@ export function useBusLayer(map: React.RefObject<MlMap | null>) {
       else if (s.online !== prev.online || s.failed !== prev.failed) kick()
     })
     const unsubUi = useUi.subscribe((s, prev) => {
-      if (s.filter !== prev.filter || s.sheet !== prev.sheet || s.tab !== prev.tab || s.search !== prev.search) kick()
+      if (s.filter !== prev.filter || s.sheet !== prev.sheet || s.search !== prev.search) kick()
     })
     const unsubPlan = usePlan.subscribe(kick)
     // Dopo un cambio di stile la sorgente è nuova e vuota: ridisegna.

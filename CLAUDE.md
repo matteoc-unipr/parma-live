@@ -15,15 +15,16 @@ PWA personale per i trasporti di Parma (bus TEP in tempo reale, treni alla Stazi
 
 ## App
 - `app/src/data/`: dati statici (`static.ts`), realtime BusOne (`realtime.ts`), treni RFI (`trains.ts`). `lib/board.ts` unisce orari e stime (testato).
-- La mappa resta montata sotto le altre schermate (`.screen` ha z-index 4). Fermate, percorso e bus sono layer GL creati su `style.load`; i dati arrivano con `setData`.
+- Navigazione (`UX-AUDIT.md`): tab Preferiti (avvio se ce n'è uno), Mappa, Treni. Fermata, bus e risultati A→B sono una pila di sheet (`store.ts`: `stack`, `openSheet`/`pushSheet`/`back`) sopra la tab corrente: ← e ✕ tornano lì, niente salti di tab. La ricerca è un overlay (`searching`) aperto dalla barra della mappa o per cambiare Da/A.
+- La mappa resta montata sotto le altre schermate (`.screen` ha z-index 4; sotto uno sheet la schermata della tab resta montata con `.under`). Fermate, percorso e bus sono layer GL creati su `style.load`; i dati arrivano con `setData`.
 - Bus (`map/busLayer.ts`, `map/motion.ts`): sorgente GeoJSON + layer cono/badge/numero, niente DOM per bus. Le posizioni sono interpolate tra due fix lungo la shape della corsa (`BusMotion`) e ripubblicate solo quando un bus si sposta di ½ px: non aumentare la frequenza di `setData`, è il costo principale. Le immagini dei coni nascono da `setMissingStyleImageResolver` (in MapLibre 6 l'evento `styleimagemissing` arriva tardi).
 - Realtime: tick del WebSocket → fetch posizioni; WebSocket giù → polling 10 s; pagina in background → tutto fermo.
 - Misure: `?fps` mostra fps e costo dei bus, `?bench=100` simula 100 bus. Metodo e risultati in `docs/perf.md`.
 - Il worker di MapLibre si passa con `setWorkerUrl` (import `?url`): senza, Vite non lo emette nel build.
 - Lo stesso `trip_id` vale in più giorni di servizio: una trip update si applica solo al giorno del suo `start_date`.
 - Stati realtime di una corsa a una fermata in `stopStatus` (`lib/board.ts`): live, programmato, soppressa (CANCELED), saltata (SKIPPED), già passata (NO_DATA prima della prima stima, o fermata assente). Testati: non duplicare questa logica nei componenti.
-- Cerca (`planner/plan.ts`, nel Web Worker `planner.worker.ts`): fermate entro 600 m da A e da B (80 m/min, in linea d'aria), soluzioni dirette e con 1 cambio (stessa fermata o entro 200 m, ≥ 3 min), orari live dove ci sono, ordinate per arrivo. Un cambio resta solo se arriva prima della migliore diretta. Orari da `trips.json` + `offsets.json` (scarti per fermata, deduplicati). Testato in `plan.test.ts`; tempi in `docs/perf.md`.
-- Autocompletamento: fermate locali con `fuzzySearch` (senza accenti, un errore di battitura), poi indirizzi Photon filtrati su `county === 'Parma'` (`lang=it` non esiste), debounce 250 ms.
+- Percorso A→B (`planner/plan.ts`, nel Web Worker `planner.worker.ts`): fermate entro 600 m da A e da B (80 m/min, in linea d'aria), soluzioni dirette e con 1 cambio (stessa fermata o entro 200 m, ≥ 3 min), orari live dove ci sono, ordinate per arrivo. Un cambio resta solo se arriva prima della migliore diretta. Orari da `trips.json` + `offsets.json` (scarti per fermata, deduplicati). Testato in `plan.test.ts`; tempi in `docs/perf.md`.
+- Ricerca: dalla barra della mappa una fermata (una riga per direzione) apre il tabellone, una linea filtra la mappa, un indirizzo apre i risultati da "Posizione attuale". Fermate locali con `fuzzySearch` (senza accenti, un errore di battitura), poi indirizzi Photon filtrati su `county === 'Parma'` (`lang=it` non esiste), debounce 250 ms; offline lo dice invece di "nessun risultato".
 - Preferiti in `localStorage` `parmaLive.favs.v1` = `{ stops: stopId[], trips: { from, to }[] }` (from/to = `Place`; le stringhe del formato precedente sono nomi di località, ancora letti). Countdown a passi di 15 s.
 
 ## PWA
@@ -34,9 +35,11 @@ PWA personale per i trasporti di Parma (bus TEP in tempo reale, treni alla Stazi
 - Lighthouse: metodo e risultati in `docs/perf.md`.
 
 ## Design
-- Rispettare fedelmente `design/README.md`: token, componenti (`data-component`), layout chiaro/scuro, stati speciali, motion.
-- Colori e misure vengono solo da `app/src/tokens.css` (copia di `design/tokens.css`). Niente valori hardcoded. `tokens.test.ts` verifica che i token restino allineati.
-- I colori linea del design sono segnaposto: usare `route_color` del GTFS dove c'è (vedi `docs/data.md`).
+- Riferimento: `DESIGN.md` (stile, palette con contrasti, tipografia, movimento, anti-pattern) e `UX-AUDIT.md` (architettura). `design/README.md` resta per i componenti (`data-component`) non toccati da questi due.
+- Un solo fucsia pieno per schermata (`.btn-primary`); stati sempre con icona e parola, mai solo colore; niente card dentro sheet o card; vetro solo sui controlli sopra la mappa.
+- Stati: caricamento con `Skeleton` (dopo 10 s diventa un messaggio, `slow`), errori con `ErrorState` (+ Riprova), vuoti con testo che dice cosa fare. Niente testi generici.
+- Colori e misure vengono solo da `app/src/tokens.css` (copia di `design/tokens.css`). Niente valori hardcoded. `tokens.test.ts` verifica che i token restino allineati e che i colori di testo abbiano contrasto ≥ 4.5:1 in entrambi i temi.
+- I colori linea del design sono segnaposto: usare `route_color` del GTFS dove c'è (vedi `docs/data.md`). Il numero sul badge usa `lineTextColor` (bianco o nero, ≥ 4.5:1); il colore di ripiego salta la fascia del fucsia.
 
 ## Fonti dati: regole
 - **Bus**: BusOne Proxy `https://proxy.busone.app/tep` (`gtfs.zip`, `gtfs-rt/*.pb|.json`, `ws`, `status`). Gli ID di corse, linee e fermate sono coerenti tra statico e realtime.

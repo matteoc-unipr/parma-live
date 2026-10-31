@@ -1,4 +1,4 @@
-// Cosa mostrare sulla mappa quando la tab Cerca è sui risultati: linee coinvolte, soluzione scelta, bus da prendere.
+// Cosa mostrare sulla mappa quando lo sheet in cima è quello dei risultati A→B: linee coinvolte, soluzione scelta, bus da prendere.
 import type { Pattern } from '../data/static'
 import type { Journey, RideLeg } from '../planner/plan'
 import { usePlan } from '../planner/state'
@@ -21,9 +21,9 @@ const rides = (j: Journey) => j.legs.filter((l): l is RideLeg => l.kind === 'rid
 export const lineKey = (p: Pick<Pattern, 'route' | 'dir'>) => `${p.route}|${p.dir}`
 
 export function planFocus(patterns: Map<string, Pattern>): PlanFocus | null {
-  const { tab, search } = useUi.getState()
+  const { sheet, search } = useUi.getState()
   const journeys = usePlan.getState().result?.journeys
-  if (tab !== 'search' || search.view !== 'results' || !journeys?.length) return null
+  if (sheet?.kind !== 'plan' || !journeys?.length) return null
   const selected = journeys[Math.min(search.selected, journeys.length - 1)]!
   const keys = (j: Journey) => rides(j).map((r) => lineKey(patterns.get(r.patternId)!))
   return {
