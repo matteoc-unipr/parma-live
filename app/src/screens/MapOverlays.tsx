@@ -6,7 +6,7 @@ import { useStatic } from '../data/static'
 import { useNow } from '../lib/hooks'
 import { useUi } from '../store'
 import { fmtTime, LineBadge } from '../ui/bits'
-import { LocateIcon, MoonIcon, SearchIcon } from '../ui/icons'
+import { InfoIcon, LocateIcon, MoonIcon, SearchIcon } from '../ui/icons'
 
 export function MapOverlays() {
   const now = useNow(1000)
@@ -84,8 +84,9 @@ export function MapOverlays() {
       </div>
       {!sheet && (
         <>
-          <button data-component="MapAttribution" className="map-attribution" onClick={() => useUi.setState({ info: true })}>
-            BusOne (https://busone.app) e TEP · © OpenFreeMap © OpenStreetMap
+          {/* Attribuzioni (OSM/ODbL, BusOne) compatte: l'icona apre Info, dove sono per esteso. */}
+          <button data-component="MapAttribution" className="map-attribution icon-btn glass" aria-label="Fonti dei dati: BusOne e TEP, OpenFreeMap, OpenStreetMap" onClick={() => useUi.setState({ info: true })}>
+            <InfoIcon />
           </button>
           <button
             data-component="LocateButton"

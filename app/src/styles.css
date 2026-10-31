@@ -138,10 +138,7 @@ div.map { position: absolute; inset: 0; z-index: 0; background: var(--pl-map-bg)
 .live-indicator .dot.pulse { animation: plPulse 1.6s ease-out infinite; }
 .live-indicator .tag { font-weight: 700; letter-spacing: 0.04em; white-space: nowrap; }
 .live-indicator .label { color: var(--pl-text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.map-attribution {
-  position: absolute; left: 16px; right: 84px; bottom: 98px; z-index: 3; width: fit-content; min-height: 44px; padding: 3px 10px; border-radius: 12px;
-  background: var(--pl-glass-strong); font-size: 11px; line-height: 14px; font-weight: 500; color: var(--pl-text-2); text-align: left;
-}
+.map-attribution { position: absolute; left: 16px; bottom: 116px; z-index: 3; background: var(--pl-glass-strong); color: var(--pl-text-2); }
 .locate-btn {
   position: absolute; right: 16px; bottom: 112px; width: 52px; height: 52px; border-radius: 26px; z-index: 3;
   display: flex; align-items: center; justify-content: center; color: var(--pl-accent); background: var(--pl-glass-strong);
