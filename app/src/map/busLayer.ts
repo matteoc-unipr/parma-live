@@ -7,6 +7,8 @@ import { feedStatus, useRealtime } from '../data/realtime'
 import { lineColor, lineLabel, useStatic } from '../data/static'
 import { useUi } from '../store'
 import { BusMotion, makePath, type Path } from './motion'
+import { usePlan } from '../planner/state'
+import { lineKey, planFocus } from './planFocus'
 
 const SOURCE = 'buses'
 const css = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim()
@@ -131,6 +133,8 @@ export function useBusLayer(map: React.RefObject<MlMap | null>) {
       const { filter, sheet } = useUi.getState()
       const selected = sheet?.kind === 'bus' ? sheet.id : null
       const status = feedStatus(rt, Date.now())
+      // Risultati di Cerca: solo le linee coinvolte, nel verso giusto; il bus da prendere in grande.
+      const focus = planFocus(data.patterns)
       const base = status === 'offline' ? 0.5 : status === 'stale' ? 0.75 : 1
       const features: Feature[] = []
       const center = m.getCenter()
@@ -138,13 +142,15 @@ export function useBusLayer(map: React.RefObject<MlMap | null>) {
       const halfPxDeg = (0.5 * 360) / (512 * 2 ** m.getZoom()) // ½ px in gradi di longitudine (tile da 512)
       let moved = force
       for (const bus of rt.buses) {
-        if (filter.length && !filter.includes(bus.routeId) && bus.id !== selected) continue
+        const pattern = focus && data.patterns.get(data.tripPattern.get(bus.tripId) ?? '')
+        if (focus && (!pattern || !focus.allowed.has(lineKey(pattern)))) continue
+        if (!focus && filter.length && !filter.includes(bus.routeId) && bus.id !== selected) continue
         const pose = busMotion.poseAt(bus.id, now)
         if (!pose) continue
         const last = published.get(bus.id)
         if (!moved && (!last || Math.hypot((pose.lon - last[0]) * kx, pose.lat - last[1]) >= halfPxDeg * kx)) moved = true
         const route = data.routes.get(bus.routeId)
-        const isSel = bus.id === selected
+        const isSel = focus ? bus.tripId === focus.takeTrip : bus.id === selected
         features.push({
           type: 'Feature',
           geometry: { type: 'Point', coordinates: [pose.lon, pose.lat] },
@@ -156,7 +162,7 @@ export function useBusLayer(map: React.RefObject<MlMap | null>) {
             ...(pose.bearing === null ? {} : { bearing: pose.bearing }),
             sel: isSel ? 1 : 0,
             z: isSel ? 2 : 1,
-            op: selected && !isSel ? 0.22 : base,
+            op: focus ? (focus.highlighted.has(lineKey(pattern!)) ? base : 0.3) : selected && !isSel ? 0.22 : base,
           },
         })
       }
@@ -190,8 +196,9 @@ export function useBusLayer(map: React.RefObject<MlMap | null>) {
       else if (s.online !== prev.online || s.failed !== prev.failed) kick()
     })
     const unsubUi = useUi.subscribe((s, prev) => {
-      if (s.filter !== prev.filter || s.sheet !== prev.sheet) kick()
+      if (s.filter !== prev.filter || s.sheet !== prev.sheet || s.tab !== prev.tab || s.search !== prev.search) kick()
     })
+    const unsubPlan = usePlan.subscribe(kick)
     // Dopo un cambio di stile la sorgente è nuova e vuota: ridisegna.
     m.on('style.load', kick)
     const countUpdate = (e: { sourceId?: string; sourceDataType?: string }) => {
@@ -201,6 +208,7 @@ export function useBusLayer(map: React.RefObject<MlMap | null>) {
     return () => {
       unsubRt()
       unsubUi()
+      unsubPlan()
       m.off('style.load', kick)
       m.off('sourcedata', countUpdate)
       cancelAnimationFrame(raf.current)

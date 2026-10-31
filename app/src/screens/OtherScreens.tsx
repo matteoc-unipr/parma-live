@@ -1,42 +1,19 @@
-// Preferiti, Cerca, Info.
-import { useEffect, useMemo, useState } from 'react'
+// Preferiti e Info.
+import { useEffect, useState } from 'react'
 import { subscribeUpdates, useRealtime } from '../data/realtime'
 import { loadStopTimes, useStatic } from '../data/static'
-import { buildBoard, directJourneys, type Journey, type StopTimes } from '../lib/board'
+import { buildBoard, type StopTimes } from '../lib/board'
 import { useNow } from '../lib/hooks'
-import { useUi } from '../store'
+import { planTrip } from '../planner/client'
+import { runPlan } from '../planner/state'
+import type { Journey } from '../planner/plan'
+import { useUi, type FavPlace } from '../store'
 import { Countdown, fmtTime, LineBadge, Skeleton, StarButton } from '../ui/bits'
 import { DepartureRow } from '../ui/DepartureRow'
-import { BackIcon, ChevronIcon, ClockIcon, InfoIcon, LiveIcon, PinIcon } from '../ui/icons'
+import { BackIcon, ClockIcon, InfoIcon, LiveIcon } from '../ui/icons'
+import { resolvePlace, rides } from './Search'
 
 const TICK = 15_000 // countdown a passi di 15 s
-
-/** Orari di più fermate (on-demand, in cache). null finché non sono arrivati tutti. */
-function useStopTimes(ids: string[]) {
-  const key = ids.join('|')
-  const [state, setState] = useState<{ key: string; times: Map<string, StopTimes> } | null>(null)
-  useEffect(() => {
-    let alive = true
-    const list = key ? key.split('|') : []
-    void Promise.all(list.map(loadStopTimes)).then((all) => {
-      if (alive) setState({ key, times: new Map(list.map((id, i) => [id, all[i]!])) })
-    })
-    return () => void (alive = false)
-  }, [key])
-  return state?.key === key ? state.times : null
-}
-
-/** Prossime corse dirette tra due località (nomi in data.places). */
-function useJourneys(from: string, to: string, limit: number, now: number) {
-  const data = useStatic((s) => s.data)
-  const updates = useRealtime((s) => s.updates)
-  const fromIds = data?.places.get(from) ?? []
-  const toIds = data?.places.get(to) ?? []
-  const fromTimes = useStopTimes(fromIds)
-  const toTimes = useStopTimes(toIds)
-  if (!fromTimes || !toTimes) return null
-  return directJourneys(fromTimes, toTimes, updates, now, limit)
-}
 
 /* ---------- Preferiti ---------- */
 export function FavoritesScreen() {
@@ -58,47 +35,62 @@ export function FavoritesScreen() {
         </div>
       )}
       {trips.length > 0 && <div className="section-header">TRAGITTI</div>}
-      {trips.map((t) => <FavoriteTripCard key={`${t.from}→${t.to}`} from={t.from} to={t.to} now={now} />)}
+      {trips.map((t) => (
+        <FavoriteTripCard key={`${JSON.stringify(t.from)}→${JSON.stringify(t.to)}`} from={t.from} to={t.to} now={now} />
+      ))}
       {stops.length > 0 && <div className="section-header" style={{ paddingTop: 10 }}>FERMATE</div>}
       {stops.map((id) => <FavoriteStopCard key={id} id={id} now={now} />)}
     </div>
   )
 }
 
-function FavoriteTripCard({ from, to, now }: { from: string; to: string; now: number }) {
+function FavoriteTripCard({ from, to, now }: { from: FavPlace; to: FavPlace; now: number }) {
   const data = useStatic((s) => s.data)
-  const journeys = useJourneys(from, to, 3, now)
+  const A = resolvePlace(data, from)
+  const B = resolvePlace(data, to)
+  const updatesAt = useRealtime((s) => s.updatesAt)
+  const [journeys, setJourneys] = useState<Journey[] | null>(null)
+  // Stesso planner della tab Cerca (Web Worker), ricalcolato a ogni passo del countdown e a ogni nuova stima.
+  useEffect(() => {
+    if (!A || !B) return
+    let alive = true
+    planTrip(A, B, 2)
+      .then((r) => alive && setJourneys(r.journeys))
+      .catch(() => alive && setJourneys([]))
+    return () => void (alive = false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- A/B derivano da from/to
+  }, [JSON.stringify(A), JSON.stringify(B), now, updatesAt])
   const [first, second] = journeys ?? []
-  const route = (j: Journey) => data?.routes.get(data.patterns.get(j.patternId)?.route ?? '')
-  const lines = [...new Map((journeys ?? []).map((j) => [route(j)?.id, route(j)])).values()]
+  const firstRides = first ? rides(first) : []
   const open = () => {
-    useUi.getState().setSearch({ from, to })
-    useUi.getState().setTab('search')
+    if (!A || !B) return
+    useUi.setState((s) => ({ search: { ...s.search, from: A, to: B, view: 'results', selected: 0 }, detent: 'half', tab: 'search' }))
+    void runPlan(A, B)
   }
   return (
     <div data-component="FavoriteTripCard" className="card" style={{ padding: '10px 8px 14px 16px', display: 'flex', flexDirection: 'column', gap: 6, cursor: 'pointer' }} onClick={open}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <div style={{ flex: 1, minWidth: 0, fontSize: 17, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {from} → {to}
+          {A?.name ?? '?'} → {B?.name ?? '?'}
         </div>
-        {lines.map((r) => <LineBadge key={r?.id} route={r} size={26} />)}
+        {firstRides.map((r) => <LineBadge key={r.routeId} route={data?.routes.get(r.routeId)} size={26} />)}
         <StarButton active fill={false} onToggle={() => useUi.getState().toggleFavTrip(from, to)} />
       </div>
       {!journeys && <Skeleton rows={1} height={44} avatar={40} />}
-      {journeys && !first && <div className="subtle" style={{ fontSize: 15 }}>Nessuna corsa diretta nelle prossime ore</div>}
+      {journeys && !first && <div className="subtle" style={{ fontSize: 15 }}>Nessuna soluzione nelle prossime ore</div>}
       {first && (
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, paddingRight: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 3, height: 40, overflow: 'hidden', color: first.live ? 'var(--pl-text)' : 'var(--pl-text-2)' }}>
-            <Countdown seconds={Math.max(0, (first.depart - now) / 1000)} size={40} live={first.live} />
-            {first.live ? <LiveIcon size={12} /> : <ClockIcon size={14} />}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 3, height: 40, overflow: 'hidden', color: firstRides[0]!.live ? 'var(--pl-text)' : 'var(--pl-text-2)' }}>
+            <Countdown seconds={Math.max(0, (firstRides[0]!.depart - now) / 1000)} size={40} live={firstRides[0]!.live} />
+            {firstRides[0]!.live ? <LiveIcon size={12} /> : <ClockIcon size={14} />}
           </div>
           <div style={{ flex: 1, minWidth: 0, paddingBottom: 2 }}>
             <div style={{ fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              Linea {route(first)?.short} da {data?.stops.get(first.fromStop)?.name}
+              {firstRides.length > 1 ? 'Linee' : 'Linea'} {firstRides.map((r) => data?.routes.get(r.routeId)?.short).join(' › ')} da {data?.stops.get(firstRides[0]!.fromStop)?.name}
             </div>
             <div style={{ fontSize: 13, color: 'var(--pl-text-2)' }}>
               arrivo {fmtTime(first.arrive)}
-              {second ? ` · poi tra ${Math.max(0, Math.floor((second.depart - now) / 60_000))} min` : ''}
+              {second ? ` · poi tra ${Math.max(0, Math.floor((rides(second)[0]!.depart - now) / 60_000))} min` : ''}
             </div>
           </div>
         </div>
@@ -131,164 +123,6 @@ function FavoriteStopCard({ id, now }: { id: string; now: number }) {
           return <DepartureRow key={`${row.tripId}-${row.scheduled}`} compact row={row} route={data?.routes.get(pattern?.route ?? '')} destination={pattern?.headsign ?? '—'} now={now} />
         })}
     </div>
-  )
-}
-
-/* ---------- Cerca: tragitti diretti tra due località ---------- */
-// shortcut: solo corse dirette (stessa linea), niente cambi né tratti a piedi del planner del design.
-export function SearchScreen() {
-  const data = useStatic((s) => s.data)
-  const { search, setSearch } = useUi()
-  const [focus, setFocus] = useState<'from' | 'to' | null>(search.from && search.to ? null : search.from ? 'to' : 'from')
-  const [q, setQ] = useState('')
-  const suggestions = useMemo(() => {
-    const needle = q.trim().toLowerCase()
-    if (!data || needle.length < 2) return []
-    return [...data.places.keys()].filter((n) => n.toLowerCase().includes(needle)).slice(0, 30)
-  }, [q, data])
-  const pick = (name: string) => {
-    if (!focus) return
-    setSearch({ [focus]: name })
-    setQ('')
-    setFocus(focus === 'from' && !search.to ? 'to' : null)
-  }
-  const field = (which: 'from' | 'to', label: string, placeholder: string) => (
-    <div className="search-field" onClick={() => setFocus(which)} style={{ cursor: 'text', padding: 0 }}>
-      <div className="place-icon" style={{ width: 32, height: 32, ...(which === 'from' ? { background: 'var(--pl-accent-soft)', color: 'var(--pl-accent)' } : {}) }}>
-        <PinIcon />
-      </div>
-      <div style={{ flex: 1, minWidth: 0, paddingRight: 52 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--pl-text-2)' }}>{label}</div>
-        {focus === which ? (
-          <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder={placeholder} aria-label={label} style={{ fontSize: 17, fontWeight: 600, height: 22 }} autoComplete="off" enterKeyHint="search" />
-        ) : (
-          <div style={{ fontSize: 17, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: search[which] ? undefined : 'var(--pl-text-3)' }}>
-            {search[which] ?? placeholder}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-  return (
-    <div className="screen">
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 44 }}>
-        <div className="large-title">Cerca</div>
-        {focus && (search.from || search.to) && (
-          <button style={{ fontSize: 17, color: 'var(--pl-accent)', height: 44, padding: '0 4px' }} onClick={() => (setFocus(null), setQ(''))}>
-            Annulla
-          </button>
-        )}
-      </div>
-      <div data-component="SearchFieldGroup" className="card" style={{ position: 'relative', padding: '0 16px' }}>
-        {field('from', 'Da', 'Scegli partenza')}
-        <div style={{ height: 1, background: 'var(--pl-hair)', marginLeft: 46, marginRight: 56 }} />
-        {field('to', 'A', 'Dove vuoi andare?')}
-        <button
-          className="icon-btn"
-          aria-label="Inverti partenza e arrivo"
-          style={{ position: 'absolute', right: 12, top: 40, background: 'var(--pl-fill)' }}
-          onClick={() => setSearch({ from: search.to, to: search.from })}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 4v16M4 8l4-4 4 4M16 20V4M12 16l4 4 4-4" /></svg>
-        </button>
-      </div>
-      {focus && suggestions.length > 0 && (
-        <div className="card" style={{ padding: '0 16px' }}>
-          {suggestions.map((name) => (
-            <button key={name} data-component="PlaceRow" className="place-row" onClick={() => pick(name)}>
-              <div className="place-icon"><PinIcon /></div>
-              <div style={{ flex: 1, minWidth: 0, fontSize: 17, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
-              <span style={{ color: 'var(--pl-text-3)' }}><ChevronIcon /></span>
-            </button>
-          ))}
-        </div>
-      )}
-      {focus && q.trim().length >= 2 && !suggestions.length && <div className="subtle" style={{ padding: '0 4px' }}>Nessuna fermata trovata.</div>}
-      {!focus && search.from && search.to && <Results from={search.from} to={search.to} />}
-    </div>
-  )
-}
-
-function Results({ from, to }: { from: string; to: string }) {
-  const now = useNow(TICK)
-  const data = useStatic((s) => s.data)
-  useEffect(() => subscribeUpdates(), [])
-  const journeys = useJourneys(from, to, 3, now)
-  const saved = useUi((s) => s.favorites.trips.some((t) => t.from === from && t.to === to))
-  // Suggerimento a piedi (design): linea d'aria × 1,25 a 75 m/min.
-  const a = data?.stops.get(data.places.get(from)?.[0] ?? '')
-  const b = data?.stops.get(data.places.get(to)?.[0] ?? '')
-  const walkM = a && b ? Math.hypot((b.lon - a.lon) * 111_320 * Math.cos((a.lat * Math.PI) / 180), (b.lat - a.lat) * 110_540) * 1.25 : 0
-  const walkMin = Math.round(walkM / 75)
-  return (
-    <>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 0 0 4px' }}>
-        <div>
-          <div style={{ font: 'var(--pl-type-title-3)' }}>
-            {journeys ? (journeys.length ? `${journeys.length} ${journeys.length === 1 ? 'corsa diretta' : 'corse dirette'}` : 'Nessuna corsa diretta') : 'Cerco…'}
-          </div>
-          <div style={{ fontSize: 13, color: 'var(--pl-text-2)' }}>Partenza ora · {fmtTime(now)}</div>
-        </div>
-        <button
-          data-component="StarButton"
-          className="card"
-          aria-pressed={saved}
-          onClick={() => useUi.getState().toggleFavTrip(from, to)}
-          style={{ height: 44, padding: '0 14px 0 12px', borderRadius: 22, display: 'flex', alignItems: 'center', gap: 6, fontSize: 15, fontWeight: 600, color: saved ? 'var(--pl-star)' : 'var(--pl-text)' }}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill={saved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.25 4.1 1 5.8L12 16.9l-5.25 2.7 1-5.8L3.5 9.7l5.9-.9z" /></svg>
-          <span style={{ color: 'var(--pl-text)' }}>{saved ? 'Salvato' : 'Salva'}</span>
-        </button>
-      </div>
-      {!journeys && <div className="card" style={{ padding: '0 16px' }}><Skeleton rows={3} height={62} avatar={32} /></div>}
-      {journeys?.map((j) => {
-        const pattern = data?.patterns.get(j.patternId)
-        const route = data?.routes.get(pattern?.route ?? '')
-        const late = (j.delaySec ?? 0) >= 60
-        const bus = j.live ? useRealtime.getState().buses.find((x) => x.tripId === j.tripId) : undefined
-        return (
-          <button
-            key={`${j.tripId}-${j.depart}`}
-            data-component="RouteResultCard"
-            className="card"
-            style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8, textAlign: 'left' }}
-            onClick={() => useUi.getState().openSheet(bus ? { kind: 'bus', id: bus.id } : { kind: 'stop', id: j.fromStop })}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}>
-              <LineBadge route={route} size={32} />
-              <div style={{ flex: 1, minWidth: 0, fontSize: 15, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pattern?.headsign}</div>
-              <span style={{ fontSize: 26, fontWeight: 700, letterSpacing: '-0.02em' }}>{Math.round((j.arrive - j.depart) / 60_000)}</span>
-              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--pl-text-2)' }}>min</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 15, color: 'var(--pl-text-2)', whiteSpace: 'nowrap', overflow: 'hidden', height: 24 }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontWeight: 700, color: j.live ? (late ? 'var(--pl-late)' : 'var(--pl-ok)') : 'var(--pl-text-2)' }}>
-                <span>tra</span>
-                <Countdown seconds={Math.max(0, (j.depart - now) / 1000)} size={15} live={j.live} />
-              </span>
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>da {data?.stops.get(j.fromStop)?.name}</span>
-            </div>
-            <div style={{ fontSize: 13, color: 'var(--pl-text-2)', display: 'flex', alignItems: 'center', gap: 4 }}>
-              {j.live ? <LiveIcon size={10} /> : <ClockIcon size={12} />}
-              arrivo {fmtTime(j.arrive)} · {j.live ? (late ? `+${Math.round(j.delaySec! / 60)} min` : 'in orario') : 'orario programmato'}
-            </div>
-          </button>
-        )
-      })}
-      {journeys && !journeys.length && walkMin > 0 && (
-        <div data-component="WalkSuggestionCard" className="card" style={{ padding: '14px 14px 14px 16px', display: 'flex', alignItems: 'center', gap: 14, boxShadow: '0 0 0 2px var(--pl-accent)' }}>
-          <div className="empty-icon" style={{ width: 44, height: 44, background: 'var(--pl-accent-soft)', color: 'var(--pl-accent)' }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="13" cy="4.5" r="2" fill="currentColor" /><path d="M9.5 21l2.5-7-3-3 1.5-4 3.5 3 3 1M12 14l3 3 1 4M9 11l-2.5 3" /></svg>
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13, color: 'var(--pl-text-2)' }}>Suggerimento</div>
-            <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.01em' }}>A piedi · {walkMin} min</div>
-            <div style={{ fontSize: 13, color: 'var(--pl-text-2)' }}>
-              {(walkM / 1000).toFixed(1).replace('.', ',')} km · arrivo alle {fmtTime(now + walkMin * 60_000)}
-            </div>
-          </div>
-        </div>
-      )}
-    </>
   )
 }
 

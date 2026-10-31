@@ -22,8 +22,9 @@ PWA personale per i trasporti di Parma (bus TEP in tempo reale, treni alla Stazi
 - Il worker di MapLibre si passa con `setWorkerUrl` (import `?url`): senza, Vite non lo emette nel build.
 - Lo stesso `trip_id` vale in più giorni di servizio: una trip update si applica solo al giorno del suo `start_date`.
 - Stati realtime di una corsa a una fermata in `stopStatus` (`lib/board.ts`): live, programmato, soppressa (CANCELED), saltata (SKIPPED), già passata (NO_DATA prima della prima stima, o fermata assente). Testati: non duplicare questa logica nei componenti.
-- Tragitti = corse dirette tra due "località" (fermate con lo stesso nome, `data.places`): `directJourneys`. Niente cambi né tratti a piedi. Le righe `stop-times` con flag `1` (solo arrivo) servono a calcolare l'arrivo al capolinea.
-- Preferiti in `localStorage` `parmaLive.favs.v1` = `{ stops: stopId[], trips: { from, to }[] }` (from/to = nomi di località). Countdown a passi di 15 s.
+- Cerca (`planner/plan.ts`, nel Web Worker `planner.worker.ts`): fermate entro 600 m da A e da B (80 m/min, in linea d'aria), soluzioni dirette e con 1 cambio (stessa fermata o entro 200 m, ≥ 3 min), orari live dove ci sono, ordinate per arrivo. Un cambio resta solo se arriva prima della migliore diretta. Orari da `trips.json` + `offsets.json` (scarti per fermata, deduplicati). Testato in `plan.test.ts`; tempi in `docs/perf.md`.
+- Autocompletamento: fermate locali con `fuzzySearch` (senza accenti, un errore di battitura), poi indirizzi Photon filtrati su `county === 'Parma'` (`lang=it` non esiste), debounce 250 ms.
+- Preferiti in `localStorage` `parmaLive.favs.v1` = `{ stops: stopId[], trips: { from, to }[] }` (from/to = `Place`; le stringhe del formato precedente sono nomi di località, ancora letti). Countdown a passi di 15 s.
 
 ## Design
 - Rispettare fedelmente `design/README.md`: token, componenti (`data-component`), layout chiaro/scuro, stati speciali, motion.

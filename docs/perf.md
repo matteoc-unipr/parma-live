@@ -26,3 +26,27 @@ Il JS dei bus costa 0,1–0,2 ms per frame (p95 ≤ 1,1 ms a 6×). Il costo vero
 ## Limiti
 - **Non è un iPhone.** Il rallentamento CPU 4–6× riguarda solo la CPU, non la GPU né la memoria. Va confermato sul dispositivo con `?bench=100&fps`.
 - **Il fix iniziale non si anima**: serve un secondo aggiornamento (circa 30 s) prima che il movimento parta.
+
+# Prestazioni della ricerca A→B
+
+Obiettivo: risposta in meno di 300 ms.
+
+## Come misurare
+- **Planner (Web Worker)**: apri `?fps` e lancia `await __planBench(200)` in console. Esegue 200 ricerche tra punti casuali in città (fermate del comune spostate fino a circa 300 m), attraverso il worker vero. Restituisce:
+  - il tempo di calcolo nel worker;
+  - l'andata/ritorno dal thread della UI;
+  - l'avvio a freddo, cioè il caricamento di orari e indice.
+- **End-to-end**: con Playwright sul build di produzione, si misura dal tocco sul suggerimento alla comparsa della prima card risultato (rendering React e mappa compresi).
+
+## Risultati (31/10/2026, mattina, MacBook M4, build di produzione)
+
+| Misura | p50 | p95 | max |
+|---|---|---|---|
+| Calcolo nel worker (200 ricerche, tutte con risultati) | 0,8 ms | 7,9 ms | 19 ms |
+| Andata/ritorno worker | 0,9 ms | 8 ms | 19 ms |
+| Avvio a freddo del worker (orari + indice) | — | — | 40–60 ms |
+| Dal tocco alle card, CPU 1× (8 ricerche) | 66 ms | — | 110 ms |
+| Dal tocco alle card, CPU 4× sul thread UI | 70 ms | — | 148 ms |
+
+- **Il rallentamento CPU via CDP non sembra valere per il Web Worker**: il p50 del calcolo è identico a 1× e a 4×. Anche con un telefono 10 volte più lento il p95 del calcolo resterebbe sotto i 100 ms.
+- **La tabella orari sta tutta in memoria** (`trips.json` + `offsets.json`, ~72 KB gzip): nessuna rete durante la ricerca. Il worker si scalda appena si apre la tab Cerca.

@@ -3,7 +3,14 @@ import { create } from 'zustand'
 export type Tab = 'map' | 'search' | 'train' | 'fav'
 export type Sheet = { kind: 'bus'; id: string } | { kind: 'stop'; id: string } | null
 export type Detent = 'full' | 'half' | 'peek'
-export type Favorites = { stops: string[]; trips: { from: string; to: string }[] }
+/** Un punto scelto in Cerca: la posizione attuale, una fermata (località) o un indirizzo (Photon). */
+export type Place = { name: string; lat: number; lon: number; kind: 'here' | 'stop' | 'address'; detail?: string }
+/** Tragitti: Place; le stringhe sono il formato precedente (nome di località), ancora letto. */
+export type FavPlace = Place | string
+export type Favorites = { stops: string[]; trips: { from: FavPlace; to: FavPlace }[] }
+const placeKey = (p: FavPlace) => (typeof p === 'string' ? p : `${p.name}@${p.lat.toFixed(4)},${p.lon.toFixed(4)}`)
+export const sameTrip = (t: { from: FavPlace; to: FavPlace }, from: FavPlace, to: FavPlace) =>
+  placeKey(t.from) === placeKey(from) && placeKey(t.to) === placeKey(to)
 export type GeoState = { status: 'unknown' | 'ok' | 'denied'; lat?: number; lon?: number }
 
 const FAVS_KEY = 'parmaLive.favs.v1'
@@ -27,7 +34,7 @@ type Ui = {
   toast: { title: string; body: string } | null
   geo: GeoState
   /** Cerca: località di partenza e arrivo (nomi in data.places) */
-  search: { from: string | null; to: string | null }
+  search: { from: Place | null; to: Place | null; view: 'form' | 'results'; selected: number }
   /** tema chiaro anche quando il sistema è scuro */
   lightAlways: boolean
   /** incrementato per chiedere alla mappa di centrarsi sull'utente */
@@ -37,7 +44,7 @@ type Ui = {
   toggleLine: (routeId: string) => void
   clearFilter: () => void
   toggleFavStop: (stopId: string) => void
-  toggleFavTrip: (from: string, to: string) => void
+  toggleFavTrip: (from: FavPlace, to: FavPlace) => void
   setSearch: (search: Partial<Ui['search']>) => void
   setLightAlways: (on: boolean) => void
   showToast: (title: string, body: string) => void
@@ -77,7 +84,7 @@ export const useUi = create<Ui>((set, get) => ({
   info: false,
   toast: null,
   geo: { status: 'unknown' },
-  search: { from: null, to: null },
+  search: { from: null, to: null, view: 'form', selected: 0 },
   lightAlways: readLightAlways(),
   locateTick: 0,
   setTab: (tab) => set({ tab, sheet: null }),
@@ -91,8 +98,8 @@ export const useUi = create<Ui>((set, get) => ({
   },
   toggleFavTrip: (from, to) => {
     const { favorites } = get()
-    const has = favorites.trips.some((t) => t.from === from && t.to === to)
-    const trips = has ? favorites.trips.filter((t) => t.from !== from || t.to !== to) : [...favorites.trips, { from, to }]
+    const has = favorites.trips.some((t) => sameTrip(t, from, to))
+    const trips = has ? favorites.trips.filter((t) => !sameTrip(t, from, to)) : [...favorites.trips, { from, to }]
     saveFavs(set, { ...favorites, trips })
   },
   setSearch: (search) => set((s) => ({ search: { ...s.search, ...search } })),

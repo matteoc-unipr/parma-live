@@ -4,14 +4,17 @@ import { loadStatic, useStatic } from './data/static'
 import { useNow } from './lib/hooks'
 import { useUi, type Tab } from './store'
 import { MapScreen } from './screens/MapScreen'
-import { FavoritesScreen, InfoScreen, SearchScreen } from './screens/OtherScreens'
+import { FavoritesScreen, InfoScreen } from './screens/OtherScreens'
+import { ResultsView, SearchScreen } from './screens/Search'
 import { MapSheet } from './screens/Sheets'
 import { TrainsScreen } from './screens/TrainsScreen'
 import { FpsMeter } from './dev/FpsMeter'
+import { installPlanBench } from './dev/planBench'
 import { fmtTime, Toast } from './ui/bits'
 import { MapIcon, SearchIcon, StarIcon, TrainIcon } from './ui/icons'
 
 const SHOW_FPS = new URLSearchParams(location.search).has('fps')
+if (SHOW_FPS) installPlanBench()
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'map', label: 'Mappa', icon: <MapIcon /> },
@@ -22,6 +25,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
 
 export function App() {
   const { tab, sheet, info, setTab } = useUi()
+  const results = useUi((s) => s.tab === 'search' && s.search.view === 'results')
   const staticError = useStatic((s) => s.error)
 
   useEffect(() => {
@@ -34,11 +38,11 @@ export function App() {
       {/* La mappa resta montata: le altre schermate hanno uno sfondo pieno e la coprono. */}
       <MapScreen />
       {tab === 'map' && <MapSheet />}
-      {tab === 'search' && <SearchScreen />}
+      {tab === 'search' && (results ? <ResultsView /> : <SearchScreen />)}
       {tab === 'train' && <TrainsScreen />}
       {tab === 'fav' && <FavoritesScreen />}
       {info && <InfoScreen />}
-      {tab !== 'map' && <FeedBanner />}
+      {tab !== 'map' && !results && <FeedBanner />}
       {staticError && (
         <div data-component="StatusBanner" className="status-pill glass cancel" style={{ bottom: 'auto', top: 'calc(var(--safe-top) + 120px)' }}>
           <i />
@@ -47,7 +51,7 @@ export function App() {
       )}
       <Toast />
       {SHOW_FPS && <FpsMeter />}
-      {!sheet && !info && (
+      {!sheet && !info && !results && (
         <nav data-component="TabBar" className="tab-bar glass">
           {TABS.map((t) => (
             <button key={t.id} data-component="TabBarItem" className={tab === t.id ? 'on' : ''} aria-current={tab === t.id ? 'page' : undefined} onClick={() => setTab(t.id)}>

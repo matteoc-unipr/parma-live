@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { buildBoard, directJourneys, serviceDayStart, stopStatus, type StopTimes, type StopUpdate, type TripUpdate } from './board'
+import { buildBoard, serviceDayStart, stopStatus, type StopTimes, type StopUpdate, type TripUpdate } from './board'
 
 process.env.TZ = 'Europe/Rome'
 const at = (iso: string) => new Date(iso).getTime()
@@ -90,34 +90,5 @@ describe('buildBoard', () => {
     const { rows, night: isNight } = buildBoard('S', { '20261031': [[sec('05:42'), 'PRIMA', 'p'], [sec('06:10'), 'SECONDA', 'p']] }, new Map(), night)
     expect(isNight).toBe(true)
     expect(rows.map((r) => r.tripId)).toEqual(['PRIMA', 'SECONDA'])
-  })
-})
-
-describe('directJourneys', () => {
-  // A → B: T1 (19:05→19:15), T2 (19:20→19:30, capolinea: solo arrivo), T3 va al contrario (B prima di A), T4 soppressa.
-  const from = new Map<string, StopTimes>([
-    ['A1', { '20261030': [[sec('19:05'), 'T1', 'p'], [sec('19:20'), 'T2', 'p'], [sec('19:25'), 'T3', 'q'], [sec('19:30'), 'T4', 'p']] }],
-  ])
-  const to = new Map<string, StopTimes>([
-    ['B1', { '20261030': [[sec('19:15'), 'T1', 'p'], [sec('19:30'), 'T2', 'p', 1], [sec('19:10'), 'T3', 'q'], [sec('19:40'), 'T4', 'p']] }],
-  ])
-
-  test('solo corse che vanno da A a B, anche fino al capolinea; soppresse escluse', () => {
-    const j = directJourneys(from, to, map(tu('T4', [], true)), now, 5)
-    expect(j.map((x) => x.tripId)).toEqual(['T1', 'T2'])
-    expect(j[1]).toMatchObject({ fromStop: 'A1', toStop: 'B1', live: false, arrive: at('2026-10-30T19:30:00+01:00') })
-  })
-
-  test('stime live: partenza stimata, arrivo stimato o programmato + ritardo', () => {
-    const j = directJourneys(from, to, map(tu('T1', [stu('A1', 2, inMin(8), 180)])), now, 1)[0]!
-    expect(j).toMatchObject({ live: true, depart: now + 8 * 60_000, delaySec: 180 })
-    expect(j.arrive).toBe(at('2026-10-30T19:15:00+01:00') + 180_000)
-  })
-
-  test('partenza già avvenuta o fermata d’arrivo saltata: esclusa', () => {
-    const later = at('2026-10-30T19:10:00+01:00')
-    expect(directJourneys(from, to, new Map(), later, 5).map((x) => x.tripId)).toEqual(['T2', 'T4'])
-    const skip = map(tu('T1', [stu('A1', 2, inMin(5)), stu('B1', 5, null, null, 'SKIPPED')]))
-    expect(directJourneys(from, to, skip, now, 5).map((x) => x.tripId)).not.toContain('T1')
   })
 })

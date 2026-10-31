@@ -1,4 +1,4 @@
-import type { Feature, FeatureCollection } from 'geojson'
+import type { Feature, FeatureCollection, LineString } from 'geojson'
 import * as maplibregl from 'maplibre-gl'
 import type { GeoJSONSource } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
@@ -8,6 +8,9 @@ import { feedStatus, useRealtime } from '../data/realtime'
 import { lineColor, useStatic } from '../data/static'
 import { nearestIndex } from '../lib/geo'
 import { addBusLayers, busAt, busMotion, onMissingImage, useBusLayer } from '../map/busLayer'
+import { planFocus } from '../map/planFocus'
+import type { Journey, RideLeg } from '../planner/plan'
+import { usePlan } from '../planner/state'
 import { isDark, useDarkMode, useNow } from '../lib/hooks'
 import { useUi } from '../store'
 import { fmtTime, LineBadge } from '../ui/bits'
@@ -79,6 +82,13 @@ function addLayers(m: maplibregl.Map) {
   m.addLayer({ id: 'route-past', type: 'line', source: 'route', filter: ['==', ['get', 'part'], 'past'],
     layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: { 'line-color': css('--pl-route-past'), 'line-width': 5, 'line-dasharray': [0.2, 1.8] } })
+  // Risultati di Cerca: soluzioni alternative sottili, tratti a piedi a puntini.
+  m.addLayer({ id: 'route-alt', type: 'line', source: 'route', filter: ['==', ['get', 'part'], 'alt'],
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: { 'line-color': ['get', 'color'], 'line-width': 3, 'line-opacity': 0.35 } })
+  m.addLayer({ id: 'route-walk', type: 'line', source: 'route', filter: ['==', ['get', 'part'], 'walk'],
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: { 'line-color': css('--pl-text-2'), 'line-width': 4, 'line-dasharray': [0.1, 2] } })
   m.addLayer({ id: 'route-casing', type: 'line', source: 'route', filter: ['==', ['get', 'part'], 'next'],
     layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: { 'line-color': dark ? '#000' : '#fff', 'line-width': 10, 'line-opacity': dark ? 0.55 : 1 } })
@@ -88,14 +98,17 @@ function addLayers(m: maplibregl.Map) {
   // Fermate visibili da zoom 13.6: cerchio bianco 12, bordo 3 grigio; selezionata 24, bordo 5 accento.
   m.addLayer({ id: 'stops', type: 'circle', source: 'stops', minzoom: 13.6,
     paint: { 'circle-radius': 3, 'circle-color': '#fff', 'circle-stroke-width': 3, 'circle-stroke-color': '#8E8E96' } })
-  m.addLayer({ id: 'stop-selected', type: 'circle', source: 'stops', filter: ['==', ['get', 'id'], selectedStopId()],
+  m.addLayer({ id: 'stop-selected', type: 'circle', source: 'stops', filter: ['in', ['get', 'id'], ['literal', selectedStopIds()]],
     paint: { 'circle-radius': 7, 'circle-color': '#fff', 'circle-stroke-width': 5, 'circle-stroke-color': css('--pl-accent') } })
   addBusLayers(m)
 }
 
-const selectedStopId = () => {
+/** Fermate evidenziate: quella del tabellone aperto, oppure salita/cambio/discesa della soluzione scelta in Cerca. */
+const selectedStopIds = (): string[] => {
   const { sheet } = useUi.getState()
-  return sheet?.kind === 'stop' ? sheet.id : ''
+  if (sheet?.kind === 'stop') return [sheet.id]
+  const data = useStatic.getState().data
+  return (data && planFocus(data.patterns)?.stops) || []
 }
 
 function setLayerData(m: maplibregl.Map, source: 'stops' | 'route', data: FeatureCollection) {
@@ -105,7 +118,9 @@ function setLayerData(m: maplibregl.Map, source: 'stops' | 'route', data: Featur
 
 function useStopsLayer(map: React.RefObject<maplibregl.Map | null>, data: ReturnType<typeof useStatic.getState>['data']) {
   const sheet = useUi((s) => s.sheet)
-  const selectedStop = sheet?.kind === 'stop' ? sheet.id : ''
+  const tab = useUi((s) => s.tab)
+  const search = useUi((s) => s.search)
+  const plan = usePlan((s) => s.result)
   useEffect(() => {
     const m = map.current
     if (!m || !data) return
@@ -140,13 +155,38 @@ function useStopsLayer(map: React.RefObject<maplibregl.Map | null>, data: Return
 
   useEffect(() => {
     const m = map.current
-    if (m?.getLayer('stop-selected')) m.setFilter('stop-selected', ['==', ['get', 'id'], selectedStop])
-  }, [map, selectedStop])
+    if (m?.getLayer('stop-selected')) m.setFilter('stop-selected', ['in', ['get', 'id'], ['literal', selectedStopIds()]])
+  }, [map, sheet, tab, search, plan, data])
 }
 
-/* ---------- Percorso del bus selezionato ---------- */
+/* ---------- Percorso: bus selezionato, oppure soluzioni di Cerca ---------- */
+type Data = NonNullable<ReturnType<typeof useStatic.getState>['data']>
+
+/** Tratto della shape del pattern tra due fermate (linea retta se la shape non è utilizzabile). */
+function rideCoords(data: Data, r: RideLeg): [number, number][] {
+  const a = data.stops.get(r.fromStop)!
+  const b = data.stops.get(r.toStop)!
+  const line = data.shapes[data.patterns.get(r.patternId)?.shape ?? '']
+  const i = line ? nearestIndex(line, a.lon, a.lat) : -1
+  const j = line ? nearestIndex(line, b.lon, b.lat) : -1
+  if (!line || j <= i) return [[a.lon, a.lat], [b.lon, b.lat]]
+  return [[a.lon, a.lat], ...line.slice(i + 1, j), [b.lon, b.lat]]
+}
+
+function journeyFeatures(data: Data, j: Journey, selected: boolean): Feature[] {
+  return j.legs.flatMap((l): Feature[] => {
+    if (l.kind === 'walk')
+      return selected ? [{ type: 'Feature', properties: { part: 'walk' }, geometry: { type: 'LineString', coordinates: [[l.from.lon, l.from.lat], [l.to.lon, l.to.lat]] } }] : []
+    const color = lineColor(data.routes.get(l.routeId))
+    return [{ type: 'Feature', properties: { part: selected ? 'next' : 'alt', color }, geometry: { type: 'LineString', coordinates: rideCoords(data, l) } }]
+  })
+}
+
 function useSelectedRoute(map: React.RefObject<maplibregl.Map | null>) {
   const sheet = useUi((s) => s.sheet)
+  const tab = useUi((s) => s.tab)
+  const search = useUi((s) => s.search)
+  const plan = usePlan((s) => s.result)
   const busId = sheet?.kind === 'bus' ? sheet.id : null
   const bus = useRealtime((s) => s.buses.find((b) => b.id === busId))
   const data = useStatic((s) => s.data)
@@ -154,18 +194,35 @@ function useSelectedRoute(map: React.RefObject<maplibregl.Map | null>) {
     const m = map.current
     if (!m) return
     const features: Feature[] = []
-    const pattern = bus && data?.patterns.get(data.tripPattern.get(bus.tripId) ?? '')
-    const line = pattern && data?.shapes[pattern.shape]
-    if (bus && pattern && line) {
-      const i = nearestIndex(line, bus.lon, bus.lat)
-      const color = lineColor(data.routes.get(pattern.route))
-      features.push(
-        { type: 'Feature', properties: { part: 'past' }, geometry: { type: 'LineString', coordinates: line.slice(0, i + 1) } },
-        { type: 'Feature', properties: { part: 'next', color }, geometry: { type: 'LineString', coordinates: [[bus.lon, bus.lat], ...line.slice(i + 1)] } },
-      )
+    const focus = data && planFocus(data.patterns)
+    if (data && focus) {
+      // Alternative sotto, soluzione scelta sopra.
+      for (const j of focus.journeys) if (j !== focus.selected) features.push(...journeyFeatures(data, j, false))
+      features.push(...journeyFeatures(data, focus.selected, true))
+      // Inquadratura del design: il percorso nel riquadro x 40–350, y 150–370.
+      const coords = features.filter((f) => f.properties!.part !== 'alt').flatMap((f) => (f.geometry as LineString).coordinates as [number, number][])
+      const lons = coords.map((c) => c[0])
+      const lats = coords.map((c) => c[1])
+      const h = m.getContainer().clientHeight
+      m.fitBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], {
+        padding: { top: 150, bottom: Math.max(40, h - 370), left: 40, right: 40 },
+        maxZoom: 16.5,
+        duration: 600,
+      })
+    } else {
+      const pattern = bus && data?.patterns.get(data.tripPattern.get(bus.tripId) ?? '')
+      const line = pattern && data?.shapes[pattern.shape]
+      if (bus && pattern && line) {
+        const i = nearestIndex(line, bus.lon, bus.lat)
+        const color = lineColor(data.routes.get(pattern.route))
+        features.push(
+          { type: 'Feature', properties: { part: 'past' }, geometry: { type: 'LineString', coordinates: line.slice(0, i + 1) } },
+          { type: 'Feature', properties: { part: 'next', color }, geometry: { type: 'LineString', coordinates: [[bus.lon, bus.lat], ...line.slice(i + 1)] } },
+        )
+      }
     }
     setLayerData(m, 'route', { type: 'FeatureCollection', features })
-  }, [map, bus, data])
+  }, [map, bus, data, tab, search.view, search.selected, plan])
 }
 
 /* ---------- Posizione utente ---------- */
@@ -232,8 +289,8 @@ function useCameraRules(map: React.RefObject<maplibregl.Map | null>) {
       const bus = busAt(m, e.point.x, e.point.y)
       if (bus) return useUi.getState().openSheet({ kind: 'bus', id: bus })
       if (m.queryRenderedFeatures(e.point, { layers: m.getLayer('stops') ? ['stops'] : [] }).length) return
-      const { sheet, detent } = useUi.getState()
-      if (sheet && detent !== 'peek') useUi.setState({ detent: 'peek' })
+      const { sheet, detent, tab, search } = useUi.getState()
+      if ((sheet || (tab === 'search' && search.view === 'results')) && detent !== 'peek') useUi.setState({ detent: 'peek' })
     }
     m.on('click', onClick)
     return () => void m.off('click', onClick)

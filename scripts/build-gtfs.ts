@@ -168,7 +168,11 @@ export function build(g: Gtfs, today: string) {
   // Indice orari: ieri (solo la coda dopo mezzanotte, fino a ~29:00), oggi, domani (margine se la build notturna salta).
   const days = [addDays(today, -1), today, addDays(today, 1)]
   const byStop = new Map<string, Record<string, Departure[]>>()
-  const tripsByDay: Record<string, [string, string, number][]> = {}
+  // Orari di ogni corsa per il planner: [trip_id, pattern, partenza, indice in offsets]. offsets = secondi dalla
+  // partenza a ogni fermata del pattern; molte corse condividono lo stesso vettore, quindi si deduplica.
+  const tripsByDay: Record<string, [string, string, number, number][]> = {}
+  const offsets: number[][] = []
+  const offsetIndex = new Map<string, number>()
   for (const date of days) {
     const services = activeServices(date, g.calendar, g.calendar_dates)
     const minSec = date < today ? DAY : 0
@@ -178,7 +182,11 @@ export function build(g: Gtfs, today: string) {
       if (!pattern || !services.has(trip.service_id!)) continue
       const sts = stopTimesByTrip.get(trip.trip_id!)!
       if (parseTime(sts.at(-1)!.arrival_time!) < minSec) continue
-      tripsByDay[date].push([trip.trip_id!, pattern, parseTime(sts[0]!.departure_time!)])
+      const start = parseTime(sts[0]!.departure_time!)
+      const offs = sts.map((st, i) => parseTime(i === sts.length - 1 ? st.arrival_time! : st.departure_time!) - start)
+      const key = offs.join(',')
+      if (!offsetIndex.has(key)) offsetIndex.set(key, offsets.push(offs) - 1)
+      tripsByDay[date].push([trip.trip_id!, pattern, start, offsetIndex.get(key)!])
       // Capolinea d'arrivo e fermate senza salita: solo arrivo (flag 1, orario d'arrivo). Servono ai tragitti, non al tabellone.
       sts.forEach((st, i) => {
         const alightOnly = i === sts.length - 1 || st.pickup_type === '1'
@@ -207,6 +215,7 @@ export function build(g: Gtfs, today: string) {
     patterns,
     shapes,
     trips: tripsByDay,
+    offsets,
     stopTimes: byStop,
     days,
   }
@@ -249,6 +258,7 @@ async function main() {
   write('patterns.json', out.patterns)
   write('shapes.json', out.shapes)
   write('trips.json', out.trips)
+  write('offsets.json', out.offsets)
   for (const [stopId, board] of out.stopTimes) write(`stop-times/${stopId}.json`, board)
   console.log(`ok: ${out.routes.length} linee, ${out.stops.length} fermate, ${out.patterns.length} pattern, giorni ${out.days.join(' ')}`)
 }

@@ -154,6 +154,15 @@ VEN,20261031,1`),
     expect(out.patterns.find((p) => p.id === d1)).toMatchObject({ route: '1', dir: 0, headsign: 'Gamma', stops: ['A', 'B', 'C'] })
   })
 
+  test('orari per il planner: offset dalla partenza a ogni fermata, deduplicati tra corse uguali', () => {
+    const today = out.trips['20261030']!
+    const d1 = today.find((t) => t[0] === 'D1')!
+    const d2 = today.find((t) => t[0] === 'D2')!
+    expect(d1.slice(2)).toEqual([28800, d1[3]])
+    expect(out.offsets[d1[3]]).toEqual([0, 300, 600]) // 08:00, 08:05, 08:10
+    expect(d2[3]).toBe(d1[3]) // stessi intervalli: stesso vettore
+  })
+
   test('headsign mancante → nome dell’ultima fermata', () => {
     expect(out.patterns.find((p) => p.route === 'N')!.headsign).toBe('Gamma')
   })
