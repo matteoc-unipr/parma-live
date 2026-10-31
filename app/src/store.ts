@@ -49,8 +49,8 @@ type Ui = {
   geo: GeoState
   /** Tragitto A→B mostrato dallo sheet 'plan'; selected = soluzione scelta */
   search: { from: Place | null; to: Place | null; selected: number }
-  /** tema chiaro anche quando il sistema è scuro */
-  lightAlways: boolean
+  /** tema: come il telefono, oppure sempre chiaro / sempre scuro */
+  theme: Theme
   /** incrementato per chiedere alla mappa di centrarsi sull'utente */
   locateTick: number
   /** mappa sotto lo zoom delle fermate */
@@ -68,7 +68,7 @@ type Ui = {
   toggleFavStop: (stopId: string) => void
   toggleFavTrip: (from: FavPlace, to: FavPlace) => void
   setSearch: (search: Partial<Ui['search']>) => void
-  setLightAlways: (on: boolean) => void
+  setTheme: (theme: Theme) => void
   showToast: (title: string, body: string, opts?: Pick<Toast, 'action' | 'icon'>) => void
   setFavorites: (favorites: Favorites) => void
 }
@@ -89,18 +89,20 @@ function saveFavs(set: (p: Partial<Ui>) => void, favorites: Favorites) {
   set({ favorites })
 }
 
+export type Theme = 'auto' | 'light' | 'dark'
 const THEME_KEY = 'parmaLive.theme.v1'
-const readLightAlways = () => {
+const readTheme = (): Theme => {
   try {
-    return localStorage.getItem(THEME_KEY) === 'light'
+    const v = localStorage.getItem(THEME_KEY)
+    return v === 'light' || v === 'dark' ? v : 'auto'
   } catch {
-    return false
+    return 'auto'
   }
 }
-// data-theme="light" fa vincere i token chiari anche con il sistema scuro (tokens.css).
-const applyTheme = (lightAlways: boolean) => {
-  if (lightAlways) document.documentElement.dataset.theme = 'light'
-  else delete document.documentElement.dataset.theme
+// data-theme fa vincere i token di quel tema su quello del sistema (tokens.css).
+const applyTheme = (theme: Theme) => {
+  if (theme === 'auto') delete document.documentElement.dataset.theme
+  else document.documentElement.dataset.theme = theme
 }
 
 let toastTimer: ReturnType<typeof setTimeout> | undefined
@@ -122,7 +124,7 @@ export const useUi = create<Ui>((set, get) => ({
   toast: null,
   geo: { status: 'unknown' },
   search: { from: null, to: null, selected: 0 },
-  lightAlways: readLightAlways(),
+  theme: readTheme(),
   locateTick: 0,
   zoomedOut: false,
   setTab: (tab) => {
@@ -172,14 +174,14 @@ export const useUi = create<Ui>((set, get) => ({
     saveFavs(set, { ...favorites, trips })
   },
   setSearch: (search) => set((s) => ({ search: { ...s.search, ...search } })),
-  setLightAlways: (on) => {
+  setTheme: (theme) => {
     try {
-      localStorage.setItem(THEME_KEY, on ? 'light' : 'auto')
+      localStorage.setItem(THEME_KEY, theme)
     } catch {
       /* resta per la sessione */
     }
-    applyTheme(on)
-    set({ lightAlways: on })
+    applyTheme(theme)
+    set({ theme })
   },
   showToast: (title, body, opts) => {
     clearTimeout(toastTimer)
@@ -189,5 +191,5 @@ export const useUi = create<Ui>((set, get) => ({
   setFavorites: (favorites) => saveFavs(set, favorites),
 }))
 
-applyTheme(useUi.getState().lightAlways) // prima del primo render: niente lampo di tema sbagliato
+applyTheme(useUi.getState().theme) // prima del primo render: niente lampo di tema sbagliato
 if (import.meta.env.DEV) Object.assign(window, { __ui: useUi }) // per gli script di prova

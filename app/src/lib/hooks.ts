@@ -13,16 +13,19 @@ export function useNow(ms = 1000) {
 
 const darkQuery = window.matchMedia('(prefers-color-scheme: dark)')
 
-/** Tema scuro effettivo: sistema scuro e nessuna preferenza "sempre chiaro" (data-theme="light", vedi store). */
-export const isDark = () => darkQuery.matches && document.documentElement.dataset.theme !== 'light'
+/** Tema scuro effettivo: scelto nelle impostazioni (data-theme, vedi store), altrimenti quello del sistema. */
+export const isDark = () => {
+  const theme = document.documentElement.dataset.theme
+  return theme ? theme === 'dark' : darkQuery.matches
+}
 
 export function useDarkMode() {
-  const lightAlways = useUi((s) => s.lightAlways)
+  const theme = useUi((s) => s.theme)
   const [systemDark, setSystemDark] = useState(darkQuery.matches)
   useEffect(() => {
     const on = (e: MediaQueryListEvent) => setSystemDark(e.matches)
     darkQuery.addEventListener('change', on)
     return () => darkQuery.removeEventListener('change', on)
   }, [])
-  return systemDark && !lightAlways
+  return theme === 'auto' ? systemDark : theme === 'dark'
 }

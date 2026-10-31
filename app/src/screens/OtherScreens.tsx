@@ -6,7 +6,7 @@ import { buildBoard } from '../lib/board'
 import { useNow } from '../lib/hooks'
 import { planTrip } from '../planner/client'
 import type { Journey } from '../planner/plan'
-import { useUi, type FavPlace } from '../store'
+import { useUi, type FavPlace, type Theme } from '../store'
 import { Countdown, fmtTime, LineBadge, Skeleton, StarButton } from '../ui/bits'
 import { DepartureRow } from '../ui/DepartureRow'
 import { BackIcon, ClockIcon, GearIcon, LiveIcon, StarIcon } from '../ui/icons'
@@ -164,23 +164,29 @@ function FavoriteStopCard({ id, now }: { id: string; now: number }) {
 }
 
 /* ---------- Info ---------- */
+const THEMES: { id: Theme; label: string }[] = [
+  { id: 'auto', label: 'Automatico' },
+  { id: 'light', label: 'Chiaro' },
+  { id: 'dark', label: 'Scuro' },
+]
+
 function ThemeSwitch() {
-  const on = useUi((s) => s.lightAlways)
+  const theme = useUi((s) => s.theme)
+  const i = THEMES.findIndex((t) => t.id === theme)
   return (
-    <div className="card" style={{ padding: '0 16px' }}>
-      <label style={{ display: 'flex', alignItems: 'center', gap: 12, minHeight: 56, cursor: 'pointer' }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 16, fontWeight: 600 }}>Tema chiaro anche di notte</div>
-          <div style={{ fontSize: 13, color: 'var(--pl-text-2)' }}>Ignora la modalità scura del telefono</div>
-        </div>
-        <button
-          role="switch"
-          aria-checked={on}
-          aria-label="Tema chiaro anche di notte"
-          className={`switch ${on ? 'on' : ''}`}
-          onClick={() => useUi.getState().setLightAlways(!on)}
-        />
-      </label>
+    <div className="card" style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div>
+        <div style={{ fontSize: 16, fontWeight: 600 }}>Tema</div>
+        <div style={{ fontSize: 13, color: 'var(--pl-text-2)' }}>{theme === 'auto' ? 'Segue la modalità chiara o scura del telefono' : `Sempre ${theme === 'light' ? 'chiaro' : 'scuro'}, anche se il telefono è impostato diversamente`}</div>
+      </div>
+      <div data-component="SegmentedControl" className="segmented three" role="radiogroup" aria-label="Tema">
+        <div className="thumb" style={{ transform: `translateX(${i * 100}%)` }} />
+        {THEMES.map((t) => (
+          <button key={t.id} role="radio" aria-checked={theme === t.id} className={theme === t.id ? 'on' : ''} onClick={() => useUi.getState().setTheme(t.id)}>
+            {t.label}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
