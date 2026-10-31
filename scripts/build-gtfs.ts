@@ -104,6 +104,30 @@ export function simplify(points: [number, number][], toleranceM: number): [numbe
 
 const round5 = (n: number) => Math.round(n * 1e5) / 1e5
 
+/** Polyline di Google (precisione 1e-5, lat poi lon): 3,3 MB → 0,6 MB di JSON rispetto agli array di coordinate. */
+export function encodePolyline(points: [number, number][]) {
+  let out = ''
+  let pLat = 0
+  let pLon = 0
+  const enc = (v: number) => {
+    let n = v < 0 ? ~(v << 1) : v << 1
+    while (n >= 0x20) {
+      out += String.fromCharCode((0x20 | (n & 0x1f)) + 63)
+      n >>= 5
+    }
+    out += String.fromCharCode(n + 63)
+  }
+  for (const [lon, lat] of points) {
+    const la = Math.round(lat * 1e5)
+    const lo = Math.round(lon * 1e5)
+    enc(la - pLat)
+    enc(lo - pLon)
+    pLat = la
+    pLon = lo
+  }
+  return out
+}
+
 /** Id stabile tra una build e l'altra (FNV-1a della sequenza di fermate): i file on-demand restano coerenti con patterns.json in cache. */
 function patternId(route: string, dir: string, stops: string[]) {
   let h = 0x811c9dc5
@@ -161,7 +185,7 @@ export function build(g: Gtfs, today: string) {
     [...shapePoints].map(([id, pts]) => {
       pts.sort((a, b) => +a.shape_pt_sequence! - +b.shape_pt_sequence!)
       const line = simplify(pts.map((p) => [+p.shape_pt_lon!, +p.shape_pt_lat!]), 4)
-      return [id, line.map(([lon, lat]) => [round5(lon), round5(lat)])]
+      return [id, encodePolyline(line)]
     }),
   )
 

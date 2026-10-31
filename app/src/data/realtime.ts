@@ -43,7 +43,7 @@ export const useRealtime = create<Realtime>(() => ({
 
 export type FeedStatus = 'loading' | 'live' | 'stale' | 'offline' | 'night'
 export function feedStatus(s: Realtime, now: number): FeedStatus {
-  if (!s.online || (s.failed && s.syncAt)) return 'offline'
+  if (!s.online || s.failed) return 'offline' // design: navigator.onLine false o fetch fallito
   if (!s.syncAt) return 'loading'
   if (!s.buses.length) return 'night'
   if (s.feedAt && now - s.feedAt > 60_000) return 'stale'

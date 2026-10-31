@@ -2,6 +2,7 @@
 import { create } from 'zustand'
 import tokens from '../../../design/tokens.json'
 import type { StopTimes } from '../lib/board'
+import { decodePolyline } from '../lib/geo'
 
 export type Route = { id: string; short: string; long: string; color: string | null; text: string | null }
 export type Stop = { id: string; name: string; lat: number; lon: number }
@@ -11,7 +12,8 @@ type StaticData = {
   routes: Map<string, Route>
   stops: Map<string, Stop>
   patterns: Map<string, Pattern>
-  shapes: Record<string, [number, number][]>
+  /** polyline per shape_id; arrivano dopo il primo disegno (vedi loadShapes): usare shapeOf() */
+  shapes: Record<string, string | [number, number][]>
   tripPattern: Map<string, string>
   /** Fermate con lo stesso nome (di solito una per direzione): la "località" scelta in Cerca e nei tragitti. */
   places: Map<string, string[]>
@@ -27,11 +29,10 @@ export const useStatic = create<{ data: StaticData | null; error: string | null 
 
 export async function loadStatic() {
   try {
-    const [routes, stops, patterns, shapes, trips] = await Promise.all([
+    const [routes, stops, patterns, trips] = await Promise.all([
       get<Route[]>('routes.json'),
       get<Stop[]>('stops.json'),
       get<Pattern[]>('patterns.json'),
-      get<Record<string, [number, number][]>>('shapes.json'),
       get<Record<string, [string, string, number][]>>('trips.json'),
     ])
     useStatic.setState({
@@ -39,15 +40,40 @@ export async function loadStatic() {
         routes: new Map(routes.map((r) => [r.id, r])),
         stops: new Map(stops.map((s) => [s.id, s])),
         patterns: new Map(patterns.map((p) => [p.id, p])),
-        shapes,
+        shapes: {},
         tripPattern: new Map(Object.values(trips).flatMap((day) => day.map(([trip, pattern]) => [trip, pattern] as const))),
         // shortcut: raggruppa per nome esatto; due fermate omonime lontane (altri comuni) finirebbero insieme. Se capita, aggiungere la distanza.
         places: stops.reduce((m, s) => m.set(s.name, [...(m.get(s.name) ?? []), s.id]), new Map<string, string[]>()),
       },
     })
+    loadShapes()
   } catch (e) {
     useStatic.setState({ error: String(e) })
   }
+}
+
+// Le shape servono solo al percorso di un bus scelto e ad agganciare il movimento alla strada (senza: linea retta).
+// Si scaricano dopo il primo disegno, per non contendere la banda ai dati che servono subito.
+function loadShapes() {
+  const run = () =>
+    void get<StaticData['shapes']>('shapes.json')
+      .then((shapes) => {
+        const data = useStatic.getState().data
+        if (data) useStatic.setState({ data: { ...data, shapes } })
+      })
+      .catch(() => {}) // senza shape l'app funziona: si riprova al prossimo avvio
+  if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 3000 })
+  else setTimeout(run, 1500)
+}
+
+const decoded = new Map<string, [number, number][]>()
+/** Punti [lon, lat] della shape, decodificati una volta sola; undefined finché le shape non sono arrivate. */
+export function shapeOf(data: StaticData, shapeId: string): [number, number][] | undefined {
+  const raw = data.shapes[shapeId]
+  if (raw === undefined) return undefined
+  if (Array.isArray(raw)) return raw // formato precedente, ancora in qualche cache del service worker
+  if (!decoded.has(shapeId)) decoded.set(shapeId, decodePolyline(raw))
+  return decoded.get(shapeId)
 }
 
 const stopTimesCache = new Map<string, Promise<StopTimes>>()

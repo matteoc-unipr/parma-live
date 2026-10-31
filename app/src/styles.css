@@ -10,7 +10,12 @@ html, body, #root { margin: 0; height: 100%; overflow: hidden; }
 /* PWA iOS con status bar black-translucent: la pagina parte sotto la status bar ma 100% vale lo schermo
    meno la status bar, e in fondo resta una fascia nera alta proprio safe-area-inset-top. In Safari vale 0. */
 html { height: calc(100% + env(safe-area-inset-top)); }
+/* Niente rimbalzo della pagina (iOS): scorrono solo le liste, e senza trascinare la pagina con sé. */
+html, body { overscroll-behavior: none; }
+.screen, .sheet-list, .chips { overscroll-behavior: contain; }
 body {
+  touch-action: manipulation; /* niente zoom col doppio tocco sui pulsanti; il pinch resta */
+  -webkit-text-size-adjust: 100%;
   background: var(--pl-bg);
   color: var(--pl-text);
   font-family: var(--pl-font);

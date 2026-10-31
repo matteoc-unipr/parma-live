@@ -148,11 +148,14 @@ function ThemeSwitch() {
   )
 }
 
+// Attribuzioni obbligatorie: BusOne la richiede nella forma "BusOne (https://busone.app) e TEP".
 const SOURCES = [
-  { title: 'Dati: BusOne (busone.app) e TEP', sub: 'Posizioni e passaggi dei bus in tempo reale, orari GTFS' },
-  { title: 'Treni: RFI', sub: 'Monitor arrivi e partenze della stazione di Parma' },
-  { title: '© OpenStreetMap contributors', sub: 'Dati cartografici' },
-  { title: 'Mappa base: OpenFreeMap', sub: 'Tile vettoriali openfreemap.org' },
+  { title: 'Bus: BusOne (https://busone.app) e TEP', sub: 'Posizioni e passaggi in tempo reale, orari GTFS. Uso personale.', href: 'https://busone.app' },
+  { title: 'Treni: ViaggiaTreno', sub: 'Partenze, arrivi e andamento dei treni (Trenitalia)', href: 'http://www.viaggiatreno.it' },
+  { title: 'Treni, quando ViaggiaTreno non risponde: RFI', sub: 'Monitor arrivi e partenze della stazione di Parma', href: 'https://iechub.rfi.it/ArriviPartenze/ArrivalsDepartures/Home' },
+  { title: '© OpenStreetMap contributors', sub: 'Dati cartografici, licenza ODbL', href: 'https://www.openstreetmap.org/copyright' },
+  { title: 'Mappa base: OpenFreeMap', sub: 'Tile vettoriali', href: 'https://openfreemap.org' },
+  { title: 'Indirizzi: Photon (komoot)', sub: 'Ricerca indirizzi su dati OpenStreetMap', href: 'https://photon.komoot.io' },
 ]
 
 export function InfoScreen() {
@@ -177,10 +180,10 @@ export function InfoScreen() {
       <div className="section-header" style={{ paddingTop: 10 }}>FONTI DATI</div>
       <div className="card" style={{ padding: '0 16px' }}>
         {SOURCES.map((s) => (
-          <div key={s.title} data-component="AttributionRow" className="attribution-row">
+          <a key={s.title} data-component="AttributionRow" className="attribution-row" href={s.href} target="_blank" rel="noreferrer" style={{ display: 'block', color: 'inherit', textDecoration: 'none' }}>
             <div style={{ fontSize: 16, fontWeight: 600 }}>{s.title}</div>
             <div style={{ fontSize: 13, color: 'var(--pl-text-2)', marginTop: 2 }}>{s.sub}</div>
-          </div>
+          </a>
         ))}
       </div>
     </div>

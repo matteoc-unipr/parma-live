@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { activeServices, addDays, build, parseCsv, parseTime, simplify } from './build-gtfs.ts'
+import { activeServices, addDays, build, encodePolyline, parseCsv, parseTime, simplify } from './build-gtfs.ts'
 
 const csv = (text: string) => parseCsv(text.trim() + '\n')
 
@@ -57,6 +57,11 @@ S1,20261030,1`)
     expect(activeServices('20261030', [], dates)).toEqual(new Set(['S1']))
     expect(activeServices('20261031', [], dates)).toEqual(new Set())
   })
+})
+
+test('polyline: esempio di riferimento di Google', () => {
+  // https://developers.google.com/maps/documentation/utilities/polylinealgorithm
+  expect(encodePolyline([[-120.2, 38.5], [-120.95, 40.7], [-126.453, 43.252]])).toBe('_p~iF~ps|U_ulLnnqC_mqNvxq`@')
 })
 
 test('simplify toglie i punti allineati e tiene gli angoli', () => {
@@ -172,9 +177,6 @@ VEN,20261031,1`),
     expect(out.routes[1]!.color).toBeNull()
     expect(out.stops.map((s) => s.id)).toEqual(['A', 'B', 'C'])
     expect(out.stops[0]).toEqual({ id: 'A', name: 'Alfa', lat: 44.8, lon: 10.3 })
-    expect(out.shapes.SH).toEqual([
-      [10.3, 44.8],
-      [10.32, 44.82],
-    ])
+    expect(out.shapes.SH).toBe(encodePolyline([[10.3, 44.8], [10.32, 44.82]])) // ordinate per sequenza
   })
 })

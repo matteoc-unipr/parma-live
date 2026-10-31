@@ -1,9 +1,12 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { feedStatus, startRealtime, useRealtime } from './data/realtime'
 import { loadStatic, useStatic } from './data/static'
 import { useNow } from './lib/hooks'
 import { useUi, type Tab } from './store'
-import { MapScreen } from './screens/MapScreen'
+import { MapOverlays } from './screens/MapOverlays'
+
+// MapLibre è la parte più pesante del JS: in un pezzo a parte, così l'interfaccia compare prima della mappa.
+const MapScreen = lazy(() => import('./screens/MapScreen'))
 import { FavoritesScreen, InfoScreen } from './screens/OtherScreens'
 import { ResultsView, SearchScreen } from './screens/Search'
 import { MapSheet } from './screens/Sheets'
@@ -36,7 +39,10 @@ export function App() {
   return (
     <>
       {/* La mappa resta montata: le altre schermate hanno uno sfondo pieno e la coprono. */}
-      <MapScreen />
+      <Suspense fallback={<div className="map" />}>
+        <MapScreen />
+      </Suspense>
+      {tab === 'map' && <MapOverlays />}
       {tab === 'map' && <MapSheet />}
       {tab === 'search' && (results ? <ResultsView /> : <SearchScreen />)}
       {tab === 'train' && <TrainsScreen />}

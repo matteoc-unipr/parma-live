@@ -4,7 +4,7 @@ import type { Feature, FeatureCollection, Point } from 'geojson'
 import type { ExpressionSpecification, GeoJSONSource, Map as MlMap, PointLike } from 'maplibre-gl'
 import { useEffect, useRef } from 'react'
 import { feedStatus, useRealtime } from '../data/realtime'
-import { lineColor, lineLabel, useStatic } from '../data/static'
+import { lineColor, lineLabel, shapeOf, useStatic } from '../data/static'
 import { useUi } from '../store'
 import { BusMotion, makePath, type Path } from './motion'
 import { usePlan } from '../planner/state'
@@ -115,7 +115,7 @@ export function useBusLayer(map: React.RefObject<MlMap | null>) {
     if (!m || !data) return
     const pathOf = (tripId: string) => {
       const pattern = data.patterns.get(data.tripPattern.get(tripId) ?? '')
-      const shape = pattern && data.shapes[pattern.shape]
+      const shape = pattern && shapeOf(data, pattern.shape)
       if (!shape) return undefined
       // Le shape sono condivise tra molte corse: path calcolato una volta per shape.
       if (!paths.current.has(pattern.shape)) paths.current.set(pattern.shape, makePath(shape))
