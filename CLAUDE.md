@@ -39,6 +39,6 @@ PWA personale per i trasporti di Parma (bus TEP in tempo reale, treni alla Stazi
 - Il GTFS statico non si carica a runtime: `scripts/build-gtfs.ts` lo trasforma in `app/public/data/` (formato in `docs/data.md`). I file generati non vanno in git.
 - Uso **solo personale**. Attribuzione obbligatoria e visibile: "BusOne (https://busone.app) e TEP".
 - **Fallback** solo se BusOne non risponde: feed ufficiale TEP `https://temporeale.cl.tep.pr.it/temporeale/{vehicle_positions,trip_updates}.pb`. Non ha `trip_id`: match su `route_id + direction_id + start_date + start_time`. Non ha CORS, quindi passa dal Worker.
-- **Treni**: monitor RFI arrivi/partenze (Parma `placeId=2035`), convertito in JSON dal Worker su `/rfi/partenze` e `/rfi/arrivi`. ViaggiaTreno risponde 403 (Akamai) anche dai Worker: non usarlo.
+- **Treni**: Worker `/api/trains/departures`, `/api/trains/arrivals`, `/api/trains/train/:numero` (`worker/src/trains.ts`). Fonte ViaggiaTreno (Parma `S05014`); se non risponde entro 6 s o dà errore, ripiego sul monitor RFI (`placeId=2035`), con `source` e `notice` nella risposta. Cache 30 s in memoria + `Cache-Control: max-age=30`; con entrambe le fonti giù, ultimo dato buono fino a 15 min (`stale: true`). L'app tiene l'ultima risposta sul telefono. ViaggiaTreno risponde a un `fetch` normale (Worker, Node) ma dà 403 a curl: non cambiare User-Agent per aggirarlo.
 - Altre attribuzioni nella schermata Info: "Treni: RFI", "© OpenStreetMap contributors", OpenFreeMap.
 - Non aggirare i blocchi anti-bot (User-Agent finti e simili).

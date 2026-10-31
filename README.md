@@ -2,7 +2,7 @@
 
 PWA personale per i trasporti pubblici di Parma: bus TEP in tempo reale, tabelloni di fermata, ricerca A→B, treni alla Stazione FS.
 
-Dati: BusOne (https://busone.app) e TEP · Treni: ViaggiaTreno · Mappa © OpenStreetMap contributors, OpenFreeMap.
+Dati: BusOne (https://busone.app) e TEP · Treni: ViaggiaTreno e RFI · Mappa © OpenStreetMap contributors, OpenFreeMap.
 
 ## Requisiti
 Node 22+.
@@ -35,4 +35,4 @@ BUSONE_CONTACT=tua@email ./scripts/fetch-fixtures.sh
 ## Deploy
 - **App**: la GitHub Action [deploy.yml](.github/workflows/deploy.yml) rigenera i dati e pubblica ogni notte, a ogni push su `main` e a mano, con `wrangler deploy -c app/wrangler.toml`. Su Cloudflare l'app è un Worker con soli asset statici, il "Pages" attuale. Secrets del repo: `BUSONE_CONTACT`, `CLOUDFLARE_API_TOKEN` (template "Edit Cloudflare Workers"), `CLOUDFLARE_ACCOUNT_ID`.
 - **Worker**: `npx wrangler login`, poi `cd worker && npx wrangler secret put BUSONE_CONTACT && npm run deploy`.
-- **Verifica ViaggiaTreno dal Worker**: `curl https://<worker>.workers.dev/vt/autocompletaStazione/PARMA`.
+- **Verifica treni dal Worker**: `curl https://<worker>.workers.dev/api/trains/departures`. Il campo `source` dice se risponde ViaggiaTreno o se è attivo il ripiego RFI.

@@ -87,12 +87,16 @@ Cache `no-cache` + `Last-Modified`. Header `incrementality: FULL_DATASET`. 61 ve
 - `trip_updates`: 70 corse (BusOne 89). Per fermata **solo `stop_id` + `arrival.time`**: niente `delay`, `departure`, `stop_sequence` o `uncertainty`. Il ritardo si ricava confrontando con `stop_times`.
 - Match `route_id + direction_id + start_date + start_time` su `trips` + primo `stop_times`, servizio del giorno: 60/61 veicoli e 69/70 corse sono univoci, 1 è ambiguo. Su 3095 chiavi del giorno, 97 sono ambigue (stessa linea, direzione e partenza). In quei casi va scelto il candidato più vicino alla posizione o alla fermata corrente.
 
-## ViaggiaTreno
+## ViaggiaTreno (fonte treni primaria)
 `http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/…`
-- **403 "Access Denied" (Akamai)** su ogni endpoint, sia da curl in locale sia **dal Worker deployato** (`/vt/autocompletaStazione/PARMA`, 30/10/2026). Akamai blocca anche gli IP di Cloudflare.
-- Non ho provato a cambiare User-Agent: sarebbe un aggiramento del bot check.
-- Codice stazione Parma: **`S05014`**, confermato dal codice RFI `05014` nel GTFS Trenitalia di BusOne.
-- Formato data (noto, non verificato): `Date.prototype.toString()` URL-encoded, ad esempio `Fri%20Oct%2030%202026%2018%3A55%3A52%20GMT%2B0100`.
+- **31/10/2026**: risponde 200 a un `fetch` normale, sia da `wrangler dev` sia da Node. A curl dà ancora 403 (Akamai): il blocco dipende dal client, non dall'IP. Il 30/10 aveva dato 403 anche dal Worker **deployato**; dopo il deploy va verificato con `curl …/api/trains/departures` (`source`).
+- Non si cambia User-Agent per aggirare il blocco. Se ViaggiaTreno è lento (oltre 6 s) o rifiuta, il Worker usa il monitor RFI (sotto).
+- Parma = `S05014`. Data per `partenze`/`arrivi` = `Date.toString()` a Roma, URL-encoded: `Sat Oct 31 2026 10:39:22 GMT+0100`.
+- Campioni reali: `fixtures/viaggiatreno/` (partenze, arrivi, `cercaNumeroTrenoTrenoAutocomplete`, `andamentoTreno`).
+- Tabellone: `compNumeroTreno` ("REG 3915"), `compOrarioPartenza`/`compOrarioArrivo`, `destinazione`/`origine`, `binarioProgrammato*`/`binarioEffettivo*`, `ritardo` (min), `inStazione`, `provvedimento` (0 = regolare). **Niente ultima rilevazione** nelle righe del tabellone.
+- `cercaNumeroTrenoTrenoAutocomplete/{n}` → `"3915 - PIACENZA - 31/10/26|3915-S05000-1793401200000"` (origine e mezzanotte per `andamentoTreno`).
+- `andamentoTreno/{origine}/{n}/{mezzanotte}`: `stazioneUltimoRilevamento`, `oraUltimoRilevamento`, `tipoTreno` (`PG` regolare, `ST` soppresso), `fermate[]` con `partenza_teorica`/`arrivo_teorico`, `partenzaReale`/`arrivoReale`, binari, `actualFermataType` (0 = futura, 1 = regolare, 3 = soppressa). Nelle fermate future `ritardo` vale 0: la stima usa il ritardo del treno.
+- **Soppressioni non osservate dal vivo**: `provvedimento: 1` e `tipoTreno: "ST"` sono interpretati come cancellato, da verificare.
 
 ## BusOne `/trenitalia/` (alternativa valutata)
 Stessi header e stessi termini di `/tep/`. Statico da 24,5 MB zip (shapes 81 MB estratti). Realtime: posizioni `synthesized` (stimate lungo la shape, non GPS), trip updates `operator-reported`.
@@ -100,9 +104,9 @@ Stessi header e stessi termini di `/tep/`. Statico da 24,5 MB zip (shapes 81 MB 
 - **Copertura parziale**: venerdì 30/10 risultano **57 corse** a Parma (IC 16, FR 12, REG 11, ICN 8, RV 8, EC 2), soprattutto lunga percorrenza e regionali verso La Spezia. **Mancano i regionali Trenitalia Tper** (Milano–Bologna, Brescia, Suzzara, Fidenza…), che sono la maggior parte del traffico. Il feed ha una sola agency, `TRENITALIA`.
 - TripUpdates: 823 corse in tutta Italia, 12 delle quali passano da Parma. `arrival/departure.delay` presenti. `CANCELED` mai visto. Il JSON usa camelCase (`tripUpdate`, `stopTimeUpdate`), diverso da `/tep/`, che usa snake_case.
 
-## Monitor RFI arrivi/partenze (fonte treni scelta)
+## Monitor RFI arrivi/partenze (ripiego treni)
 `https://iechub.rfi.it/ArriviPartenze/ArrivalsDepartures/Monitor?placeId=2035&arrivals=False|True`
-- È il tabellone ufficiale delle stazioni RFI, in HTML. Risponde 200 a una richiesta normale, senza header particolari. **Nessun header CORS**: il Worker lo converte in JSON su `/rfi/partenze` e `/rfi/arrivi`.
+- È il tabellone ufficiale delle stazioni RFI, in HTML. Risponde 200 a una richiesta normale, senza header particolari. **Nessun header CORS**: il Worker lo usa come ripiego in `/api/trains/*`, negli stessi campi di ViaggiaTreno.
 - `placeId` di Parma = **2035**. La lista completa sta nella `<select>` di `/ArriviPartenze/ArrivalsDepartures/Home`.
 - Copre **tutti gli operatori**: Trenitalia Tper, Trenitalia, Trenord, Frecciarossa, Intercity, Intercity Notte. Finestra di ~4 ore, circa 30 righe.
 - Campi per riga: vettore, categoria (REG, RV, INTERCITY, ALTA VELOCITA'…), numero, destinazione o provenienza, orario programmato, ritardo in minuti (vuoto se in orario), **binario**, "lampeggio" (treno in arrivo o in stazione), e solo nelle partenze le fermate successive con orario e una riga "Informazioni".
