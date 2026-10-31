@@ -36,3 +36,12 @@ BUSONE_CONTACT=tua@email ./scripts/fetch-fixtures.sh
 - **App**: la GitHub Action [deploy.yml](.github/workflows/deploy.yml) rigenera i dati e pubblica ogni notte, a ogni push su `main` e a mano, con `wrangler deploy -c app/wrangler.toml`. Su Cloudflare l'app è un Worker con soli asset statici, il "Pages" attuale. Secrets del repo: `BUSONE_CONTACT`, `CLOUDFLARE_API_TOKEN` (template "Edit Cloudflare Workers"), `CLOUDFLARE_ACCOUNT_ID`.
 - **Worker**: `npx wrangler login`, poi `cd worker && npx wrangler secret put BUSONE_CONTACT && npm run deploy`.
 - **Verifica treni dal Worker**: `curl https://<worker>.workers.dev/api/trains/departures`. Il campo `source` dice se risponde ViaggiaTreno o se è attivo il ripiego RFI.
+
+## Installare sull'iPhone
+1. Apri **Safari** su https://parma-live.pippograndepippo99.workers.dev (non Chrome: su iPhone l'installazione affidabile passa da Safari).
+2. Tocca **Condividi** (quadrato con la freccia in su), nella barra in basso.
+3. Scorri e tocca **Aggiungi alla schermata Home**.
+4. Lascia il nome "Parma Live" e tocca **Aggiungi**.
+5. Apri l'app dall'icona sulla Home. Alla prima apertura consenti la **posizione** e aspetta qualche secondo: l'app si salva per funzionare anche offline.
+
+Aggiornamenti: l'app si aggiorna da sola (service worker). Se dopo un deploy vedi ancora la versione vecchia, chiudila dal multitasking e riaprila.

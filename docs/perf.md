@@ -50,3 +50,22 @@ Obiettivo: risposta in meno di 300 ms.
 
 - **Il rallentamento CPU via CDP non sembra valere per il Web Worker**: il p50 del calcolo è identico a 1× e a 4×. Anche con un telefono 10 volte più lento il p95 del calcolo resterebbe sotto i 100 ms.
 - **La tabella orari sta tutta in memoria** (`trips.json` + `offsets.json`, ~72 KB gzip): nessuna rete durante la ricerca. Il worker si scalda appena si apre la tab Cerca.
+
+# Lighthouse (31/10/2026, build di produzione, profilo mobile)
+
+La categoria "PWA" è stata tolta da Lighthouse 12: l'installabilità si controlla con `Page.getInstallabilityErrors` di Chrome (nessun errore dell'app) e con il manifest (nessun errore).
+
+| | Performance | Accessibilità | Best practice | SEO |
+|---|---|---|---|---|
+| Prima | 76–100 (instabile) | 100 | 96 | 91 |
+| Dopo, throttling simulato (5 corse) | 95–99 | 100 | 96 | 100 |
+| Dopo, throttling reale `--throttling-method=devtools` (3 corse) | 94–95 | — | — | — |
+
+Con il throttling reale: FCP/LCP 1,8 s (prima 3,4 s), TBT 30 ms.
+
+Interventi:
+- **MapLibre in un pezzo separato**: JS iniziale da 381 a 94 KB gzip.
+- **Shape in polyline**: da 860 a 320 KB gzip, caricate dopo il primo disegno.
+- **`robots.txt`** e **source map**.
+
+Best practice resta a 96 per la richiesta della posizione all'avvio: è voluta, la mappa mostra subito dove sei.

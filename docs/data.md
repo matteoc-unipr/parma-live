@@ -89,7 +89,7 @@ Cache `no-cache` + `Last-Modified`. Header `incrementality: FULL_DATASET`. 61 ve
 
 ## ViaggiaTreno (fonte treni primaria)
 `http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/…`
-- **31/10/2026**: risponde 200 a un `fetch` normale, sia da `wrangler dev` sia da Node. A curl dà ancora 403 (Akamai): il blocco dipende dal client, non dall'IP. Il 30/10 aveva dato 403 anche dal Worker **deployato**; dopo il deploy va verificato con `curl …/api/trains/departures` (`source`).
+- **31/10/2026**: risponde 200 a un `fetch` normale da `wrangler dev` e da Node in locale; dà 403 (Akamai) a curl e **al Worker deployato su Cloudflare** (verificato dopo il deploy: `source: "rfi"`). In produzione oggi i treni arrivano quindi dal ripiego RFI: binario attuale, ritardo e fermate successive, ma niente ultima rilevazione né fermate passate.
 - Non si cambia User-Agent per aggirare il blocco. Se ViaggiaTreno è lento (oltre 6 s) o rifiuta, il Worker usa il monitor RFI (sotto).
 - Parma = `S05014`. Data per `partenze`/`arrivi` = `Date.toString()` a Roma, URL-encoded: `Sat Oct 31 2026 10:39:22 GMT+0100`.
 - Campioni reali: `fixtures/viaggiatreno/` (partenze, arrivi, `cercaNumeroTrenoTrenoAutocomplete`, `andamentoTreno`).

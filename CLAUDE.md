@@ -26,6 +26,13 @@ PWA personale per i trasporti di Parma (bus TEP in tempo reale, treni alla Stazi
 - Autocompletamento: fermate locali con `fuzzySearch` (senza accenti, un errore di battitura), poi indirizzi Photon filtrati su `county === 'Parma'` (`lang=it` non esiste), debounce 250 ms.
 - Preferiti in `localStorage` `parmaLive.favs.v1` = `{ stops: stopId[], trips: { from, to }[] }` (from/to = `Place`; le stringhe del formato precedente sono nomi di località, ancora letti). Countdown a passi di 15 s.
 
+## PWA
+- Manifest, icone e service worker in `app/vite.config.ts` (vite-plugin-pwa). Nel precache ci sono la shell e i dati statici principali (`data/*.json`); `data/stop-times/*` e le tile OpenFreeMap vanno in cache al bisogno. **Il realtime (Worker, Photon) non va mai in cache.**
+- Icone generate da `app/public/icons/icon.svg` (e `icon-maskable.svg`); `apple-touch-icon.png` 180×180 senza trasparenza.
+- MapLibre resta in un pezzo separato (`React.lazy` su `MapScreen`): non importarlo dal bundle principale. Gli overlay della mappa stanno in `MapOverlays.tsx` apposta.
+- Le shape sono polyline (`shapeOf()` decodifica e tiene in cache) e arrivano dopo il primo disegno.
+- Lighthouse: metodo e risultati in `docs/perf.md`.
+
 ## Design
 - Rispettare fedelmente `design/README.md`: token, componenti (`data-component`), layout chiaro/scuro, stati speciali, motion.
 - Colori e misure vengono solo da `app/src/tokens.css` (copia di `design/tokens.css`). Niente valori hardcoded. `tokens.test.ts` verifica che i token restino allineati.
