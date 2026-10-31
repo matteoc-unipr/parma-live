@@ -18,12 +18,11 @@ export function addBusLayers(m: MlMap) {
   const ring = css('--pl-marker-ring')
   m.addSource(SOURCE, { type: 'geojson', data: EMPTY })
   const sel: ExpressionSpecification = ['==', ['get', 'sel'], 1]
-  // Cono: triangolo davanti al badge, ruotato verso la direzione di marcia (design: h=14, punta a h+10).
+  // Cono: spicchio sfumato col colore della linea, dal badge verso la direzione di marcia.
   m.addLayer({
     id: 'bus-cone', type: 'symbol', source: SOURCE, filter: ['has', 'bearing'],
     layout: {
-      // Il colore del bordo è nel nome: cambiando tema MapLibre conserva le immagini già create.
-      'icon-image': ['concat', 'cone-', ['get', 'color'], '-', ring],
+      'icon-image': ['concat', 'cone-', ['get', 'color']],
       'icon-rotate': ['get', 'bearing'],
       'icon-rotation-alignment': 'map',
       'icon-size': ['case', sel, 40 / 28, 1],
@@ -56,29 +55,29 @@ export function addBusLayers(m: MlMap) {
   })
 }
 
-/** Immagini dei coni generate al volo, una per colore di linea e di bordo (cone-#RRGGBB-#RRGGBB). */
+const CONE_RADIUS = 36 // px dal centro del badge (raggio 12): sporge ~24 px
+const CONE_HALF_ANGLE = Math.PI / 5 // apertura 72°
+
+/** Immagini dei coni generate al volo, una per colore di linea (cone-#RRGGBB): spicchio che sfuma verso l'esterno. */
 export function onMissingImage(m: MlMap, id: string) {
   if (!id.startsWith('cone-')) return
   const ratio = 2
-  const size = 80
+  const size = CONE_RADIUS * 2 + 4 // centrata sul badge: la rotazione avviene attorno al bus
   const canvas = document.createElement('canvas')
   canvas.width = canvas.height = size * ratio
   const ctx = canvas.getContext('2d')!
   ctx.scale(ratio, ratio)
   ctx.translate(size / 2, size / 2)
-  const h = 14
+  const color = id.slice(5)
+  const fade = ctx.createRadialGradient(0, 0, 8, 0, 0, CONE_RADIUS)
+  fade.addColorStop(0, `${color}B3`) // 70% vicino al badge
+  fade.addColorStop(1, `${color}00`)
   ctx.beginPath()
-  ctx.moveTo(-h * 0.62, -h * 0.62)
-  ctx.lineTo(0, -(h + 10))
-  ctx.lineTo(h * 0.62, -h * 0.62)
+  ctx.moveTo(0, 0)
+  ctx.arc(0, 0, CONE_RADIUS, -Math.PI / 2 - CONE_HALF_ANGLE, -Math.PI / 2 + CONE_HALF_ANGLE) // verso l'alto = bearing 0
   ctx.closePath()
-  const [fill, ring] = id.slice(5).split('-')
-  ctx.fillStyle = fill!
+  ctx.fillStyle = fade
   ctx.fill()
-  ctx.lineWidth = 1.5
-  ctx.lineJoin = 'round'
-  ctx.strokeStyle = ring ?? css('--pl-marker-ring')
-  ctx.stroke()
   m.addImage(id, ctx.getImageData(0, 0, size * ratio, size * ratio), { pixelRatio: ratio })
 }
 
